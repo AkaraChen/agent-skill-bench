@@ -1,0 +1,1 @@
+Read n from `/app/n.txt`. Write FizzBuzz for 1 through n inclusive to `/app/output.txt`, one token per line. Use Fizz for multiples of 3, Buzz for multiples of 5, FizzBuzz for multiples of both, and the number otherwise. End the file with a newline.

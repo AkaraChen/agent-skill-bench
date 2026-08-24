@@ -1,0 +1,250 @@
+from __future__ import annotations
+
+import csv
+import json
+import subprocess
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Any
+
+from agent_skill_bench.classify import FailureClass, classify_trial
+from agent_skill_bench.constants import repo_root
+from agent_skill_bench.fingerprint import build_fingerprint, sha256_file
+
+DISCLAIMER = (
+    "This table is a Stage 1 smoke of the experiment loop. "
+    "It is not a ranking, not a capability claim, and not a generalization "
+    "about models, agents, prompts, or skills."
+)
+
+
+def _git_commit(root: Path) -> str | None:
+    try:
+        result = subprocess.run(
+            ["git", "rev-parse", "HEAD"],
+            cwd=root,
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+    except (OSError, subprocess.CalledProcessError):
+        return None
+    return result.stdout.strip() or None
+
+
+def _latest_job(jobs_dir: Path) -> Path:
+    jobs = [
+        path
+        for path in jobs_dir.iterdir()
+        if path.is_dir() and (path / "job.log").exists()
+    ]
+    if not jobs:
+        raise FileNotFoundError(f"No Harbor jobs with job.log in {jobs_dir}")
+    return max(jobs, key=lambda path: path.stat().st_mtime)
+
+
+def _load_json(path: Path) -> dict[str, Any]:
+    return json.loads(path.read_text())
+
+
+def _treatment_from_agent(config: dict[str, Any]) -> tuple[str, str]:
+    agent = (config.get("agent") or {})
+    kwargs = agent.get("kwargs") or {}
+    prompt_name = kwargs.get("prompt_name") or "unknown"
+    skills = agent.get("skills") or []
+    if skills:
+        return "candidate", prompt_name
+    return "baseline", prompt_name
+
+
+def _skill_bundle(lock: dict[str, Any], skills_log: dict[str, Any] | None) -> list[dict[str, str]]:
+    bundle: list[dict[str, str]] = []
+    for index, skill in enumerate(lock.get("skills") or []):
+        bundle.append(
+            {
+                "order": str(index),
+                "name": skill.get("name") or "",
+                "digest": skill.get("digest") or "",
+            }
+        )
+    if not bundle and skills_log:
+        for index, item in enumerate(skills_log.get("loaded") or skills_log.get("found") or []):
+            digest = item.get("sha256") or item.get("digest") or ""
+            if digest and not digest.startswith("sha256:"):
+                digest = f"sha256:{digest}"
+            bundle.append(
+                {
+                    "order": str(index),
+                    "name": item.get("name") or "",
+                    "digest": digest,
+                }
+            )
+    return bundle
+
+
+def _duration_sec(result: dict[str, Any]) -> float | None:
+    started = result.get("started_at")
+    finished = result.get("finished_at")
+    if not started or not finished:
+        return None
+    try:
+        start = datetime.fromisoformat(started.replace("Z", "+00:00"))
+        end = datetime.fromisoformat(finished.replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    return (end - start).total_seconds()
+
+
+def summarize_job(job_dir: Path, out_dir: Path) -> Path:
+    root = repo_root()
+    harness_commit = _git_commit(root)
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    rows: list[dict[str, Any]] = []
+    fingerprints: list[str] = []
+    trial_ids: list[str] = []
+
+    for trial_dir in sorted(path for path in job_dir.iterdir() if path.is_dir()):
+        results_path = trial_dir / "result.json"
+        if not results_path.exists():
+            results_path = trial_dir / "results.json"
+        if not results_path.exists():
+            continue
+        result = _load_json(results_path)
+        config = _load_json(trial_dir / "config.json") if (trial_dir / "config.json").exists() else {}
+        lock = _load_json(trial_dir / "lock.json") if (trial_dir / "lock.json").exists() else {}
+        skills_log = None
+        skills_path = trial_dir / "agent" / "skills.json"
+        if skills_path.exists():
+            skills_log = _load_json(skills_path)
+        prompt_path = trial_dir / "agent" / "prompt.md"
+        prompt_sha256 = sha256_file(prompt_path) if prompt_path.exists() else ""
+        treatment, prompt_name = _treatment_from_agent(config)
+        agent_info = result.get("agent_info") or {}
+        task_lock = lock.get("task") or {}
+        agent_cfg = config.get("agent") or {}
+        kwargs = agent_cfg.get("kwargs") or {}
+        if kwargs.get("prompt_name"):
+            prompt_name = kwargs["prompt_name"]
+
+        trial_id = str(result.get("id") or trial_dir.name)
+        fingerprint = build_fingerprint(
+            trial_id=trial_id,
+            task_name=result.get("task_name") or trial_dir.name,
+            task_checksum=result.get("task_checksum") or task_lock.get("digest") or "",
+            agent_name=agent_info.get("name") or agent_cfg.get("name") or "unknown",
+            agent_version=agent_info.get("version") or "unknown",
+            treatment=treatment,
+            prompt_name=prompt_name,
+            prompt_sha256=prompt_sha256,
+            skill_bundle=_skill_bundle(lock, skills_log),
+            harness_commit=harness_commit,
+            network_mode=((lock.get("environment") or {}).get("network_mode") or "unknown"),
+            agent_timeout_sec=(config.get("agent") or {}).get("override_timeout_sec"),
+            verifier_timeout_sec=(config.get("verifier") or {}).get("override_timeout_sec"),
+        )
+        failure = classify_trial(result)
+        rewards = ((result.get("verifier_result") or {}).get("rewards")) or {}
+        cost = ((result.get("agent_result") or {}).get("cost_usd"))
+        tokens_in = ((result.get("agent_result") or {}).get("n_input_tokens"))
+        tokens_out = ((result.get("agent_result") or {}).get("n_output_tokens"))
+        skill_loaded = bool(
+            skills_log
+            and skills_log.get("uses_skills")
+            and skills_log.get("loaded")
+        )
+        row = {
+            "trial_id": trial_id,
+            "trial_name": result.get("trial_name") or trial_dir.name,
+            "task": result.get("task_name"),
+            "agent": fingerprint["agent_name"],
+            "treatment": treatment,
+            "prompt": prompt_name,
+            "skill_injected": bool(fingerprint["skill_bundle"]),
+            "skill_loaded": skill_loaded,
+            "reward": rewards.get("reward"),
+            "failure_class": failure.value,
+            "duration_sec": _duration_sec(result),
+            "cost_usd": cost,
+            "n_input_tokens": tokens_in,
+            "n_output_tokens": tokens_out,
+            "fingerprint": fingerprint["fingerprint"],
+            "task_checksum": fingerprint["task_checksum"],
+            "trial_dir": str(trial_dir.relative_to(root)) if trial_dir.is_relative_to(root) else str(trial_dir),
+        }
+        rows.append(row)
+        trial_ids.append(trial_id)
+        fingerprints.append(fingerprint["fingerprint"])
+        (trial_dir / "asb_manifest.json").write_text(
+            json.dumps(
+                {
+                    **fingerprint,
+                    "failure_class": failure.value,
+                    "reward": rewards.get("reward"),
+                    "skill_log": skills_log,
+                },
+                indent=2,
+            )
+            + "\n"
+        )
+
+    rows.sort(key=lambda item: (item["task"] or "", item["agent"], item["treatment"]))
+    unique_ids = len(set(trial_ids)) == len(trial_ids) and len(trial_ids) > 0
+    unique_fps = len(set(fingerprints)) == len(fingerprints) and len(fingerprints) > 0
+
+    csv_path = out_dir / "results.csv"
+    with csv_path.open("w", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=list(rows[0].keys()) if rows else ["trial_id"])
+        writer.writeheader()
+        writer.writerows(rows)
+
+    md_lines = [
+        "# Stage 1 smoke results",
+        "",
+        DISCLAIMER,
+        "",
+        f"- Job: `{job_dir.name}`",
+        f"- Trials: {len(rows)}",
+        f"- Unique trial IDs: {unique_ids}",
+        f"- Unique fingerprints: {unique_fps}",
+        f"- Summarized at: {datetime.now(timezone.utc).isoformat()}",
+        "",
+        "| task | agent | treatment | reward | class | skill loaded | duration_s | fingerprint |",
+        "|---|---|---|---|---|---|---|---|",
+    ]
+    for row in rows:
+        duration = row["duration_sec"]
+        duration_s = f"{duration:.1f}" if isinstance(duration, float) else ""
+        fp = (row["fingerprint"] or "")[:16]
+        md_lines.append(
+            f"| {row['task']} | {row['agent']} | {row['treatment']} | "
+            f"{row['reward']} | {row['failure_class']} | {row['skill_loaded']} | "
+            f"{duration_s} | `{fp}` |"
+        )
+    md_lines.extend(["", "## Counts by failure class", ""])
+    counts: dict[str, int] = {}
+    for row in rows:
+        counts[row["failure_class"]] = counts.get(row["failure_class"], 0) + 1
+    for cls in FailureClass:
+        md_lines.append(f"- `{cls.value}`: {counts.get(cls.value, 0)}")
+    md_path = out_dir / "results.md"
+    md_path.write_text("\n".join(md_lines) + "\n")
+
+    payload = {
+        "disclaimer": DISCLAIMER,
+        "job_dir": str(job_dir),
+        "n_trials": len(rows),
+        "unique_trial_ids": unique_ids,
+        "unique_fingerprints": unique_fps,
+        "counts": counts,
+        "rows": rows,
+    }
+    (out_dir / "results.json").write_text(json.dumps(payload, indent=2) + "\n")
+    return md_path
+
+
+def summarize_latest(jobs_dir: Path | None = None, out_dir: Path | None = None) -> Path:
+    root = repo_root()
+    job_dir = _latest_job(jobs_dir or (root / "jobs"))
+    destination = out_dir or (root / "results" / job_dir.name)
+    return summarize_job(job_dir, destination)
