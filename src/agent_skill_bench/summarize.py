@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Any
 
 from agent_skill_bench.classify import FailureClass, classify_trial
-from agent_skill_bench.constants import MODEL_SNAPSHOT, repo_root
+from agent_skill_bench.constants import MODEL_SNAPSHOT, SEED, repo_root
 from agent_skill_bench.fingerprint import build_fingerprint, sha256_file
 
 DISCLAIMER = (
@@ -45,6 +45,10 @@ def _latest_job(jobs_dir: Path) -> Path:
 
 def _load_json(path: Path) -> dict[str, Any]:
     return json.loads(path.read_text())
+
+
+def _user_kwargs(kwargs: dict[str, Any]) -> dict[str, Any]:
+    return {key: value for key, value in kwargs.items() if not str(key).startswith("asb_")}
 
 
 def _treatment_from_agent(config: dict[str, Any]) -> tuple[str, str, str]:
@@ -106,6 +110,14 @@ def summarize_job(job_dir: Path, out_dir: Path) -> Path:
     fingerprints: list[str] = []
     trial_ids: list[str] = []
 
+    experiment = None
+    experiment_path = job_dir / "asb_experiment.json"
+    if experiment_path.exists():
+        experiment = _load_json(experiment_path)
+    experiment_seed = SEED
+    if experiment and experiment.get("seed") is not None:
+        experiment_seed = int(experiment["seed"])
+
     for trial_dir in sorted(path for path in job_dir.iterdir() if path.is_dir()):
         results_path = trial_dir / "result.json"
         if not results_path.exists():
@@ -129,6 +141,14 @@ def summarize_job(job_dir: Path, out_dir: Path) -> Path:
         if kwargs.get("prompt_name"):
             prompt_name = kwargs["prompt_name"]
         model_name = agent_cfg.get("model_name")
+        seed = kwargs.get("asb_seed")
+        if seed is None:
+            seed = experiment_seed
+        pair_id = str(kwargs.get("asb_pair_id") or "")
+        pairing_key = str(kwargs.get("asb_pairing_key") or "")
+        agent_kwargs = _user_kwargs(kwargs)
+        agent_kwargs.pop("prompt_name", None)
+        agent_kwargs.pop("prompt_path", None)
 
         trial_id = str(result.get("id") or trial_dir.name)
         fingerprint = build_fingerprint(
@@ -146,6 +166,10 @@ def summarize_job(job_dir: Path, out_dir: Path) -> Path:
             agent_timeout_sec=(config.get("agent") or {}).get("override_timeout_sec"),
             verifier_timeout_sec=(config.get("verifier") or {}).get("override_timeout_sec"),
             model_snapshot=model_name or MODEL_SNAPSHOT,
+            seed=int(seed),
+            agent_kwargs=agent_kwargs,
+            pair_id=pair_id,
+            pairing_key=pairing_key,
         )
         failure = classify_trial(result)
         rewards = ((result.get("verifier_result") or {}).get("rewards")) or {}
@@ -165,7 +189,11 @@ def summarize_job(job_dir: Path, out_dir: Path) -> Path:
             "agent": fingerprint["agent_name"],
             "model": fingerprint["model_snapshot"],
             "treatment": treatment,
+            "pair_id": pair_id,
+            "pairing_key": pairing_key,
             "prompt": prompt_name,
+            "seed": int(seed),
+            "agent_kwargs": agent_kwargs,
             "skill_injected": bool(fingerprint["skill_bundle"]),
             "skill_loaded": skill_loaded,
             "reward": rewards.get("reward"),
@@ -188,6 +216,7 @@ def summarize_job(job_dir: Path, out_dir: Path) -> Path:
                     "failure_class": failure.value,
                     "reward": rewards.get("reward"),
                     "skill_log": skills_log,
+                    "experiment": experiment,
                 },
                 indent=2,
             )
@@ -215,8 +244,8 @@ def summarize_job(job_dir: Path, out_dir: Path) -> Path:
         f"- Unique fingerprints: {unique_fps}",
         f"- Summarized at: {datetime.now(timezone.utc).isoformat()}",
         "",
-        "| track | task | agent | treatment | reward | class | skill loaded | duration_s | fingerprint |",
-        "|---|---|---|---|---|---|---|---|---|",
+        "| track | task | agent | treatment | pair | reward | class | skill loaded | duration_s | fingerprint |",
+        "|---|---|---|---|---|---|---|---|---|---|",
     ]
     for row in rows:
         duration = row["duration_sec"]
@@ -224,6 +253,7 @@ def summarize_job(job_dir: Path, out_dir: Path) -> Path:
         fp = (row["fingerprint"] or "")[:16]
         md_lines.append(
             f"| {row['track']} | {row['task']} | {row['agent']} | {row['treatment']} | "
+            f"{row['pair_id'] or ''} | "
             f"{row['reward']} | {row['failure_class']} | {row['skill_loaded']} | "
             f"{duration_s} | `{fp}` |"
         )
@@ -243,6 +273,7 @@ def summarize_job(job_dir: Path, out_dir: Path) -> Path:
         "unique_trial_ids": unique_ids,
         "unique_fingerprints": unique_fps,
         "counts": counts,
+        "experiment": experiment,
         "rows": rows,
     }
     (out_dir / "results.json").write_text(json.dumps(payload, indent=2) + "\n")

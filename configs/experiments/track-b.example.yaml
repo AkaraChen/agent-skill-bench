@@ -36,6 +36,4 @@ tasks:
   - tasks/reverse-string
 include:
   - agent: codex
-    treatment: baseline
   - agent: claude-code
-    treatment: candidate

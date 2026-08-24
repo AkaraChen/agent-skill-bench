@@ -26,18 +26,19 @@ uv sync --extra dev
 uv run asb run --dry-run                          # cells, trial count, budget gate
 uv run asb run                                    # A-track 2×2 smoke, 20 trials
 uv run asb run --config configs/experiments/track-b.example.yaml --dry-run
+uv run asb run --resume jobs/<job-dir>            # Harbor job resume
 uv run asb summarize
 uv run pytest
 ```
 
-`--dry-run` prints the matrix and **refuses** to proceed when `cells × tasks × repeat` exceeds `max_trials`, or when `usd_per_trial * trials` exceeds `budget_usd`.
+`--dry-run` prints the matrix and **refuses** to proceed when `cells × tasks × repeat` exceeds `max_trials`, when `budget_usd` is set without `usd_per_trial`, or when estimated cost exceeds `budget_usd`.
 
 ## Experiment YAML
 
-See `configs/experiments/smoke-2x2.yaml`. Treatments are the factorial unit (not an implicit prompt × skill cartesian). Add `include` / `exclude`, `cells` for an explicit matrix, `sample` for seeded uniform sampling, and `pairs` to mark baseline vs treatment.
+See `configs/experiments/smoke-2x2.yaml`. Treatments are the factorial unit (not an implicit prompt × skill cartesian). Add `include` / `exclude`, `cells` for an explicit matrix, `sample` (`2` or `{n: 1, by: treatment|agent|model|pairing}`), and `pairs` for same-agent/model paired treatments. `agents[].kwargs` pass through to Harbor.
 
-Harbor already cartesian-products `agents[] × tasks[] × n_attempts`. Repeat is `repeat` → Harbor `n_attempts`. Retry is Harbor `max_retries`. Re-runs write a new timestamped job dir.
+Harbor cartesian-products `agents[] × tasks[] × n_attempts`. Repeat is `repeat` → Harbor `n_attempts`. Retry is Harbor `max_retries`. Interrupted jobs resume with `asb run --resume`. Each job writes `asb_experiment.json` (resolved schema, seed, cells, pairs, skill tree hashes).
 
 ## What each trial stores
 
-Harbor writes `config.json`, `lock.json`, `results.json`, agent logs, verifier logs, and workspace artifacts. `asb summarize` adds `asb_manifest.json` with a config fingerprint, skill hashes, track, and an `agent/model/test/infra` failure class.
+Harbor writes `config.json`, `lock.json`, `results.json`, agent logs, verifier logs, and workspace artifacts. `asb summarize` adds `asb_manifest.json` with the experiment seed, pairing key, agent kwargs, skill hashes, track, and an `agent/model/test/infra` failure class.

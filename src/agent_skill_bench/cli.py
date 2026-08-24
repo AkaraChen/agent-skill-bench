@@ -23,6 +23,12 @@ def main(argv: list[str] | None = None) -> int:
         action="store_true",
         help="Print cells, trial count, and budget, then exit without running.",
     )
+    run_p.add_argument(
+        "--resume",
+        type=Path,
+        default=None,
+        help="Resume an existing Harbor job directory (harbor job resume).",
+    )
 
     sum_p = sub.add_parser("summarize", help="Summarize the latest Harbor job.")
     sum_p.add_argument("--jobs-dir", type=Path, default=None)
@@ -31,7 +37,12 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
     if args.cmd == "run":
         try:
-            job_dir = run_job(args.config, n_concurrent=args.n_concurrent, dry_run=args.dry_run)
+            job_dir = run_job(
+                args.config,
+                n_concurrent=args.n_concurrent,
+                dry_run=args.dry_run,
+                resume=args.resume,
+            )
         except ExperimentError as exc:
             print(f"error: {exc}")
             return 2

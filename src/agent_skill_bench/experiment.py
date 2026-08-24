@@ -1,13 +1,14 @@
 """Expand a versioned experiment YAML into a Harbor job config.
 
-ponytail: treatments are the factorial unit, not prompt × skill. Sampling
-is uniform-with-seed only; add stratified designs if Stage 4 needs them.
+ponytail: treatments are the factorial unit. Sample ints with pairs draw
+(agent, model) groups so paired arms stay together. Resume is Harbor's
+`job resume`, not a second runner.
 """
 
 from __future__ import annotations
 
 import random
-from dataclasses import dataclass, field
+from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Any
 
@@ -15,9 +16,19 @@ import yaml
 from harbor.agents.installed.acp_registry import is_acp_registry_shorthand
 from harbor.models.agent.name import AgentName
 
-from agent_skill_bench.fingerprint import sha256_file
+from agent_skill_bench.fingerprint import canonical_dumps, sha256_text, sha256_tree
 
 SCHEMA_VERSION = 1
+ASB_RESERVED_KWARGS = {
+    "prompt_name",
+    "prompt_path",
+    "asb_treatment",
+    "asb_track",
+    "asb_skill_bundle",
+    "asb_seed",
+    "asb_pair_id",
+    "asb_pairing_key",
+}
 
 
 class ExperimentError(ValueError):
@@ -35,6 +46,7 @@ class Cell:
     skill_bundle: str
     skills: tuple[str, ...]
     kind: str  # harbor | acp | import
+    agent_kwargs: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
@@ -52,6 +64,7 @@ class Plan:
     tasks: list[str]
     cells: list[Cell]
     pairs: list[tuple[str, str]]
+    selection: dict[str, Any] = field(default_factory=dict)
     skill_hashes: list[dict[str, str]] = field(default_factory=list)
 
     @property
@@ -166,7 +179,6 @@ def _treatments(spec: dict[str, Any], prompts: dict[str, str]) -> list[dict[str,
             )
         return parsed
 
-    # ponytail: only cartesian prompts × skill_bundles when treatments omitted
     bundles_raw = spec.get("skill_bundles")
     if not prompts:
         raise ExperimentError("Need treatments or prompts")
@@ -219,6 +231,29 @@ def _agents(spec: dict[str, Any]) -> list[dict[str, Any]]:
     return parsed
 
 
+def _make_cell(
+    agent: dict[str, Any],
+    model: str,
+    treatment: dict[str, Any],
+    extra_kwargs: dict[str, Any] | None = None,
+) -> Cell:
+    kwargs = dict(agent.get("kwargs") or {})
+    if extra_kwargs:
+        kwargs.update(extra_kwargs)
+    return Cell(
+        agent=agent["name"],
+        import_path=agent["import_path"],
+        model=model,
+        treatment=treatment["name"],
+        prompt_name=treatment["prompt"],
+        prompt_path=treatment["prompt_path"],
+        skill_bundle=treatment["skill_bundle"],
+        skills=tuple(treatment["skills"]),
+        kind=agent["kind"],
+        agent_kwargs=kwargs,
+    )
+
+
 def _explicit_cells(
     spec: dict[str, Any],
     agents: list[dict[str, Any]],
@@ -245,19 +280,8 @@ def _explicit_cells(
         model = str(item.get("model") or (models[0] if len(models) == 1 else ""))
         if not model:
             raise ExperimentError("explicit cell needs model when more than one model is listed")
-        cells.append(
-            Cell(
-                agent=agent["name"],
-                import_path=agent["import_path"],
-                model=model,
-                treatment=treatment["name"],
-                prompt_name=treatment["prompt"],
-                prompt_path=treatment["prompt_path"],
-                skill_bundle=treatment["skill_bundle"],
-                skills=tuple(treatment["skills"]),
-                kind=agent["kind"],
-            )
-        )
+        extra = item.get("kwargs") if isinstance(item.get("kwargs"), dict) else None
+        cells.append(_make_cell(agent, model, treatment, extra))
     return cells
 
 
@@ -266,19 +290,7 @@ def _cartesian(agents: list[dict[str, Any]], models: list[str], treatments: list
     for agent in agents:
         for model in models:
             for treatment in treatments:
-                cells.append(
-                    Cell(
-                        agent=agent["name"],
-                        import_path=agent["import_path"],
-                        model=model,
-                        treatment=treatment["name"],
-                        prompt_name=treatment["prompt"],
-                        prompt_path=treatment["prompt_path"],
-                        skill_bundle=treatment["skill_bundle"],
-                        skills=tuple(treatment["skills"]),
-                        kind=agent["kind"],
-                    )
-                )
+                cells.append(_make_cell(agent, model, treatment))
     return cells
 
 
@@ -290,8 +302,7 @@ def _skill_hashes(root: Path, cells: list[Cell]) -> list[dict[str, str]]:
             path = Path(skill)
             if not path.is_absolute():
                 path = root / path
-            skill_md = path / "SKILL.md" if path.is_dir() else path
-            digest = sha256_file(skill_md) if skill_md.exists() else ""
+            digest = sha256_tree(path)
             key = (str(skill), digest)
             if key in fingerprints:
                 continue
@@ -305,6 +316,107 @@ def _skill_hashes(root: Path, cells: list[Cell]) -> list[dict[str, str]]:
                 }
             )
     return seen
+
+
+def _pair_id(left: str, right: str) -> str:
+    return f"{left}__{right}"
+
+
+def pairing_for(cell: Cell, pairs: list[tuple[str, str]]) -> tuple[str, str]:
+    matched = [_pair_id(left, right) for left, right in pairs if cell.treatment in (left, right)]
+    if not matched:
+        return "", ""
+    pair_id = matched[0] if len(matched) == 1 else ",".join(matched)
+    pairing_key = sha256_text(
+        canonical_dumps({"agent": cell.agent, "model": cell.model, "pair_id": pair_id})
+    )
+    return pair_id, pairing_key
+
+
+def _assert_pairs_complete(cells: list[Cell], pairs: list[tuple[str, str]]) -> list[tuple[str, str]]:
+    remaining = {cell.treatment for cell in cells}
+    live: list[tuple[str, str]] = []
+    groups: dict[tuple[str, str], set[str]] = {}
+    for cell in cells:
+        groups.setdefault((cell.agent, cell.model), set()).add(cell.treatment)
+    for left, right in pairs:
+        has_left = left in remaining
+        has_right = right in remaining
+        if has_left ^ has_right:
+            raise ExperimentError(
+                f"pair {left} vs {right} is incomplete after include/exclude/sample"
+            )
+        if not (has_left and has_right):
+            continue
+        for (agent, model), treatments in groups.items():
+            if left in treatments or right in treatments:
+                if not (left in treatments and right in treatments):
+                    raise ExperimentError(
+                        f"pair {left} vs {right} is incomplete for {agent} / {model} "
+                        "after include/exclude/sample"
+                    )
+        live.append((left, right))
+    return live
+
+
+def _sample_cells(
+    cells: list[Cell],
+    sample: Any,
+    seed: int,
+    pairs: list[tuple[str, str]],
+) -> list[Cell]:
+    if sample is None:
+        return cells
+    by: str | None
+    if isinstance(sample, int):
+        n = sample
+        by = "pairing" if pairs else None
+    elif isinstance(sample, dict):
+        n = int(sample.get("n") if sample.get("n") is not None else 0)
+        by = sample.get("by")
+        if by is not None:
+            by = str(by)
+    else:
+        raise ExperimentError("sample must be an int or {n, by}")
+    if n < 0:
+        raise ExperimentError("sample must be >= 0")
+    rng = random.Random(seed)
+    if by in (None, "cell"):
+        if n >= len(cells):
+            return cells
+        return rng.sample(cells, n)
+    if by == "pairing":
+        groups: dict[tuple[str, str], list[Cell]] = {}
+        order: list[tuple[str, str]] = []
+        for cell in cells:
+            key = (cell.agent, cell.model)
+            if key not in groups:
+                groups[key] = []
+                order.append(key)
+            groups[key].append(cell)
+        if n >= len(order):
+            return cells
+        chosen = rng.sample(order, n)
+        return [cell for key in chosen for cell in groups[key]]
+    field_of = {
+        "agent": lambda cell: cell.agent,
+        "model": lambda cell: cell.model,
+        "treatment": lambda cell: cell.treatment,
+        "skill_bundle": lambda cell: cell.skill_bundle,
+    }
+    if by not in field_of:
+        raise ExperimentError(f"unknown sample.by {by!r}")
+    grouped: dict[str, list[Cell]] = {}
+    for cell in cells:
+        grouped.setdefault(field_of[by](cell), []).append(cell)
+    sampled: list[Cell] = []
+    for key in sorted(grouped):
+        bucket = grouped[key]
+        if n >= len(bucket):
+            sampled.extend(bucket)
+        else:
+            sampled.extend(rng.sample(bucket, n))
+    return sampled
 
 
 def expand(spec: dict[str, Any], root: Path) -> Plan:
@@ -342,6 +454,7 @@ def expand(spec: dict[str, Any], root: Path) -> Plan:
             raise ExperimentError(f"pair {items} references unknown treatments")
         pairs.append((items[0], items[1]))
 
+    explicit = spec.get("cells")
     cells = _explicit_cells(spec, agents, models, treatments)
     if cells is None:
         cells = _cartesian(agents, models, treatments)
@@ -354,13 +467,8 @@ def expand(spec: dict[str, Any], root: Path) -> Plan:
         cells = [cell for cell in cells if not any(_match(cell, filt) for filt in exclude)]
 
     sample = spec.get("sample")
-    if sample is not None:
-        sample_n = int(sample)
-        if sample_n < 0:
-            raise ExperimentError("sample must be >= 0")
-        if sample_n < len(cells):
-            rng = random.Random(seed)
-            cells = rng.sample(cells, sample_n)
+    cells = _sample_cells(cells, sample, seed, pairs)
+    pairs = _assert_pairs_complete(cells, pairs)
 
     environment = dict(spec.get("environment") or {"type": "docker", "delete": True})
     budget = spec.get("budget_usd")
@@ -378,6 +486,12 @@ def expand(spec: dict[str, Any], root: Path) -> Plan:
         tasks=tasks,
         cells=cells,
         pairs=pairs,
+        selection={
+            "include": include,
+            "exclude": exclude,
+            "sample": sample,
+            "explicit_cells": bool(explicit),
+        },
         skill_hashes=_skill_hashes(root, cells),
     )
 
@@ -389,6 +503,11 @@ def guard(plan: Plan) -> None:
             f"× tasks={len(plan.tasks)} × repeat={plan.repeat}); "
             f"max_trials={plan.max_trials}. Narrow treatments, add exclude, "
             f"set sample, or raise max_trials."
+        )
+    if plan.budget_usd is not None and plan.usd_per_trial <= 0:
+        raise ExperimentError(
+            "budget_usd is set but usd_per_trial is unknown; "
+            "set usd_per_trial or omit budget_usd"
         )
     estimated = plan.estimated_usd
     if plan.budget_usd is not None and estimated is not None and estimated > plan.budget_usd:
@@ -421,22 +540,66 @@ def format_dry_run(plan: Plan) -> str:
     lines.append("cells:")
     for cell in plan.cells:
         skills = "+".join(Path(s).name for s in cell.skills) or "none"
+        pair_id, _ = pairing_for(cell, plan.pairs)
+        kwargs = ",".join(f"{k}={cell.agent_kwargs[k]!r}" for k in sorted(cell.agent_kwargs)) or "none"
         lines.append(
             f"  - {cell.kind}:{cell.agent} | {cell.model} | {cell.treatment} | "
-            f"prompt={cell.prompt_name} | skills={skills}"
+            f"prompt={cell.prompt_name} | skills={skills} | pair={pair_id or 'none'} | kwargs={kwargs}"
         )
     return "\n".join(lines)
+
+
+def resolved_manifest(plan: Plan) -> dict[str, Any]:
+    cells = []
+    for cell in plan.cells:
+        pair_id, pairing_key = pairing_for(cell, plan.pairs)
+        payload = asdict(cell)
+        payload["skills"] = list(cell.skills)
+        payload["pair_id"] = pair_id
+        payload["pairing_key"] = pairing_key
+        cells.append(payload)
+    return {
+        "schema_version": SCHEMA_VERSION,
+        "name": plan.name,
+        "track": plan.track,
+        "seed": plan.seed,
+        "repeat": plan.repeat,
+        "max_trials": plan.max_trials,
+        "n_concurrent": plan.n_concurrent,
+        "max_retries": plan.max_retries,
+        "usd_per_trial": plan.usd_per_trial,
+        "budget_usd": plan.budget_usd,
+        "environment": plan.environment,
+        "tasks": list(plan.tasks),
+        "pairs": [{"id": _pair_id(left, right), "left": left, "right": right} for left, right in plan.pairs],
+        "selection": plan.selection,
+        "skill_hashes": plan.skill_hashes,
+        "cells": cells,
+        "n_cells": plan.n_cells,
+        "n_trials": plan.n_trials,
+    }
 
 
 def compile_harbor_job(plan: Plan, job_name: str) -> dict[str, Any]:
     agents: list[dict[str, Any]] = []
     for cell in plan.cells:
+        pair_id, pairing_key = pairing_for(cell, plan.pairs)
         kwargs: dict[str, Any] = {
-            "prompt_name": cell.prompt_name,
-            "asb_treatment": cell.treatment,
-            "asb_track": plan.track,
-            "asb_skill_bundle": cell.skill_bundle,
+            key: value
+            for key, value in cell.agent_kwargs.items()
+            if key not in ASB_RESERVED_KWARGS
         }
+        kwargs.update(
+            {
+                "prompt_name": cell.prompt_name,
+                "asb_treatment": cell.treatment,
+                "asb_track": plan.track,
+                "asb_skill_bundle": cell.skill_bundle,
+                "asb_seed": plan.seed,
+                "asb_pair_id": pair_id,
+                "asb_pairing_key": pairing_key,
+            }
+        )
         if cell.prompt_path:
             kwargs["prompt_path"] = cell.prompt_path
         entry: dict[str, Any] = {

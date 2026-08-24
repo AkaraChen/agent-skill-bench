@@ -25,6 +25,23 @@ def sha256_file(path: Path) -> str:
     return "sha256:" + hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def sha256_tree(path: Path) -> str:
+    """Hash a file or a directory tree (relative paths + contents, sorted)."""
+    if not path.exists():
+        return ""
+    if path.is_file():
+        return sha256_file(path)
+    hasher = hashlib.sha256()
+    files = sorted(item for item in path.rglob("*") if item.is_file())
+    for item in files:
+        rel = item.relative_to(path).as_posix().encode()
+        hasher.update(rel)
+        hasher.update(b"\0")
+        hasher.update(item.read_bytes())
+        hasher.update(b"\0")
+    return "sha256:" + hasher.hexdigest()
+
+
 def build_fingerprint(
     *,
     trial_id: str,
@@ -44,6 +61,9 @@ def build_fingerprint(
     harbor_version: str = HARBOR_VERSION,
     seed: int = SEED,
     docker_digest: str = DOCKER_DIGEST,
+    agent_kwargs: dict[str, Any] | None = None,
+    pair_id: str = "",
+    pairing_key: str = "",
 ) -> dict[str, Any]:
     body = {
         "harbor_version": harbor_version,
@@ -59,6 +79,9 @@ def build_fingerprint(
         "task_name": task_name,
         "task_checksum": task_checksum,
         "seed": seed,
+        "agent_kwargs": agent_kwargs or {},
+        "pair_id": pair_id,
+        "pairing_key": pairing_key,
         "budget": {
             "agent_timeout_sec": agent_timeout_sec,
             "verifier_timeout_sec": verifier_timeout_sec,
