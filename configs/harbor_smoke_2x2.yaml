@@ -1,0 +1,45 @@
+job_name: smoke-2x2
+jobs_dir: jobs
+n_attempts: 1
+n_concurrent_trials: 2
+quiet: false
+timeout_multiplier: 1.0
+environment:
+  type: docker
+  force_build: false
+  delete: true
+agents:
+  - name: naive-solver
+    import_path: agent_skill_bench.agents.naive_solver:NaiveSolver
+    model_name: deterministic/smoke-solver@2026-08-24
+    kwargs:
+      prompt_name: baseline
+      prompt_path: prompts/baseline.md
+  - name: naive-solver
+    import_path: agent_skill_bench.agents.naive_solver:NaiveSolver
+    model_name: deterministic/smoke-solver@2026-08-24
+    skills:
+      - ./skills/test-first
+    kwargs:
+      prompt_name: candidate
+      prompt_path: prompts/candidate.md
+  - name: skill-solver
+    import_path: agent_skill_bench.agents.skill_solver:SkillSolver
+    model_name: deterministic/smoke-solver@2026-08-24
+    kwargs:
+      prompt_name: baseline
+      prompt_path: prompts/baseline.md
+  - name: skill-solver
+    import_path: agent_skill_bench.agents.skill_solver:SkillSolver
+    model_name: deterministic/smoke-solver@2026-08-24
+    skills:
+      - ./skills/test-first
+    kwargs:
+      prompt_name: candidate
+      prompt_path: prompts/candidate.md
+tasks:
+  - path: tasks/reverse-string
+  - path: tasks/fizzbuzz
+  - path: tasks/csv-sum
+  - path: tasks/json-merge
+  - path: tasks/slugify
