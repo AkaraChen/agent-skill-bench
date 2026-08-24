@@ -1,3 +1,4 @@
+# Frozen Harbor job from Stage 1. Prefer configs/experiments/smoke-2x2.yaml.
 job_name: smoke-2x2
 jobs_dir: jobs
 n_attempts: 1

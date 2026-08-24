@@ -5,15 +5,24 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from agent_skill_bench.constants import repo_root
+from agent_skill_bench.experiment import (
+    ExperimentError,
+    compile_harbor_job,
+    dump_harbor_job,
+    expand,
+    format_dry_run,
+    guard,
+    is_experiment,
+    load_yaml,
+    passthrough_trial_count,
+)
 
 
-def run_smoke(config_path: Path | None = None, n_concurrent: int = 2) -> Path:
+DEFAULT_EXPERIMENT = Path("configs/experiments/smoke-2x2.yaml")
+
+
+def _harbor_run(config: Path, n_concurrent: int, job_name: str) -> Path:
     root = repo_root()
-    config = config_path or (root / "configs" / "harbor_smoke_2x2.yaml")
-    if not config.exists():
-        raise FileNotFoundError(f"Harbor job config not found: {config}")
-
-    job_name = datetime.now(timezone.utc).strftime("smoke-2x2-%Y%m%dT%H%M%SZ")
     jobs_dir = root / "jobs"
     jobs_dir.mkdir(exist_ok=True)
     cmd = [
@@ -31,3 +40,47 @@ def run_smoke(config_path: Path | None = None, n_concurrent: int = 2) -> Path:
     ]
     subprocess.run(cmd, cwd=root, check=True)
     return jobs_dir / job_name
+
+
+def run_job(
+    config_path: Path | None = None,
+    n_concurrent: int | None = None,
+    dry_run: bool = False,
+) -> Path | None:
+    root = repo_root()
+    config = config_path or (root / DEFAULT_EXPERIMENT)
+    if not config.exists():
+        raise FileNotFoundError(f"Job config not found: {config}")
+
+    spec = load_yaml(config)
+    stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+
+    if is_experiment(spec):
+        plan = expand(spec, root)
+        print(format_dry_run(plan))
+        guard(plan)
+        concurrent = n_concurrent or plan.n_concurrent
+        if dry_run:
+            return None
+        job_name = f"{plan.track}-{plan.name}-{stamp}"
+        generated_dir = root / "jobs" / ".generated"
+        generated_dir.mkdir(parents=True, exist_ok=True)
+        generated = generated_dir / f"{job_name}.yaml"
+        generated.write_text(dump_harbor_job(compile_harbor_job(plan, job_name)))
+        return _harbor_run(generated, concurrent, job_name)
+
+    n_trials = passthrough_trial_count(spec)
+    print(f"passthrough Harbor job: {config}")
+    print(f"trials: {n_trials} (agents × tasks × n_attempts)")
+    if dry_run:
+        return None
+    job_name = spec.get("job_name") or f"job-{stamp}"
+    concurrent = n_concurrent or int(spec.get("n_concurrent_trials") or 2)
+    return _harbor_run(config, concurrent, job_name)
+
+
+def run_smoke(config_path: Path | None = None, n_concurrent: int = 2) -> Path:
+    job_dir = run_job(config_path, n_concurrent=n_concurrent, dry_run=False)
+    if job_dir is None:
+        raise ExperimentError("run_smoke produced no job directory")
+    return job_dir

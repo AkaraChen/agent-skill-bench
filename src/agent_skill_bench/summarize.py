@@ -8,11 +8,11 @@ from pathlib import Path
 from typing import Any
 
 from agent_skill_bench.classify import FailureClass, classify_trial
-from agent_skill_bench.constants import repo_root
+from agent_skill_bench.constants import MODEL_SNAPSHOT, repo_root
 from agent_skill_bench.fingerprint import build_fingerprint, sha256_file
 
 DISCLAIMER = (
-    "This table is a Stage 1 smoke of the experiment loop. "
+    "This table is a loop / matrix smoke of the experiment machinery. "
     "It is not a ranking, not a capability claim, and not a generalization "
     "about models, agents, prompts, or skills."
 )
@@ -47,14 +47,16 @@ def _load_json(path: Path) -> dict[str, Any]:
     return json.loads(path.read_text())
 
 
-def _treatment_from_agent(config: dict[str, Any]) -> tuple[str, str]:
+def _treatment_from_agent(config: dict[str, Any]) -> tuple[str, str, str]:
     agent = (config.get("agent") or {})
     kwargs = agent.get("kwargs") or {}
     prompt_name = kwargs.get("prompt_name") or "unknown"
-    skills = agent.get("skills") or []
-    if skills:
-        return "candidate", prompt_name
-    return "baseline", prompt_name
+    treatment = kwargs.get("asb_treatment")
+    if not treatment:
+        skills = agent.get("skills") or []
+        treatment = "candidate" if skills else "baseline"
+    track = kwargs.get("asb_track") or "A"
+    return str(treatment), str(prompt_name), str(track)
 
 
 def _skill_bundle(lock: dict[str, Any], skills_log: dict[str, Any] | None) -> list[dict[str, str]]:
@@ -119,13 +121,14 @@ def summarize_job(job_dir: Path, out_dir: Path) -> Path:
             skills_log = _load_json(skills_path)
         prompt_path = trial_dir / "agent" / "prompt.md"
         prompt_sha256 = sha256_file(prompt_path) if prompt_path.exists() else ""
-        treatment, prompt_name = _treatment_from_agent(config)
+        treatment, prompt_name, track = _treatment_from_agent(config)
         agent_info = result.get("agent_info") or {}
         task_lock = lock.get("task") or {}
         agent_cfg = config.get("agent") or {}
         kwargs = agent_cfg.get("kwargs") or {}
         if kwargs.get("prompt_name"):
             prompt_name = kwargs["prompt_name"]
+        model_name = agent_cfg.get("model_name")
 
         trial_id = str(result.get("id") or trial_dir.name)
         fingerprint = build_fingerprint(
@@ -142,6 +145,7 @@ def summarize_job(job_dir: Path, out_dir: Path) -> Path:
             network_mode=((lock.get("environment") or {}).get("network_mode") or "unknown"),
             agent_timeout_sec=(config.get("agent") or {}).get("override_timeout_sec"),
             verifier_timeout_sec=(config.get("verifier") or {}).get("override_timeout_sec"),
+            model_snapshot=model_name or MODEL_SNAPSHOT,
         )
         failure = classify_trial(result)
         rewards = ((result.get("verifier_result") or {}).get("rewards")) or {}
@@ -157,7 +161,9 @@ def summarize_job(job_dir: Path, out_dir: Path) -> Path:
             "trial_id": trial_id,
             "trial_name": result.get("trial_name") or trial_dir.name,
             "task": result.get("task_name"),
+            "track": track,
             "agent": fingerprint["agent_name"],
+            "model": fingerprint["model_snapshot"],
             "treatment": treatment,
             "prompt": prompt_name,
             "skill_injected": bool(fingerprint["skill_bundle"]),
@@ -199,7 +205,7 @@ def summarize_job(job_dir: Path, out_dir: Path) -> Path:
         writer.writerows(rows)
 
     md_lines = [
-        "# Stage 1 smoke results",
+        "# Experiment results",
         "",
         DISCLAIMER,
         "",
@@ -209,15 +215,15 @@ def summarize_job(job_dir: Path, out_dir: Path) -> Path:
         f"- Unique fingerprints: {unique_fps}",
         f"- Summarized at: {datetime.now(timezone.utc).isoformat()}",
         "",
-        "| task | agent | treatment | reward | class | skill loaded | duration_s | fingerprint |",
-        "|---|---|---|---|---|---|---|---|",
+        "| track | task | agent | treatment | reward | class | skill loaded | duration_s | fingerprint |",
+        "|---|---|---|---|---|---|---|---|---|",
     ]
     for row in rows:
         duration = row["duration_sec"]
         duration_s = f"{duration:.1f}" if isinstance(duration, float) else ""
         fp = (row["fingerprint"] or "")[:16]
         md_lines.append(
-            f"| {row['task']} | {row['agent']} | {row['treatment']} | "
+            f"| {row['track']} | {row['task']} | {row['agent']} | {row['treatment']} | "
             f"{row['reward']} | {row['failure_class']} | {row['skill_loaded']} | "
             f"{duration_s} | `{fp}` |"
         )

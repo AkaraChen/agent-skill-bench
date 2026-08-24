@@ -2,7 +2,7 @@
 
 Composable **Agent × Prompt × Skill** programming benchmark on [Harbor](https://github.com/harbor-framework/harbor).
 
-This repository is the Stage 1 smoke loop for KIT-908 / KIT-903: prove the experiment machinery works. **Do not treat smoke scores as a ranking or a generalization about models, agents, prompts, or skills.**
+Stage 2: a versioned experiment YAML expands into a Harbor job. **Do not treat scores as a ranking or a generalization about models, agents, prompts, or skills.**
 
 ## Frozen versions
 
@@ -10,32 +10,34 @@ See `versions.lock.toml`.
 
 - Harbor `0.22.0`
 - Base image `python:3.12.11-slim-bookworm@sha256:519591d6871b7bc437060736b9f7456b8731f1499a57e22e6c285135ae657bf7`
-- Model snapshot `deterministic/smoke-solver@2026-08-24` (deterministic Harbor agents, no hosted LLM)
+- Track A smoke model `deterministic/smoke-solver@2026-08-24` (no hosted LLM)
 
-Stage 1 wires two custom Harbor agents so the 20-trial loop can finish without API keys. Native Claude Code / Codex adapters belong in later stages.
+## Tracks
 
-## Matrix
+- **A** — fixed harness (custom Harbor agents such as the deterministic solvers).
+- **B** — native agents. Prefer Harbor built-ins (`codex`, `claude-code`, `gemini-cli`, …). If Harbor has no runner, use Harbor's ACP shorthand `acp:<registry-id>` — do not wrap acpx.
 
-| Axis | Values |
-|---|---|
-| Agents | `naive-solver`, `skill-solver` |
-| Treatments | `baseline` prompt + no skill, `candidate` prompt + `test-first` skill |
-| Tasks | 5 tiny file-writing tasks |
-| Attempts | 1 |
-
-`2 agents × 2 treatments × 5 tasks × 1 attempt = 20 trials`.
-
-Each trial runs in a fresh Docker container (`delete: true`). Hidden tests and gold solutions live under `tests/` and `solution/` and are copied in only for verification. Agents probe `/tests` and `/solution` and must not see them during the solve phase.
+New Agent / Prompt / Skill = config (and maybe one import_path). The expander does not change.
 
 ## Commands
 
 ```bash
 uv sync --extra dev
-uv run asb run          # start the 20-trial Harbor job
-uv run asb summarize    # write results table + fingerprints
-uv run pytest           # host-side checks
+uv run asb run --dry-run                          # cells, trial count, budget gate
+uv run asb run                                    # A-track 2×2 smoke, 20 trials
+uv run asb run --config configs/experiments/track-b.example.yaml --dry-run
+uv run asb summarize
+uv run pytest
 ```
+
+`--dry-run` prints the matrix and **refuses** to proceed when `cells × tasks × repeat` exceeds `max_trials`, or when `usd_per_trial * trials` exceeds `budget_usd`.
+
+## Experiment YAML
+
+See `configs/experiments/smoke-2x2.yaml`. Treatments are the factorial unit (not an implicit prompt × skill cartesian). Add `include` / `exclude`, `cells` for an explicit matrix, `sample` for seeded uniform sampling, and `pairs` to mark baseline vs treatment.
+
+Harbor already cartesian-products `agents[] × tasks[] × n_attempts`. Repeat is `repeat` → Harbor `n_attempts`. Retry is Harbor `max_retries`. Re-runs write a new timestamped job dir.
 
 ## What each trial stores
 
-Harbor writes `config.json`, `lock.json`, `results.json`, agent logs, verifier logs, and workspace artifacts. `asb summarize` adds `asb_manifest.json` with a config fingerprint and an `agent/model/test/infra` failure class.
+Harbor writes `config.json`, `lock.json`, `results.json`, agent logs, verifier logs, and workspace artifacts. `asb summarize` adds `asb_manifest.json` with a config fingerprint, skill hashes, track, and an `agent/model/test/infra` failure class.
