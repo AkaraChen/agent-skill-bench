@@ -1,4 +1,4 @@
-# Frozen versions for KIT-908 Stage 1 smoke.
+# Frozen versions for KIT-906 / KIT-908 experiments.
 # Bump only with an explicit experiment revision.
 
 [harbor]

@@ -1,0 +1,39 @@
+# Example B-track spec. Uses Harbor built-in native runners first.
+# `acp:<id>` is Harbor's ACP registry fallback (same idea as acpx, already in Harbor).
+# Do not run this without authenticated Codex/Claude (or another listed agent).
+schema_version: 1
+name: native-smoke
+track: B
+seed: 42
+repeat: 1
+max_trials: 12
+n_concurrent: 1
+usd_per_trial: 0
+environment:
+  type: docker
+  force_build: false
+  delete: true
+models:
+  - openai/gpt-5
+agents:
+  - name: codex
+  - name: claude-code
+  - name: acp:pi
+prompts:
+  baseline: prompts/baseline.md
+  candidate: prompts/candidate.md
+treatments:
+  - name: baseline
+    prompt: baseline
+    skills: []
+  - name: candidate
+    prompt: candidate
+    skills:
+      - ./skills/test-first
+pairs:
+  - [baseline, candidate]
+tasks:
+  - tasks/reverse-string
+include:
+  - agent: codex
+  - agent: claude-code

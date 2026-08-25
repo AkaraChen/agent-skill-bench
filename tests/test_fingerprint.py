@@ -26,3 +26,9 @@ def test_fingerprint_is_stable_and_unique() -> None:
     changed["skill_bundle"] = [{"order": "0", "name": "test-first", "digest": "sha256:ccc"}]
     c = build_fingerprint(trial_id="t3", **changed)
     assert c["fingerprint"] != a["fingerprint"]
+
+    seeded = dict(common)
+    seeded["seed"] = 99
+    d = build_fingerprint(trial_id="t4", **seeded)
+    assert d["fingerprint"] != a["fingerprint"]
+    assert d["seed"] == 99
