@@ -1,0 +1,27 @@
+schema_version: 1
+name: stage3-holdout
+track: A
+seed: 42
+repeat: 1
+max_trials: 40
+n_concurrent: 2
+max_retries: 2
+usd_per_trial: 0
+environment:
+  type: docker
+  force_build: false
+  delete: true
+models:
+  - none
+agents:
+  - name: oracle
+prompts:
+  baseline: prompts/baseline.md
+treatments:
+  - name: baseline
+    prompt: baseline
+    skills: []
+assemble_sealed: true
+assembled_path: cache/asb/assembled/holdout
+datasets:
+  - path: tasks/private

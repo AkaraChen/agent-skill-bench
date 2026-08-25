@@ -1,0 +1,1591 @@
+{
+  "n_tasks": 24,
+  "n_pass": 24,
+  "n_fail": 0,
+  "n_quarantined": 0,
+  "live_failures": [],
+  "stratification": {
+    "language": {
+      "python": 21,
+      "bash": 3
+    },
+    "kind": {
+      "feature": 10,
+      "bug": 5,
+      "refactor": 3,
+      "test": 3,
+      "security": 3
+    },
+    "size": {
+      "tiny": 7,
+      "small": 17
+    },
+    "difficulty": {
+      "easy": 9,
+      "medium": 13,
+      "hard": 2
+    }
+  },
+  "reports": [
+    {
+      "task": "asb-private-holdout/clamp-range",
+      "language": "python",
+      "kind": "feature",
+      "size": "tiny",
+      "difficulty": "easy",
+      "quarantined": false,
+      "ok": true,
+      "gates": [
+        {
+          "task": "clamp-range",
+          "gate": "digest",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "clamp-range",
+          "gate": "leakage",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "clamp-range",
+          "gate": "network",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "clamp-range",
+          "gate": "resources",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "clamp-range",
+          "gate": "git-history",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "clamp-range",
+          "gate": "oracle",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "clamp-range",
+          "gate": "alternative",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "clamp-range",
+          "gate": "mutation",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "clamp-range",
+          "gate": "compromised-gold",
+          "ok": true,
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "task": "asb-private-holdout/unique-lines",
+      "language": "bash",
+      "kind": "feature",
+      "size": "tiny",
+      "difficulty": "easy",
+      "quarantined": false,
+      "ok": true,
+      "gates": [
+        {
+          "task": "unique-lines",
+          "gate": "digest",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "unique-lines",
+          "gate": "leakage",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "unique-lines",
+          "gate": "network",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "unique-lines",
+          "gate": "resources",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "unique-lines",
+          "gate": "git-history",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "unique-lines",
+          "gate": "oracle",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "unique-lines",
+          "gate": "alternative",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "unique-lines",
+          "gate": "mutation",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "unique-lines",
+          "gate": "compromised-gold",
+          "ok": true,
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "task": "asb-private-holdout/csv-threshold",
+      "language": "python",
+      "kind": "feature",
+      "size": "small",
+      "difficulty": "easy",
+      "quarantined": false,
+      "ok": true,
+      "gates": [
+        {
+          "task": "csv-threshold",
+          "gate": "digest",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "csv-threshold",
+          "gate": "leakage",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "csv-threshold",
+          "gate": "network",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "csv-threshold",
+          "gate": "resources",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "csv-threshold",
+          "gate": "git-history",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "csv-threshold",
+          "gate": "oracle",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "csv-threshold",
+          "gate": "alternative",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "csv-threshold",
+          "gate": "mutation",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "csv-threshold",
+          "gate": "compromised-gold",
+          "ok": true,
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "task": "asb-private-holdout/word-freq",
+      "language": "python",
+      "kind": "feature",
+      "size": "small",
+      "difficulty": "medium",
+      "quarantined": false,
+      "ok": true,
+      "gates": [
+        {
+          "task": "word-freq",
+          "gate": "digest",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "word-freq",
+          "gate": "leakage",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "word-freq",
+          "gate": "network",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "word-freq",
+          "gate": "resources",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "word-freq",
+          "gate": "git-history",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "word-freq",
+          "gate": "oracle",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "word-freq",
+          "gate": "alternative",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "word-freq",
+          "gate": "mutation",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "word-freq",
+          "gate": "compromised-gold",
+          "ok": true,
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "task": "asb-private-holdout/interval-merge",
+      "language": "python",
+      "kind": "feature",
+      "size": "small",
+      "difficulty": "medium",
+      "quarantined": false,
+      "ok": true,
+      "gates": [
+        {
+          "task": "interval-merge",
+          "gate": "digest",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "interval-merge",
+          "gate": "leakage",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "interval-merge",
+          "gate": "network",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "interval-merge",
+          "gate": "resources",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "interval-merge",
+          "gate": "git-history",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "interval-merge",
+          "gate": "oracle",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "interval-merge",
+          "gate": "alternative",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "interval-merge",
+          "gate": "mutation",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "interval-merge",
+          "gate": "compromised-gold",
+          "ok": true,
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "task": "asb-private-holdout/json-pointer",
+      "language": "python",
+      "kind": "feature",
+      "size": "small",
+      "difficulty": "medium",
+      "quarantined": false,
+      "ok": true,
+      "gates": [
+        {
+          "task": "json-pointer",
+          "gate": "digest",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "json-pointer",
+          "gate": "leakage",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "json-pointer",
+          "gate": "network",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "json-pointer",
+          "gate": "resources",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "json-pointer",
+          "gate": "git-history",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "json-pointer",
+          "gate": "oracle",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "json-pointer",
+          "gate": "alternative",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "json-pointer",
+          "gate": "mutation",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "json-pointer",
+          "gate": "compromised-gold",
+          "ok": true,
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "task": "asb-private-holdout/topo-names",
+      "language": "python",
+      "kind": "feature",
+      "size": "small",
+      "difficulty": "hard",
+      "quarantined": false,
+      "ok": true,
+      "gates": [
+        {
+          "task": "topo-names",
+          "gate": "digest",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "topo-names",
+          "gate": "leakage",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "topo-names",
+          "gate": "network",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "topo-names",
+          "gate": "resources",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "topo-names",
+          "gate": "git-history",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "topo-names",
+          "gate": "oracle",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "topo-names",
+          "gate": "alternative",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "topo-names",
+          "gate": "mutation",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "topo-names",
+          "gate": "compromised-gold",
+          "ok": true,
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "task": "asb-private-holdout/lru-cache",
+      "language": "python",
+      "kind": "feature",
+      "size": "small",
+      "difficulty": "hard",
+      "quarantined": false,
+      "ok": true,
+      "gates": [
+        {
+          "task": "lru-cache",
+          "gate": "digest",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "lru-cache",
+          "gate": "leakage",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "lru-cache",
+          "gate": "network",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "lru-cache",
+          "gate": "resources",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "lru-cache",
+          "gate": "git-history",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "lru-cache",
+          "gate": "oracle",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "lru-cache",
+          "gate": "alternative",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "lru-cache",
+          "gate": "mutation",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "lru-cache",
+          "gate": "compromised-gold",
+          "ok": true,
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "task": "asb-private-holdout/window-mean",
+      "language": "python",
+      "kind": "bug",
+      "size": "tiny",
+      "difficulty": "easy",
+      "quarantined": false,
+      "ok": true,
+      "gates": [
+        {
+          "task": "window-mean",
+          "gate": "digest",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "window-mean",
+          "gate": "leakage",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "window-mean",
+          "gate": "network",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "window-mean",
+          "gate": "resources",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "window-mean",
+          "gate": "git-history",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "window-mean",
+          "gate": "oracle",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "window-mean",
+          "gate": "alternative",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "window-mean",
+          "gate": "mutation",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "window-mean",
+          "gate": "compromised-gold",
+          "ok": true,
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "task": "asb-private-holdout/quoted-csv",
+      "language": "python",
+      "kind": "bug",
+      "size": "small",
+      "difficulty": "medium",
+      "quarantined": false,
+      "ok": true,
+      "gates": [
+        {
+          "task": "quoted-csv",
+          "gate": "digest",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "quoted-csv",
+          "gate": "leakage",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "quoted-csv",
+          "gate": "network",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "quoted-csv",
+          "gate": "resources",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "quoted-csv",
+          "gate": "git-history",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "quoted-csv",
+          "gate": "oracle",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "quoted-csv",
+          "gate": "alternative",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "quoted-csv",
+          "gate": "mutation",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "quoted-csv",
+          "gate": "compromised-gold",
+          "ok": true,
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "task": "asb-private-holdout/month-add",
+      "language": "python",
+      "kind": "bug",
+      "size": "small",
+      "difficulty": "medium",
+      "quarantined": false,
+      "ok": true,
+      "gates": [
+        {
+          "task": "month-add",
+          "gate": "digest",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "month-add",
+          "gate": "leakage",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "month-add",
+          "gate": "network",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "month-add",
+          "gate": "resources",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "month-add",
+          "gate": "git-history",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "month-add",
+          "gate": "oracle",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "month-add",
+          "gate": "alternative",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "month-add",
+          "gate": "mutation",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "month-add",
+          "gate": "compromised-gold",
+          "ok": true,
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "task": "asb-private-holdout/count-balance",
+      "language": "python",
+      "kind": "bug",
+      "size": "tiny",
+      "difficulty": "easy",
+      "quarantined": false,
+      "ok": true,
+      "gates": [
+        {
+          "task": "count-balance",
+          "gate": "digest",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "count-balance",
+          "gate": "leakage",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "count-balance",
+          "gate": "network",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "count-balance",
+          "gate": "resources",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "count-balance",
+          "gate": "git-history",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "count-balance",
+          "gate": "oracle",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "count-balance",
+          "gate": "alternative",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "count-balance",
+          "gate": "mutation",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "count-balance",
+          "gate": "compromised-gold",
+          "ok": true,
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "task": "asb-private-holdout/fence-headings",
+      "language": "python",
+      "kind": "bug",
+      "size": "small",
+      "difficulty": "medium",
+      "quarantined": false,
+      "ok": true,
+      "gates": [
+        {
+          "task": "fence-headings",
+          "gate": "digest",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "fence-headings",
+          "gate": "leakage",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "fence-headings",
+          "gate": "network",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "fence-headings",
+          "gate": "resources",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "fence-headings",
+          "gate": "git-history",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "fence-headings",
+          "gate": "oracle",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "fence-headings",
+          "gate": "alternative",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "fence-headings",
+          "gate": "mutation",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "fence-headings",
+          "gate": "compromised-gold",
+          "ok": true,
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "task": "asb-private-holdout/tax-brackets",
+      "language": "python",
+      "kind": "refactor",
+      "size": "small",
+      "difficulty": "medium",
+      "quarantined": false,
+      "ok": true,
+      "gates": [
+        {
+          "task": "tax-brackets",
+          "gate": "digest",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "tax-brackets",
+          "gate": "leakage",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "tax-brackets",
+          "gate": "network",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "tax-brackets",
+          "gate": "resources",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "tax-brackets",
+          "gate": "git-history",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "tax-brackets",
+          "gate": "oracle",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "tax-brackets",
+          "gate": "alternative",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "tax-brackets",
+          "gate": "mutation",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "tax-brackets",
+          "gate": "compromised-gold",
+          "ok": true,
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "task": "asb-private-holdout/id-lookup",
+      "language": "python",
+      "kind": "refactor",
+      "size": "small",
+      "difficulty": "easy",
+      "quarantined": false,
+      "ok": true,
+      "gates": [
+        {
+          "task": "id-lookup",
+          "gate": "digest",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "id-lookup",
+          "gate": "leakage",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "id-lookup",
+          "gate": "network",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "id-lookup",
+          "gate": "resources",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "id-lookup",
+          "gate": "git-history",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "id-lookup",
+          "gate": "oracle",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "id-lookup",
+          "gate": "alternative",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "id-lookup",
+          "gate": "mutation",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "id-lookup",
+          "gate": "compromised-gold",
+          "ok": true,
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "task": "asb-private-holdout/flatten-config",
+      "language": "python",
+      "kind": "refactor",
+      "size": "small",
+      "difficulty": "medium",
+      "quarantined": false,
+      "ok": true,
+      "gates": [
+        {
+          "task": "flatten-config",
+          "gate": "digest",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "flatten-config",
+          "gate": "leakage",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "flatten-config",
+          "gate": "network",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "flatten-config",
+          "gate": "resources",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "flatten-config",
+          "gate": "git-history",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "flatten-config",
+          "gate": "oracle",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "flatten-config",
+          "gate": "alternative",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "flatten-config",
+          "gate": "mutation",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "flatten-config",
+          "gate": "compromised-gold",
+          "ok": true,
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "task": "asb-private-holdout/invert-tests",
+      "language": "python",
+      "kind": "test",
+      "size": "small",
+      "difficulty": "medium",
+      "quarantined": false,
+      "ok": true,
+      "gates": [
+        {
+          "task": "invert-tests",
+          "gate": "digest",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "invert-tests",
+          "gate": "leakage",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "invert-tests",
+          "gate": "network",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "invert-tests",
+          "gate": "resources",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "invert-tests",
+          "gate": "git-history",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "invert-tests",
+          "gate": "oracle",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "invert-tests",
+          "gate": "alternative",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "invert-tests",
+          "gate": "mutation",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "invert-tests",
+          "gate": "compromised-gold",
+          "ok": true,
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "task": "asb-private-holdout/fixture-fill",
+      "language": "python",
+      "kind": "test",
+      "size": "tiny",
+      "difficulty": "easy",
+      "quarantined": false,
+      "ok": true,
+      "gates": [
+        {
+          "task": "fixture-fill",
+          "gate": "digest",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "fixture-fill",
+          "gate": "leakage",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "fixture-fill",
+          "gate": "network",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "fixture-fill",
+          "gate": "resources",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "fixture-fill",
+          "gate": "git-history",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "fixture-fill",
+          "gate": "oracle",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "fixture-fill",
+          "gate": "alternative",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "fixture-fill",
+          "gate": "mutation",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "fixture-fill",
+          "gate": "compromised-gold",
+          "ok": true,
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "task": "asb-private-holdout/cases-cover",
+      "language": "python",
+      "kind": "test",
+      "size": "small",
+      "difficulty": "medium",
+      "quarantined": false,
+      "ok": true,
+      "gates": [
+        {
+          "task": "cases-cover",
+          "gate": "digest",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "cases-cover",
+          "gate": "leakage",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "cases-cover",
+          "gate": "network",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "cases-cover",
+          "gate": "resources",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "cases-cover",
+          "gate": "git-history",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "cases-cover",
+          "gate": "oracle",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "cases-cover",
+          "gate": "alternative",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "cases-cover",
+          "gate": "mutation",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "cases-cover",
+          "gate": "compromised-gold",
+          "ok": true,
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "task": "asb-private-holdout/cmd-safe",
+      "language": "python",
+      "kind": "security",
+      "size": "small",
+      "difficulty": "medium",
+      "quarantined": false,
+      "ok": true,
+      "gates": [
+        {
+          "task": "cmd-safe",
+          "gate": "digest",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "cmd-safe",
+          "gate": "leakage",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "cmd-safe",
+          "gate": "network",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "cmd-safe",
+          "gate": "resources",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "cmd-safe",
+          "gate": "git-history",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "cmd-safe",
+          "gate": "oracle",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "cmd-safe",
+          "gate": "alternative",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "cmd-safe",
+          "gate": "mutation",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "cmd-safe",
+          "gate": "compromised-gold",
+          "ok": true,
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "task": "asb-private-holdout/path-jail",
+      "language": "python",
+      "kind": "security",
+      "size": "small",
+      "difficulty": "medium",
+      "quarantined": false,
+      "ok": true,
+      "gates": [
+        {
+          "task": "path-jail",
+          "gate": "digest",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "path-jail",
+          "gate": "leakage",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "path-jail",
+          "gate": "network",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "path-jail",
+          "gate": "resources",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "path-jail",
+          "gate": "git-history",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "path-jail",
+          "gate": "oracle",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "path-jail",
+          "gate": "alternative",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "path-jail",
+          "gate": "mutation",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "path-jail",
+          "gate": "compromised-gold",
+          "ok": true,
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "task": "asb-private-holdout/redact-tokens",
+      "language": "python",
+      "kind": "security",
+      "size": "tiny",
+      "difficulty": "easy",
+      "quarantined": false,
+      "ok": true,
+      "gates": [
+        {
+          "task": "redact-tokens",
+          "gate": "digest",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "redact-tokens",
+          "gate": "leakage",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "redact-tokens",
+          "gate": "network",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "redact-tokens",
+          "gate": "resources",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "redact-tokens",
+          "gate": "git-history",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "redact-tokens",
+          "gate": "oracle",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "redact-tokens",
+          "gate": "alternative",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "redact-tokens",
+          "gate": "mutation",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "redact-tokens",
+          "gate": "compromised-gold",
+          "ok": true,
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "task": "asb-private-holdout/envfile-parse",
+      "language": "bash",
+      "kind": "feature",
+      "size": "tiny",
+      "difficulty": "easy",
+      "quarantined": false,
+      "ok": true,
+      "gates": [
+        {
+          "task": "envfile-parse",
+          "gate": "digest",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "envfile-parse",
+          "gate": "leakage",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "envfile-parse",
+          "gate": "network",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "envfile-parse",
+          "gate": "resources",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "envfile-parse",
+          "gate": "git-history",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "envfile-parse",
+          "gate": "oracle",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "envfile-parse",
+          "gate": "alternative",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "envfile-parse",
+          "gate": "mutation",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "envfile-parse",
+          "gate": "compromised-gold",
+          "ok": true,
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "task": "asb-private-holdout/keep-newest",
+      "language": "bash",
+      "kind": "feature",
+      "size": "small",
+      "difficulty": "medium",
+      "quarantined": false,
+      "ok": true,
+      "gates": [
+        {
+          "task": "keep-newest",
+          "gate": "digest",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "keep-newest",
+          "gate": "leakage",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "keep-newest",
+          "gate": "network",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "keep-newest",
+          "gate": "resources",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "keep-newest",
+          "gate": "git-history",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "keep-newest",
+          "gate": "oracle",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "keep-newest",
+          "gate": "alternative",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "keep-newest",
+          "gate": "mutation",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "keep-newest",
+          "gate": "compromised-gold",
+          "ok": true,
+          "detail": ""
+        }
+      ]
+    }
+  ]
+}

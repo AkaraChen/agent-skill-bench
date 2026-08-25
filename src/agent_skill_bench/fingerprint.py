@@ -6,9 +6,11 @@ from pathlib import Path
 from typing import Any
 
 from agent_skill_bench.constants import (
+    DATASET_REVISION,
     DOCKER_DIGEST,
     HARBOR_VERSION,
     MODEL_SNAPSHOT,
+    SCORER_VERSION,
     SEED,
 )
 
@@ -88,6 +90,8 @@ def build_fingerprint(
         },
         "network_mode": network_mode,
         "docker_digest": docker_digest,
+        "scorer_version": SCORER_VERSION,
+        "dataset_revision": DATASET_REVISION,
     }
     digest = sha256_text(canonical_dumps(body))
     return {

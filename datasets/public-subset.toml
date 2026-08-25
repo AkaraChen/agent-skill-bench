@@ -1,0 +1,57 @@
+# Pinned public Harbor subset. Dry-run and jobs must use these refs and
+# task names — not an unpinned n_tasks cap.
+
+[[datasets]]
+name = "harbor/hello-world"
+ref = "sha256:d10e96e201d6816b22553504e06e7de0153a26381e808d11404cbca530b9d388"
+task_names = ["hello-world/hello-world"]
+
+[[datasets.tasks]]
+name = "hello-world/hello-world"
+digest = "sha256:38d7a077f07fbee8efc78db5dec9a72f82e727510ad1dcfeac0b55fa845256b7"
+
+[[datasets]]
+name = "terminal-bench/terminal-bench-2"
+ref = "sha256:c6fc2e2382c1dbae99b2d5ecd2f4f4a60c3c01e0d84642d69b4afd92e99d078b"
+task_names = [
+  "terminal-bench/make-mips-interpreter",
+  "terminal-bench/circuit-fibsqrt",
+  "terminal-bench/build-pov-ray",
+  "terminal-bench/overfull-hbox",
+  "terminal-bench/video-processing",
+  "terminal-bench/distribution-search",
+  "terminal-bench/break-filter-js-from-html",
+  "terminal-bench/protein-assembly",
+]
+
+[[datasets.tasks]]
+name = "terminal-bench/make-mips-interpreter"
+digest = "sha256:608e82ecd67ce469824a34181b580cbd0e1096cdfc05fe40edda3e6bfada9773"
+
+[[datasets.tasks]]
+name = "terminal-bench/circuit-fibsqrt"
+digest = "sha256:fe25ab474ba626c4f45f57e757e86f2ad292de80b505e5b7ba0ba76c30d7fcc8"
+
+[[datasets.tasks]]
+name = "terminal-bench/build-pov-ray"
+digest = "sha256:b64f3fd6f47dc8848fdd6ce990fbedce9577d97ea4f7fd1c489c42338229d078"
+
+[[datasets.tasks]]
+name = "terminal-bench/overfull-hbox"
+digest = "sha256:984d672ae34ada00db17a8c024110fb3527fbb5bce0844e8c0fd9b4e4d4fdacf"
+
+[[datasets.tasks]]
+name = "terminal-bench/video-processing"
+digest = "sha256:59730f0ccdc323eb45aa433d094cd7c2f29a0084d3670ce7cc93acee9b516ade"
+
+[[datasets.tasks]]
+name = "terminal-bench/distribution-search"
+digest = "sha256:0212a95c28e26008f035e4cf39fc45cc69a20b621ae4ef83c1a27c4a0f20ecff"
+
+[[datasets.tasks]]
+name = "terminal-bench/break-filter-js-from-html"
+digest = "sha256:59a2641df9bca789642ad4ab3f5790de5ffed6eb4a594ca7846d26422a55c4a8"
+
+[[datasets.tasks]]
+name = "terminal-bench/protein-assembly"
+digest = "sha256:eae346d9f193dd962d66c94e218281f37165a9e7524ec0a7a617c0c68bf136bb"

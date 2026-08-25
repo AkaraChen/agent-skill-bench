@@ -84,4 +84,6 @@ def classify_trial(result: dict[str, Any]) -> FailureClass:
         return FailureClass.INFRA
     if reward >= 1:
         return FailureClass.OK
-    return FailureClass.TEST
+    # Hidden-test failure is a wrong implementation / model output.
+    # Only verifier exceptions (handled above) stay TEST.
+    return FailureClass.MODEL

@@ -2,7 +2,7 @@
 
 Composable **Agent × Prompt × Skill** programming benchmark on [Harbor](https://github.com/harbor-framework/harbor).
 
-Stage 2: a versioned experiment YAML expands into a Harbor job. **Do not treat scores as a ranking or a generalization about models, agents, prompts, or skills.**
+Stage 3: isolated private holdout + validity gates + a scorer that keeps infra errors out of model failure. **Do not treat scores as a ranking or a generalization about models, agents, prompts, or skills.**
 
 ## Frozen versions
 
@@ -26,9 +26,16 @@ uv sync --extra dev
 uv run asb run --dry-run                          # cells, trial count, budget gate
 uv run asb run                                    # A-track 2×2 smoke, 20 trials
 uv run asb run --config configs/experiments/track-b.example.yaml --dry-run
+uv run asb run --config configs/experiments/stage3-holdout.yaml --dry-run
+uv run asb run --config configs/experiments/stage3-public-subset.yaml --dry-run
 uv run asb run --resume jobs/<job-dir>            # Harbor job resume
+uv run asb fetch-sealed                           # authorized clone of private holdout + digest check
+uv run asb assemble                               # public + sealed → cache/asb/assembled/holdout
+uv run asb validate                               # fail-closed pinned-container gates (needs sealed corpus)
+uv run asb run --config configs/experiments/stage3-holdout.yaml --dry-run
+uv run asb dataset                                # revision, image digest, scorer version
 uv run asb summarize
-uv run pytest
+uv run --extra dev pytest
 ```
 
 `--dry-run` prints the matrix and **refuses** to proceed when `cells × tasks × repeat` exceeds `max_trials`, when `budget_usd` is set without `usd_per_trial`, or when estimated cost exceeds `budget_usd`.
@@ -37,7 +44,16 @@ uv run pytest
 
 See `configs/experiments/smoke-2x2.yaml`. Treatments are the factorial unit (not an implicit prompt × skill cartesian). Add `include` / `exclude`, `cells` for an explicit matrix, `sample` (`2` or `{n: 1, by: treatment|agent|model|pairing}`), and `pairs` for same-agent/model paired treatments. `agents[].kwargs` pass through to Harbor.
 
-Harbor cartesian-products `agents[] × tasks[] × n_attempts`. Repeat is `repeat` → Harbor `n_attempts`. Retry is Harbor `max_retries`. Interrupted jobs resume with `asb run --resume`. Each job writes `asb_experiment.json` (resolved schema, seed, cells, pairs, skill tree hashes).
+Harbor cartesian-products `agents[] × tasks[] × n_attempts`. Repeat is `repeat` → Harbor `n_attempts`. Retry is Harbor `max_retries` with a **pre-registered infra-only include list** (agent/model/test outcomes are never retried). Interrupted jobs resume with `asb run --resume`. Each job writes `asb_experiment.json` (resolved schema, seed, cells, pairs, skill tree hashes, dataset refs).
+
+## Stage 3 task set
+
+- Public subset pin: `datasets/public-subset.toml` — `harbor/hello-world` and `terminal-bench/terminal-bench-2` with dataset `ref` (content hash) and explicit task names + task digests.
+- Private holdout **revision `2026.08.25.r3`**. Public tree: agent-visible files + `datasets/private-manifest.toml`. Hidden tests / gold / alt / negative live in private `AkaraChen/agent-skill-bench-holdout` at tag `v2026.08.25.r3`. Fetch: `asb fetch-sealed` (cache only under `cache/asb/`, atomic replace after verify).
+- Revisions `2026.08.25` and `2026.08.25.r2` are **compromised** (`datasets/compromised.toml`). Each task pins a `compromised_gold_digest`; fetch and validate check the inventory, and the `compromised-gold` gate always runs (missing or drift fails).
+- `assemble_sealed` jobs write into `cache/asb/assembled/holdout`. Absolute/`..` paths are rejected.
+- `asb validate` never generates. Scorer: hidden-test failures are **model** failure; only verifier exceptions are `TEST`.
+
 
 ## What each trial stores
 

@@ -17,6 +17,17 @@ from harbor.agents.installed.acp_registry import is_acp_registry_shorthand
 from harbor.models.agent.name import AgentName
 
 from agent_skill_bench.fingerprint import canonical_dumps, sha256_text, sha256_tree
+from agent_skill_bench.retry_policy import harbor_retry
+
+
+def _assembled_path(spec: dict[str, Any], root: Path) -> str:
+    raw = str(spec.get("assembled_path") or "cache/asb/assembled/holdout")
+    if not spec.get("assemble_sealed"):
+        return raw
+    from agent_skill_bench.holdout import resolve_cache_target
+
+    resolved = resolve_cache_target(root, raw, label="assembled_path")
+    return str(resolved.relative_to(root.resolve()))
 
 SCHEMA_VERSION = 1
 ASB_RESERVED_KWARGS = {
@@ -49,6 +60,36 @@ class Cell:
     agent_kwargs: dict[str, Any] = field(default_factory=dict)
 
 
+@dataclass(frozen=True)
+class DatasetRef:
+    name: str | None = None
+    path: str | None = None
+    version: str | None = None
+    ref: str | None = None
+    n_tasks: int | None = None
+    task_names: tuple[str, ...] = ()
+    exclude_task_names: tuple[str, ...] = ()
+    resolved_n_tasks: int = 0
+
+    def to_harbor(self) -> dict[str, Any]:
+        payload: dict[str, Any] = {}
+        if self.name:
+            payload["name"] = self.name
+        if self.path:
+            payload["path"] = self.path
+        if self.version:
+            payload["version"] = self.version
+        if self.ref:
+            payload["ref"] = self.ref
+        if self.n_tasks is not None:
+            payload["n_tasks"] = self.n_tasks
+        if self.task_names:
+            payload["task_names"] = list(self.task_names)
+        if self.exclude_task_names:
+            payload["exclude_task_names"] = list(self.exclude_task_names)
+        return payload
+
+
 @dataclass
 class Plan:
     name: str
@@ -66,14 +107,22 @@ class Plan:
     pairs: list[tuple[str, str]]
     selection: dict[str, Any] = field(default_factory=dict)
     skill_hashes: list[dict[str, str]] = field(default_factory=list)
+    datasets: list[DatasetRef] = field(default_factory=list)
+    retry: dict[str, Any] = field(default_factory=dict)
+    assemble_sealed: bool = False
+    assembled_path: str = "jobs/.assembled/holdout"
 
     @property
     def n_cells(self) -> int:
         return len(self.cells)
 
     @property
+    def n_task_units(self) -> int:
+        return len(self.tasks) + sum(item.resolved_n_tasks for item in self.datasets)
+
+    @property
     def n_trials(self) -> int:
-        return self.n_cells * len(self.tasks) * self.repeat
+        return self.n_cells * self.n_task_units * self.repeat
 
     @property
     def estimated_usd(self) -> float | None:
@@ -207,6 +256,57 @@ def _treatments(spec: dict[str, Any], prompts: dict[str, str]) -> list[dict[str,
                     "skill_bundle": bundle_name,
                 }
             )
+    return parsed
+
+
+def _count_local_tasks(root: Path, rel: str) -> int:
+    path = Path(rel)
+    if not path.is_absolute():
+        path = root / path
+    if not path.exists():
+        raise ExperimentError(f"dataset path not found: {rel}")
+    return sum(1 for child in path.iterdir() if child.is_dir() and (child / "task.toml").exists())
+
+
+def _datasets(spec: dict[str, Any], root: Path) -> list[DatasetRef]:
+    parsed: list[DatasetRef] = []
+    for item in _as_list(spec.get("datasets")):
+        if not isinstance(item, dict):
+            raise ExperimentError("each dataset must be a mapping")
+        name = str(item["name"]) if item.get("name") else None
+        path = str(item["path"]) if item.get("path") else None
+        if bool(name) == bool(path):
+            raise ExperimentError("each dataset needs exactly one of name or path")
+        n_tasks = item.get("n_tasks")
+        n_tasks_int = None if n_tasks is None else int(n_tasks)
+        task_names = tuple(str(part) for part in _as_list(item.get("task_names")))
+        exclude = tuple(str(part) for part in _as_list(item.get("exclude_task_names")))
+        if path:
+            local = _count_local_tasks(root, path)
+            if task_names:
+                local = min(local, len(task_names))
+            resolved = local if n_tasks_int is None else min(local, n_tasks_int)
+        else:
+            if n_tasks_int is None and not task_names:
+                raise ExperimentError(
+                    f"remote dataset {name!r} needs n_tasks or task_names "
+                    "so dry-run can bound trial count without a registry fetch"
+                )
+            resolved = len(task_names) if n_tasks_int is None else n_tasks_int
+            if task_names:
+                resolved = min(resolved, len(task_names))
+        parsed.append(
+            DatasetRef(
+                name=name,
+                path=path,
+                version=str(item["version"]) if item.get("version") else None,
+                ref=str(item["ref"]) if item.get("ref") else None,
+                n_tasks=n_tasks_int,
+                task_names=task_names,
+                exclude_task_names=exclude,
+                resolved_n_tasks=resolved,
+            )
+        )
     return parsed
 
 
@@ -437,9 +537,10 @@ def expand(spec: dict[str, Any], root: Path) -> Plan:
     models = [str(item) for item in _as_list(_require(spec, "models"))]
     if not models:
         raise ExperimentError("models must not be empty")
-    tasks = [str(item) for item in _as_list(_require(spec, "tasks"))]
-    if not tasks:
-        raise ExperimentError("tasks must not be empty")
+    tasks = [str(item) for item in _as_list(spec.get("tasks"))]
+    datasets = _datasets(spec, root)
+    if not tasks and not datasets:
+        raise ExperimentError("Need tasks or datasets")
     prompts = _prompts(spec)
     treatments = _treatments(spec, prompts)
     agents = _agents(spec)
@@ -493,6 +594,10 @@ def expand(spec: dict[str, Any], root: Path) -> Plan:
             "explicit_cells": bool(explicit),
         },
         skill_hashes=_skill_hashes(root, cells),
+        datasets=datasets,
+        retry=harbor_retry(int(spec.get("max_retries") or 0)),
+        assemble_sealed=bool(spec.get("assemble_sealed")),
+        assembled_path=_assembled_path(spec, root),
     )
 
 
@@ -500,7 +605,7 @@ def guard(plan: Plan) -> None:
     if plan.n_trials > plan.max_trials:
         raise ExperimentError(
             f"Refusing to run {plan.n_trials} trials (cells={plan.n_cells} "
-            f"× tasks={len(plan.tasks)} × repeat={plan.repeat}); "
+            f"× tasks={plan.n_task_units} × repeat={plan.repeat}); "
             f"max_trials={plan.max_trials}. Narrow treatments, add exclude, "
             f"set sample, or raise max_trials."
         )
@@ -524,14 +629,28 @@ def format_dry_run(plan: Plan) -> str:
         f"experiment: {plan.name}",
         f"seed: {plan.seed}",
         f"cells: {plan.n_cells}",
-        f"tasks: {len(plan.tasks)}",
+        f"tasks: {plan.n_task_units}",
         f"repeat: {plan.repeat}",
         f"trials: {plan.n_trials}",
         f"max_trials: {plan.max_trials}",
         f"estimated_usd: {cost}",
         f"pairs: {', '.join(f'{a} vs {b}' for a, b in plan.pairs) or '(none)'}",
-        "skill_hashes:",
+        f"retry.max_retries: {plan.retry.get('max_retries')}",
+        f"assemble_sealed: {plan.assemble_sealed}",
+        "datasets:",
     ]
+    if plan.datasets:
+        for item in plan.datasets:
+            ref = item.name or item.path
+            extra = f" n={item.resolved_n_tasks}"
+            if item.version:
+                extra += f" version={item.version}"
+            if item.ref:
+                extra += f" ref={item.ref}"
+            lines.append(f"  - {ref}{extra}")
+    else:
+        lines.append("  - (none)")
+    lines.append("skill_hashes:")
     if plan.skill_hashes:
         for item in plan.skill_hashes:
             lines.append(f"  - {item['order']} {item['name']} {item['digest']}")
@@ -571,6 +690,11 @@ def resolved_manifest(plan: Plan) -> dict[str, Any]:
         "budget_usd": plan.budget_usd,
         "environment": plan.environment,
         "tasks": list(plan.tasks),
+        "datasets": [item.to_harbor() | {"resolved_n_tasks": item.resolved_n_tasks} for item in plan.datasets],
+        "retry": plan.retry,
+        "assemble_sealed": plan.assemble_sealed,
+        "assembled_path": plan.assembled_path,
+        "n_task_units": plan.n_task_units,
         "pairs": [{"id": _pair_id(left, right), "left": left, "right": right} for left, right in plan.pairs],
         "selection": plan.selection,
         "skill_hashes": plan.skill_hashes,
@@ -619,11 +743,19 @@ def compile_harbor_job(plan: Plan, job_name: str) -> dict[str, Any]:
         "n_concurrent_trials": plan.n_concurrent,
         "quiet": False,
         "timeout_multiplier": 1.0,
-        "retry": {"max_retries": plan.max_retries},
+        "retry": plan.retry,
         "environment": plan.environment,
         "agents": agents,
         "tasks": [{"path": path} for path in plan.tasks],
+        "datasets": [_harbor_dataset(item, plan) for item in plan.datasets],
     }
+
+
+def _harbor_dataset(item: DatasetRef, plan: Plan) -> dict[str, Any]:
+    payload = item.to_harbor()
+    if plan.assemble_sealed and item.path:
+        payload["path"] = plan.assembled_path
+    return payload
 
 
 def dump_harbor_job(job: dict[str, Any]) -> str:

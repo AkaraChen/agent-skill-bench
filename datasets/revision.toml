@@ -1,0 +1,26 @@
+dataset_id = "asb-private-holdout"
+dataset_revision = "2026.08.25.r3"
+authored_at = "2026-08-25"
+cutoff_policy = "authored-after-2026-08-01"
+n_private_tasks = 24
+scorer_version = "1.0.0"
+harbor_version = "0.22.0"
+image = "python:3.12.11-slim-bookworm@sha256:519591d6871b7bc437060736b9f7456b8731f1499a57e22e6c285135ae657bf7"
+network_mode = "no-network"
+cpus = 1
+memory_mb = 512
+storage_mb = 1024
+leakage_evidence = "revision 2026.08.25.r3 replaces leaked 2026.08.25 and stamp-only 2026.08.25.r2"
+
+sealed_access = "asb fetch-sealed → AkaraChen/agent-skill-bench-holdout@v2026.08.25.r3"
+
+[[public_subset]]
+name = "harbor/hello-world"
+ref = "sha256:d10e96e201d6816b22553504e06e7de0153a26381e808d11404cbca530b9d388"
+task_names = ["hello-world/hello-world"]
+
+[[public_subset]]
+name = "terminal-bench/terminal-bench-2"
+ref = "sha256:c6fc2e2382c1dbae99b2d5ecd2f4f4a60c3c01e0d84642d69b4afd92e99d078b"
+n_named_tasks = 8
+pin_file = "datasets/public-subset.toml"

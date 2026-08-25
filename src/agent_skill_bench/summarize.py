@@ -8,8 +8,9 @@ from pathlib import Path
 from typing import Any
 
 from agent_skill_bench.classify import FailureClass, classify_trial
-from agent_skill_bench.constants import MODEL_SNAPSHOT, SEED, repo_root
+from agent_skill_bench.constants import MODEL_SNAPSHOT, SCORER_VERSION, SEED, repo_root
 from agent_skill_bench.fingerprint import build_fingerprint, sha256_file
+from agent_skill_bench.scorer import rubric_packet, score_trial
 
 DISCLAIMER = (
     "This table is a loop / matrix smoke of the experiment machinery. "
@@ -172,10 +173,30 @@ def summarize_job(job_dir: Path, out_dir: Path) -> Path:
             pairing_key=pairing_key,
         )
         failure = classify_trial(result)
+        scored = score_trial(result)
         rewards = ((result.get("verifier_result") or {}).get("rewards")) or {}
         cost = ((result.get("agent_result") or {}).get("cost_usd"))
         tokens_in = ((result.get("agent_result") or {}).get("n_input_tokens"))
         tokens_out = ((result.get("agent_result") or {}).get("n_output_tokens"))
+        instruction_text = ""
+        instruction_path = trial_dir / "agent" / "instruction.md"
+        if instruction_path.exists():
+            instruction_text = instruction_path.read_text()
+        workspace_files: dict[str, str] = {}
+        workspace_path = trial_dir / "agent" / "workspace.json"
+        if workspace_path.exists():
+            try:
+                loaded = json.loads(workspace_path.read_text())
+                if isinstance(loaded, dict):
+                    workspace_files = {str(k): str(v) for k, v in loaded.items()}
+            except json.JSONDecodeError:
+                workspace_files = {}
+        packet = rubric_packet(
+            instruction=instruction_text,
+            files=workspace_files,
+            task_id=str(result.get("task_name") or ""),
+        )
+        (trial_dir / "asb_rubric_packet.json").write_text(json.dumps(packet, indent=2) + "\n")
         skill_loaded = bool(
             skills_log
             and skills_log.get("uses_skills")
@@ -198,6 +219,9 @@ def summarize_job(job_dir: Path, out_dir: Path) -> Path:
             "skill_loaded": skill_loaded,
             "reward": rewards.get("reward"),
             "failure_class": failure.value,
+            "infra_error": scored["infra_error"],
+            "counted_as_model_failure": scored["counted_as_model_failure"],
+            "scorer_version": SCORER_VERSION,
             "duration_sec": _duration_sec(result),
             "cost_usd": cost,
             "n_input_tokens": tokens_in,
@@ -215,6 +239,7 @@ def summarize_job(job_dir: Path, out_dir: Path) -> Path:
                     **fingerprint,
                     "failure_class": failure.value,
                     "reward": rewards.get("reward"),
+                    "score": scored,
                     "skill_log": skills_log,
                     "experiment": experiment,
                 },
