@@ -1,0 +1,26 @@
+schema_version: 1
+kind: pipeline
+name: stage5-screen-confirm
+screen:
+  experiment: configs/experiments/stage5-screen.yaml
+confirm:
+  repeat: 3
+  top_k: 2
+  max_trials: 150
+  n_concurrent: 4
+  # Confirm spends repeats on shortlisted treatments without re-exploding the
+  # full screen task set. Agents stay at 3 so agent×treatment interactions remain.
+  # 2 treatments × 3 agents × 2 models × 4 tasks × 3 repeats = 144.
+  models:
+    - deterministic/beta@2026-08-26
+    - deterministic/gamma@2026-08-26
+  tasks:
+    - tasks/reverse-string
+    - tasks/slugify
+  datasets:
+    - path: cache/asb/assembled/holdout
+      task_names:
+        - clamp-range
+        - path-jail
+  assemble_sealed: true
+  assembled_path: cache/asb/assembled/holdout

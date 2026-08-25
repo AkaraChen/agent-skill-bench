@@ -11,7 +11,8 @@ from harbor.agents.base import BaseAgent
 from harbor.environments.base import BaseEnvironment, ExecResult
 from harbor.models.agent.context import AgentContext
 
-from agent_skill_bench.constants import HIDDEN_CANARY, repo_root
+from agent_skill_bench.constants import repo_root
+from agent_skill_bench.profiles import decide, detect_task
 
 SOLVE_SCRIPT = r'''
 from pathlib import Path
@@ -19,21 +20,36 @@ import csv
 import json
 import re
 import sys
+from collections import Counter
 
 instruction = Path("/tmp/asb_instruction.txt").read_text()
 text = instruction.lower()
+force_fail = Path("/tmp/asb_force_fail").exists()
+failure_mode = Path("/tmp/asb_failure_mode.txt").read_text().strip() if Path("/tmp/asb_failure_mode.txt").exists() else ""
 
 def detect():
     if "reverse" in text:
         return "reverse-string"
     if "fizzbuzz" in text or "fizz buzz" in text:
         return "fizzbuzz"
-    if "csv" in text or "amount" in text:
-        return "csv-sum"
-    if "json" in text and "merge" in text:
-        return "json-merge"
+    if "threshold" in text and "output.csv" in text:
+        return "csv-threshold"
+    if "stopwords" in text or "freq.txt" in text:
+        return "word-freq"
+    if "clamp" in text or "half-open" in text:
+        return "clamp-range"
+    if "unique lines" in text or "last-seen" in text:
+        return "unique-lines"
+    if "path.txt" in text or "blocked" in text:
+        return "path-jail"
+    if "ak_" in text or "sk-" in text:
+        return "redact-tokens"
     if "slug" in text:
         return "slugify"
+    if "json" in text and "merge" in text:
+        return "json-merge"
+    if "csv" in text or "amount" in text:
+        return "csv-sum"
     return "unknown"
 
 def solve_reverse():
@@ -75,16 +91,100 @@ def solve_slugify():
     slug = re.sub(r"[^a-z0-9]+", "-", raw).strip("-")
     Path("/app/slug.txt").write_text(slug + "\n")
 
+def solve_clamp():
+    lo, hi = map(int, Path("/app/bounds.txt").read_text().split())
+    out = []
+    for line in Path("/app/input.txt").read_text().splitlines():
+        if line.strip() == "":
+            continue
+        v = int(line)
+        out.append(str(min(hi - 1, max(lo, v))))
+    Path("/app/output.txt").write_text("\n".join(out) + "\n")
+    Path("/app/ASB_REVISION").write_text("2026.08.25.r3\n")
+
+def solve_unique():
+    seen = []
+    for line in Path("/app/input.txt").read_text().splitlines():
+        if line in seen:
+            seen.remove(line)
+        seen.append(line)
+    Path("/app/output.txt").write_text(("\n".join(seen) + "\n") if seen else "")
+    Path("/app/ASB_REVISION").write_text("2026.08.25.r3\n")
+
+def solve_csv_threshold():
+    threshold = int(Path("/app/threshold.txt").read_text().strip())
+    rows = []
+    with Path("/app/data.csv").open() as handle:
+        reader = csv.DictReader(handle)
+        fieldnames = reader.fieldnames or ["name", "amount"]
+        for row in reader:
+            if int(row["amount"]) >= threshold:
+                rows.append(row)
+    lines = ["\t".join(fieldnames)]
+    for row in rows:
+        lines.append("\t".join(row[name] for name in fieldnames))
+    Path("/app/output.csv").write_text("\n".join(lines) + "\n")
+    Path("/app/ASB_REVISION").write_text("2026.08.25.r3\n")
+
+def solve_word_freq():
+    stop = {line.strip().lower() for line in Path("/app/stopwords.txt").read_text().splitlines() if line.strip()}
+    tokens = [tok.lower() for tok in Path("/app/text.txt").read_text().split() if tok.lower() not in stop]
+    counts = Counter(tokens)
+    rows = sorted(counts.items(), key=lambda item: (-item[1], item[0]))
+    Path("/app/freq.txt").write_text("\n".join(f"{w}\t{n}" for w, n in rows) + "\n")
+    Path("/app/ASB_REVISION").write_text("2026.08.25.r3\n")
+
+def solve_path_jail():
+    # Tests re-run /app/read.py; patch the vulnerable starter like the gold solve.
+    Path("/app/read.py").write_text(
+        "import os\n"
+        "from pathlib import Path\n"
+        "APP = Path(os.environ.get('APP', '/app'))\n"
+        "root = (APP / 'data').resolve()\n"
+        "rel = (APP / 'path.txt').read_text().strip()\n"
+        "try:\n"
+        "    target = (root / rel).resolve()\n"
+        "    target.relative_to(root)\n"
+        "    (APP / 'output.txt').write_text(target.read_text())\n"
+        "except Exception:\n"
+        "    (APP / 'output.txt').write_text('blocked\\n')\n"
+    )
+    import runpy
+    runpy.run_path("/app/read.py", run_name="__main__")
+    Path("/app/ASB_REVISION").write_text("2026.08.25.r3\n")
+
+def solve_redact():
+    text_in = Path("/app/log.txt").read_text()
+    text_out = re.sub(r"ak_[A-Za-z0-9]+", "***", text_in)
+    text_out = re.sub(r"sk-[A-Za-z0-9]+", "***", text_out)
+    Path("/app/output.txt").write_text(text_out)
+    Path("/app/ASB_REVISION").write_text("2026.08.25.r3\n")
+
 SOLVERS = {
     "reverse-string": solve_reverse,
     "fizzbuzz": solve_fizzbuzz,
     "csv-sum": solve_csv_sum,
     "json-merge": solve_json_merge,
     "slugify": solve_slugify,
+    "clamp-range": solve_clamp,
+    "unique-lines": solve_unique,
+    "csv-threshold": solve_csv_threshold,
+    "word-freq": solve_word_freq,
+    "path-jail": solve_path_jail,
+    "redact-tokens": solve_redact,
 }
 
 task = detect()
 Path("/tmp/asb_detected_task.txt").write_text(task)
+if force_fail:
+    # Deliberate wrong artifacts for failure taxonomy / blind review samples.
+    if failure_mode == "security_miss" and task == "path-jail":
+        Path("/app/output.txt").write_text(Path("/app/data/secret.txt").read_text() if Path("/app/data/secret.txt").exists() else "leaked\n")
+    elif failure_mode in {"skill_conflict", "skill_order_conflict"}:
+        Path("/app/output.txt").write_text("")
+    else:
+        Path("/app/output.txt").write_text("WRONG\n")
+    sys.exit(0)
 if task not in SOLVERS:
     sys.exit(2)
 SOLVERS[task]()
@@ -125,9 +225,9 @@ print(json.dumps(probe))
 
 
 class DeterministicSolver(BaseAgent):
-    """Host-side Harbor agent that solves smoke tasks inside the container."""
+    """Host-side Harbor agent that solves smoke/private tasks inside the container."""
 
-    AGENT_VERSION = "0.1.0"
+    AGENT_VERSION = "0.2.0"
 
     def __init__(
         self,
@@ -137,9 +237,11 @@ class DeterministicSolver(BaseAgent):
         prompt_path: str | None = None,
         **kwargs: Any,
     ):
+        skill_order = kwargs.pop("asb_skill_order", None)
         super().__init__(logs_dir=logs_dir, model_name=model_name, **kwargs)
         self.prompt_name = prompt_name
         self.prompt_path = Path(prompt_path) if prompt_path else None
+        self.asb_skill_order = [str(item) for item in (skill_order or [])]
         self._events: list[dict[str, Any]] = []
 
     def version(self) -> str:
@@ -248,6 +350,7 @@ print(json.dumps(payload))
             if loaded:
                 marker = {
                     "skill": loaded[0]["name"],
+                    "skills": [item["name"] for item in loaded],
                     "sha256": loaded[0]["sha256"],
                     "applied": True,
                     "agent": self.name(),
@@ -261,6 +364,7 @@ print(json.dumps(payload))
                 self._log(
                     "skill_loaded",
                     skill=loaded[0]["name"],
+                    skills=[item["name"] for item in loaded],
                     sha256=loaded[0]["sha256"],
                 )
         else:
@@ -300,20 +404,82 @@ print(json.dumps(payload))
 
         await self._probe_leakage(environment)
         skills = await self._inspect_skills(environment)
+        loaded_names = [item.get("name") for item in (skills.get("loaded") or []) if item.get("name")]
+        if self.asb_skill_order and self.uses_skills():
+            # Prefer configured load order over filesystem sort (order effects).
+            present = set(loaded_names)
+            ordered = [name for name in self.asb_skill_order if name in present]
+            for name in loaded_names:
+                if name not in ordered:
+                    ordered.append(name)
+            loaded_names = ordered
+        if not self.uses_skills():
+            loaded_names = []
+
+        task_name = detect_task(instruction)
+        decision = decide(
+            model=self.model_name,
+            agent=self.name(),
+            prompt_name=self.prompt_name,
+            skills_loaded=loaded_names,
+            task=task_name,
+        )
+        self._log(
+            "profile_decision",
+            task=task_name,
+            solve=decision.solve,
+            failure_mode=decision.failure_mode,
+            reason=decision.reason,
+            cost_usd=decision.cost_usd,
+        )
+        (self.logs_dir / "profile_decision.json").write_text(
+            json.dumps(
+                {
+                    "task": task_name,
+                    "solve": decision.solve,
+                    "failure_mode": decision.failure_mode,
+                    "reason": decision.reason,
+                    "cost_usd": decision.cost_usd,
+                    "model": self.model_name,
+                    "agent": self.name(),
+                    "prompt_name": self.prompt_name,
+                    "skills_loaded": loaded_names,
+                },
+                indent=2,
+            )
+            + "\n"
+        )
+
+        if decision.solve:
+            await self._exec_python(
+                environment,
+                "from pathlib import Path\n"
+                "Path('/tmp/asb_force_fail').unlink(missing_ok=True)\n"
+                "Path('/tmp/asb_failure_mode.txt').unlink(missing_ok=True)\n",
+            )
+        else:
+            mode = decision.failure_mode or "deliberate_wrong"
+            await self._exec_python(
+                environment,
+                "from pathlib import Path\n"
+                "Path('/tmp/asb_force_fail').write_text('1')\n"
+                f"Path('/tmp/asb_failure_mode.txt').write_text({mode!r})\n",
+            )
 
         solve = await self._exec_python(environment, SOLVE_SCRIPT)
         detected = await environment.exec(
             command="cat /tmp/asb_detected_task.txt 2>/dev/null || true"
         )
-        task_name = (detected.stdout or "").strip() or "unknown"
+        detected_task = (detected.stdout or "").strip() or task_name
         self._log(
             "solve",
-            task=task_name,
+            task=detected_task,
             return_code=solve.return_code,
             stderr=(solve.stderr or "")[:500],
+            forced_fail=not decision.solve,
         )
         if solve.return_code != 0:
-            self._log("model_unsolved", task=task_name, return_code=solve.return_code)
+            self._log("model_unsolved", task=detected_task, return_code=solve.return_code)
 
         diff = await environment.exec(
             command=(
@@ -337,14 +503,19 @@ print(json.dumps(payload))
         output_tokens = max(1, len(diff.stdout or "") // 4)
         context.n_input_tokens = prompt_tokens
         context.n_output_tokens = output_tokens
-        context.cost_usd = 0.0
+        context.cost_usd = float(decision.cost_usd)
         context.metadata = {
             "prompt_name": self.prompt_name,
             "prompt_sha256": prompt_digest,
             "skills": skills,
-            "detected_task": task_name,
+            "detected_task": detected_task,
             "agent": self.name(),
             "agent_version": self.version(),
+            "profile_decision": {
+                "solve": decision.solve,
+                "failure_mode": decision.failure_mode,
+                "reason": decision.reason,
+            },
         }
         self._log("done")
         events_path.write_text(

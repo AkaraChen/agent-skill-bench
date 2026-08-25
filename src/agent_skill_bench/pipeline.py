@@ -43,6 +43,7 @@ def confirm_spec(
     *,
     repeat: int,
     max_trials: int | None = None,
+    overrides: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     if not treatments:
         raise ExperimentError("confirm needs at least one treatment from the screen")
@@ -50,6 +51,8 @@ def confirm_spec(
     spec["name"] = f"{screen_spec.get('name') or 'screen'}-confirm"
     spec["repeat"] = repeat
     spec.pop("sample", None)
+    # Drop fractional screen cells so confirm re-expands agents × models × shortlist.
+    spec.pop("cells", None)
     declared = spec.get("treatments") or []
     keep = [item for item in declared if str(item.get("name")) in set(treatments)]
     if not keep:
@@ -64,6 +67,15 @@ def confirm_spec(
     spec["pairs"] = pairs
     if max_trials is not None:
         spec["max_trials"] = max_trials
+    # Optional confirm-only narrowing so screen can cover factors without
+    # exploding confirm × repeat (ponytail: keep overrides shallow).
+    for key in ("agents", "models", "tasks", "datasets", "include", "exclude", "n_concurrent"):
+        if overrides and key in overrides and overrides[key] is not None:
+            spec[key] = deepcopy(overrides[key])
+    if overrides and overrides.get("assemble_sealed") is not None:
+        spec["assemble_sealed"] = overrides["assemble_sealed"]
+    if overrides and overrides.get("assembled_path") is not None:
+        spec["assembled_path"] = overrides["assembled_path"]
     return spec
 
 
@@ -83,11 +95,27 @@ def plan_pipeline(
     ranked = rank_treatments(rows or [], top_k)
     if not ranked:
         ranked = [str(item["name"]) for item in (screen_spec.get("treatments") or [])[:top_k]]
+    overrides = {
+        key: confirm_cfg.get(key)
+        for key in (
+            "agents",
+            "models",
+            "tasks",
+            "datasets",
+            "include",
+            "exclude",
+            "n_concurrent",
+            "assemble_sealed",
+            "assembled_path",
+        )
+        if key in confirm_cfg
+    }
     confirm = confirm_spec(
         screen_spec,
         ranked,
         repeat=repeat,
         max_trials=confirm_cfg.get("max_trials"),
+        overrides=overrides or None,
     )
     confirm_plan = expand(confirm, root)
     guard(confirm_plan)

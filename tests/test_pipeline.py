@@ -35,6 +35,46 @@ def test_confirm_repeats_only_ranked_treatments() -> None:
     assert plan.n_trials == 30
 
 
+def test_confirm_overrides_narrow_models_and_tasks() -> None:
+    screen = load_yaml(repo_root() / "configs/experiments/stage5-screen.yaml")
+    spec = confirm_spec(
+        screen,
+        ["baseline", "bundle"],
+        repeat=3,
+        max_trials=150,
+        overrides={
+            "models": ["deterministic/beta@2026-08-26", "deterministic/gamma@2026-08-26"],
+            "tasks": ["tasks/reverse-string", "tasks/slugify"],
+            "datasets": [
+                {
+                    "path": "cache/asb/assembled/holdout",
+                    "task_names": ["clamp-range", "path-jail"],
+                }
+            ],
+        },
+    )
+    plan = expand(spec, repo_root())
+    guard(plan)
+    assert plan.repeat == 3
+    assert {cell.treatment for cell in plan.cells} == {"baseline", "bundle"}
+    assert {cell.model for cell in plan.cells} == {
+        "deterministic/beta@2026-08-26",
+        "deterministic/gamma@2026-08-26",
+    }
+    assert plan.n_trials == 144
+
+
+def test_stage5_screen_under_cap() -> None:
+    spec = load_yaml(repo_root() / "configs/experiments/stage5-screen.yaml")
+    plan = expand(spec, repo_root())
+    guard(plan)
+    guard_policy(plan)
+    assert plan.n_trials == 96
+    assert {cell.treatment for cell in plan.cells} == {"baseline", "plan", "skill", "bundle"}
+    assert len({cell.model for cell in plan.cells}) == 3
+    assert len({cell.agent for cell in plan.cells}) == 3
+
+
 def test_pipeline_dry_run_cli() -> None:
     payload = plan_pipeline(
         load_yaml(repo_root() / "configs/experiments/stage4-pipeline.yaml"),
