@@ -2,8 +2,12 @@
 
 from __future__ import annotations
 
+import json
 from copy import deepcopy
-from typing import Any
+from pathlib import Path
+from typing import Any, Callable
+
+import yaml
 
 from agent_skill_bench.experiment import ExperimentError, Plan, expand, guard
 from agent_skill_bench.stats import slice_table
@@ -124,4 +128,78 @@ def format_pipeline(payload: dict[str, Any]) -> str:
         f"confirm.estimated_usd: {confirm['estimated_usd']}",
         payload["note"],
     ]
+    if payload.get("executed"):
+        lines.append(f"screen.job: {screen.get('job_dir') or '(skipped)'}")
+        lines.append(f"confirm.job: {confirm.get('job_dir')}")
     return "\n".join(lines)
+
+
+RunFn = Callable[[Path], Path | None]
+RowsFn = Callable[[Path], list[dict[str, Any]]]
+
+
+def _default_run(config: Path) -> Path | None:
+    from agent_skill_bench.run import run_job
+
+    return run_job(config)
+
+
+def _default_rows(job_dir: Path) -> list[dict[str, Any]]:
+    from agent_skill_bench.constants import repo_root
+    from agent_skill_bench.summarize import summarize_job
+
+    out = repo_root() / "results" / job_dir.name
+    summarize_job(job_dir, out)
+    payload = json.loads((out / "results.json").read_text())
+    return list(payload.get("rows") or [])
+
+
+def run_pipeline(
+    pipeline_spec: dict[str, Any],
+    screen_spec: dict[str, Any],
+    root: Path,
+    *,
+    screen_path: Path | None = None,
+    rows: list[dict[str, Any]] | None = None,
+    dry_run: bool = False,
+    run_fn: RunFn | None = None,
+    rows_fn: RowsFn | None = None,
+) -> dict[str, Any]:
+    """Plan, then actually run screen → rank → confirm unless dry_run."""
+    payload = plan_pipeline(pipeline_spec, screen_spec, root, rows)
+    payload["executed"] = False
+    payload["screen"]["job_dir"] = None
+    payload["confirm"]["job_dir"] = None
+    payload["confirm"]["spec_path"] = None
+    if dry_run:
+        return payload
+
+    runner = run_fn or _default_run
+    load_rows = rows_fn or _default_rows
+    generated = root / "jobs" / ".generated"
+    generated.mkdir(parents=True, exist_ok=True)
+
+    screen_job_dir: Path | None = None
+    screen_rows = list(rows or [])
+    if not screen_rows:
+        if screen_path is None:
+            raise ExperimentError("pipeline run needs screen.experiment path")
+        screen_job = runner(screen_path)
+        if screen_job is None:
+            raise ExperimentError("screen run produced no job directory")
+        screen_job_dir = screen_job
+        screen_rows = load_rows(screen_job)
+
+    payload = plan_pipeline(pipeline_spec, screen_spec, root, screen_rows)
+    payload["executed"] = True
+    payload["screen"]["job_dir"] = str(screen_job_dir) if screen_job_dir else None
+
+    confirm_path = generated / f"{payload['name']}-confirm.yaml"
+    confirm_path.write_text(yaml.safe_dump(payload["confirm"]["spec"], sort_keys=False))
+    payload["confirm"]["spec_path"] = str(confirm_path)
+    confirm_job = runner(confirm_path)
+    if confirm_job is None:
+        raise ExperimentError("confirm run produced no job directory")
+    payload["confirm"]["job_dir"] = str(confirm_job)
+    load_rows(confirm_job)
+    return payload

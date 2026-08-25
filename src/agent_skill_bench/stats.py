@@ -107,13 +107,24 @@ def _pair_key(row: dict[str, Any]) -> tuple[str, str, str]:
     )
 
 
+def _rate(outcomes: list[bool]) -> float:
+    return sum(outcomes) / len(outcomes)
+
+
 def paired_outcomes(
     rows: Iterable[dict[str, Any]],
     left: str,
     right: str,
 ) -> list[dict[str, Any]]:
-    """One record per (task, agent, model) that has both treatments, infra dropped."""
-    buckets: dict[tuple[str, str, str], dict[str, bool]] = defaultdict(dict)
+    """One record per (task, agent, model) with both treatments.
+
+    Repeats of the same arm are averaged so input order cannot change the
+    paired diff. McNemar uses mean>=0.5 as the binary call; bootstrap uses
+    the rate difference.
+    """
+    buckets: dict[tuple[str, str, str], dict[str, list[bool]]] = defaultdict(
+        lambda: defaultdict(list)
+    )
     pairing = ""
     for row in rows:
         outcome = is_success(row)
@@ -122,14 +133,15 @@ def paired_outcomes(
         treatment = str(row.get("treatment") or "")
         if treatment not in (left, right):
             continue
-        key = _pair_key(row)
-        buckets[key][treatment] = outcome
+        buckets[_pair_key(row)][treatment].append(outcome)
         if row.get("pair_id"):
             pairing = str(row["pair_id"])
     pairs: list[dict[str, Any]] = []
     for (task, agent, model), arms in buckets.items():
         if left not in arms or right not in arms:
             continue
+        left_rate = _rate(arms[left])
+        right_rate = _rate(arms[right])
         pairs.append(
             {
                 "task": task,
@@ -138,9 +150,13 @@ def paired_outcomes(
                 "pair_id": pairing or f"{left}__{right}",
                 "left": left,
                 "right": right,
-                "left_pass": arms[left],
-                "right_pass": arms[right],
-                "diff": int(arms[right]) - int(arms[left]),
+                "n_left": len(arms[left]),
+                "n_right": len(arms[right]),
+                "left_rate": left_rate,
+                "right_rate": right_rate,
+                "left_pass": left_rate >= 0.5,
+                "right_pass": right_rate >= 0.5,
+                "diff": right_rate - left_rate,
             }
         )
     pairs.sort(key=lambda item: (item["task"], item["agent"], item["model"]))

@@ -116,3 +116,37 @@ def test_report_keeps_disclaimer() -> None:
     assert "paired" in payload
     assert "interaction" in payload
     assert payload["slices"]["task"]
+
+
+def test_paired_outcomes_repeat_order_invariant() -> None:
+    def row(treatment: str, ok: bool) -> dict:
+        return {
+            "task": "t",
+            "agent": "a",
+            "model": "m",
+            "treatment": treatment,
+            "pair_id": "baseline__candidate",
+            "reward": 1.0 if ok else 0.0,
+            "failure_class": "ok" if ok else "model",
+            "infra_error": False,
+        }
+
+    # Last-wins would be baseline=False, candidate=True, diff=1.
+    # Reversed last-wins would be diff=-1. Mean of repeats is 0.5 vs 0.5.
+    forward = [
+        row("baseline", True),
+        row("baseline", False),
+        row("candidate", False),
+        row("candidate", True),
+    ]
+    backward = list(reversed(forward))
+    a = paired_outcomes(forward, "baseline", "candidate")
+    b = paired_outcomes(backward, "baseline", "candidate")
+    assert len(a) == 1 and len(b) == 1
+    assert a[0]["diff"] == 0.0
+    assert a[0]["diff"] == b[0]["diff"]
+    assert a[0]["left_rate"] == b[0]["left_rate"] == 0.5
+    assert a[0]["right_rate"] == b[0]["right_rate"] == 0.5
+    assert a[0]["left_pass"] == b[0]["left_pass"]
+    assert a[0]["n_left"] == 2
+    assert paired_bootstrap(a, n=50, seed=0)["mean_diff"] == 0.0

@@ -21,7 +21,7 @@ from agent_skill_bench.experiment import (
     resolved_manifest,
 )
 from agent_skill_bench.ledger import load_ledger, save_ledger
-from agent_skill_bench.policy import guard_policy, redact_mapping
+from agent_skill_bench.policy import guard_policy, inject_secrets, redact_mapping
 
 
 DEFAULT_EXPERIMENT = Path("configs/experiments/smoke-2x2.yaml")
@@ -33,7 +33,41 @@ def _pid_path(root: Path, job_name: str) -> Path:
     return generated / f"{job_name}.pid"
 
 
-def _harbor_run(config: Path, n_concurrent: int, job_name: str) -> Path:
+def _harbor_popen(
+    cmd: list[str],
+    job_name: str,
+    extra_env: dict[str, str] | None = None,
+) -> None:
+    root = repo_root()
+    env = os.environ.copy()
+    if extra_env:
+        env.update(extra_env)
+    proc = subprocess.Popen(cmd, cwd=root, env=env)
+    pid_path = _pid_path(root, job_name)
+    pid_path.parent.mkdir(parents=True, exist_ok=True)
+    pid_path.write_text(str(proc.pid))
+    try:
+        code = proc.wait()
+    finally:
+        if pid_path.exists():
+            pid_path.unlink()
+    if code != 0:
+        raise subprocess.CalledProcessError(code, cmd)
+
+
+def _secrets_for_job(path: Path) -> dict[str, str]:
+    experiment = path / "asb_experiment.json"
+    if not experiment.exists():
+        return {}
+    try:
+        payload = json.loads(experiment.read_text())
+    except (OSError, json.JSONDecodeError):
+        return {}
+    names = payload.get("secret_allowlist") or []
+    return inject_secrets(tuple(str(name) for name in names))
+
+
+def _harbor_run(config: Path, n_concurrent: int, job_name: str, extra_env: dict[str, str] | None = None) -> Path:
     root = repo_root()
     jobs_dir = root / "jobs"
     jobs_dir.mkdir(exist_ok=True)
@@ -50,16 +84,7 @@ def _harbor_run(config: Path, n_concurrent: int, job_name: str) -> Path:
         str(n_concurrent),
         "--yes",
     ]
-    proc = subprocess.Popen(cmd, cwd=root)
-    pid_path = _pid_path(root, job_name)
-    pid_path.write_text(str(proc.pid))
-    try:
-        code = proc.wait()
-    finally:
-        if pid_path.exists():
-            pid_path.unlink()
-    if code != 0:
-        raise subprocess.CalledProcessError(code, cmd)
+    _harbor_popen(cmd, job_name, extra_env=extra_env)
     return jobs_dir / job_name
 
 
@@ -70,7 +95,11 @@ def resume_job(job_path: Path) -> Path:
     # Harbor skips completed trials. Ledger keeps billed/scored trial_ids so
     # a later summarize cannot double-count them.
     save_ledger(path, load_ledger(path))
-    subprocess.run(["harbor", "job", "resume", "-p", str(path)], check=True)
+    _harbor_popen(
+        ["harbor", "job", "resume", "-p", str(path)],
+        path.name,
+        extra_env=_secrets_for_job(path),
+    )
     return path
 
 
@@ -140,7 +169,12 @@ def run_job(
         manifest = redact_mapping(resolved_manifest(plan), plan.secret_allowlist)
         generated.write_text(dump_harbor_job(compile_harbor_job(plan, job_name)))
         _write_json(generated_dir / f"{job_name}.manifest.json", manifest)
-        job_dir = _harbor_run(generated, concurrent, job_name)
+        job_dir = _harbor_run(
+            generated,
+            concurrent,
+            job_name,
+            extra_env=inject_secrets(plan.secret_allowlist),
+        )
         _write_json(job_dir / "asb_experiment.json", manifest)
         save_ledger(job_dir, load_ledger(job_dir))
         return job_dir

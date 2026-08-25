@@ -760,6 +760,14 @@ def compile_harbor_job(plan: Plan, job_name: str) -> dict[str, Any]:
         if cell.skills:
             entry["skills"] = list(cell.skills)
         agents.append(entry)
+    from agent_skill_bench.policy import inject_secrets
+
+    environment = dict(plan.environment)
+    secrets = inject_secrets(plan.secret_allowlist)
+    if secrets:
+        env = dict(environment.get("env") or {})
+        env.update(secrets)
+        environment["env"] = env
     return {
         "job_name": job_name,
         "jobs_dir": "jobs",
@@ -768,7 +776,7 @@ def compile_harbor_job(plan: Plan, job_name: str) -> dict[str, Any]:
         "quiet": False,
         "timeout_multiplier": plan.timeout_multiplier,
         "retry": plan.retry,
-        "environment": plan.environment,
+        "environment": environment,
         "agents": agents,
         "tasks": [{"path": path} for path in plan.tasks],
         "datasets": [_harbor_dataset(item, plan) for item in plan.datasets],

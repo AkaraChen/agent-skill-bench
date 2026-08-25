@@ -31,6 +31,7 @@ uv run asb run --config configs/experiments/stage3-public-subset.yaml --dry-run
 uv run asb run --resume jobs/<job-dir>            # Harbor job resume (completed trials are not re-run or re-billed)
 uv run asb cancel jobs/<job-dir>                  # SIGINT if still running; writes asb_cancelled.json
 uv run asb pipeline --config configs/experiments/stage4-pipeline.yaml --dry-run
+uv run asb pipeline --config configs/experiments/stage4-pipeline.yaml   # runs screen, then confirm
 uv run asb report --job jobs/<job-dir>            # warehouse + McNemar/bootstrap + dashboard
 uv run asb warehouse
 uv run asb prune --days 30                        # list expired jobs; add --delete to remove
@@ -56,7 +57,8 @@ Harbor cartesian-products `agents[] × tasks[] × n_attempts`. Repeat is `repeat
 - `asb report` writes `index.json` (trial_id → manifest, result, patch digest, tests, trajectory), `stats.json` / `stats.md` (slice tables, pass^k, paired bootstrap CI, McNemar, task-clustered interaction bootstrap), and `dashboard.html`.
 - Paired tests are task × agent × model. Infra errors are dropped, not counted as model failure.
 - Interaction uses a hierarchical (task-clustered) bootstrap, not a single score and not a mixed-model fitter.
-- `asb pipeline` screens with `sample`, ranks treatments by success rate as a **filter**, then expands a confirm spec with higher `repeat`. The rank is not published as a total.
+- `asb pipeline` runs the screen job, ranks treatments by success rate as a **filter**, then runs a confirm job with higher `repeat`. `--dry-run` only prints the plan. The rank is not published as a total.
+- Paired stats average repeats per (task, agent, model) arm, so input order cannot flip the diff. Allowlisted secrets are copied into the Harbor job `environment.env` at compile time; manifests stay redacted. `asb run --resume` records the Harbor PID so `asb cancel` can SIGINT a resumed job.
 
 Policy keys (`policy.cache_scope`, `retention_days`, `secret_allowlist`, `durable_artifacts`) stay out of Harbor's job YAML. Secret-looking keys are redacted in manifests; allowlisted names are recorded as present, never as values.
 

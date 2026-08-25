@@ -8,7 +8,7 @@ from agent_skill_bench.constants import repo_root
 from agent_skill_bench.dataset import revision_payload
 from agent_skill_bench.experiment import ExperimentError, load_yaml
 from agent_skill_bench.holdout import HoldoutError, assemble_dataset, fetch_sealed, generate
-from agent_skill_bench.pipeline import format_pipeline, plan_pipeline
+from agent_skill_bench.pipeline import format_pipeline, run_pipeline
 from agent_skill_bench.policy import list_expired_jobs
 from agent_skill_bench.report import write_report
 from agent_skill_bench.run import cancel_job, run_job
@@ -171,19 +171,20 @@ def main(argv: list[str] | None = None) -> int:
             rows = []
             if args.results and args.results.exists():
                 rows = json.loads(args.results.read_text()).get("rows") or []
-            payload = plan_pipeline(spec, screen_spec, repo_root(), rows)
+            payload = run_pipeline(
+                spec,
+                screen_spec,
+                repo_root(),
+                screen_path=screen_path,
+                rows=rows or None,
+                dry_run=args.dry_run,
+            )
             print(format_pipeline(payload))
+            if payload.get("confirm", {}).get("job_dir"):
+                print(payload["confirm"]["job_dir"])
         except ExperimentError as exc:
             print(f"error: {exc}")
             return 2
-        if args.dry_run:
-            return 0
-        confirm_path = repo_root() / "jobs" / ".generated" / f"{payload['name']}-confirm.yaml"
-        confirm_path.parent.mkdir(parents=True, exist_ok=True)
-        import yaml
-
-        confirm_path.write_text(yaml.safe_dump(payload["confirm"]["spec"], sort_keys=False))
-        print(confirm_path)
         return 0
     if args.cmd == "prune":
         import shutil

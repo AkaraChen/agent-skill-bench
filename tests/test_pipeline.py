@@ -1,7 +1,9 @@
+from pathlib import Path
+
 from agent_skill_bench.cli import main
 from agent_skill_bench.constants import repo_root
 from agent_skill_bench.experiment import expand, guard, load_yaml
-from agent_skill_bench.pipeline import confirm_spec, plan_pipeline, rank_treatments
+from agent_skill_bench.pipeline import confirm_spec, plan_pipeline, rank_treatments, run_pipeline
 from agent_skill_bench.policy import guard_policy
 
 
@@ -51,3 +53,88 @@ def test_pipeline_dry_run_cli() -> None:
             "--dry-run",
         ]
     ) == 0
+
+
+def test_pipeline_runs_screen_then_confirm(tmp_path: Path) -> None:
+    root = repo_root()
+    pipeline = load_yaml(root / "configs/experiments/stage4-pipeline.yaml")
+    pipeline["confirm"]["top_k"] = 1
+    screen = load_yaml(root / "configs/experiments/stage4-screen.yaml")
+    screen_path = root / "configs/experiments/stage4-screen.yaml"
+    calls: list[Path] = []
+    jobs = tmp_path / "jobs"
+    jobs.mkdir()
+
+    def run_fn(config: Path) -> Path:
+        calls.append(config)
+        job = jobs / f"job-{len(calls)}"
+        job.mkdir()
+        return job
+
+    def rows_fn(job_dir: Path) -> list[dict]:
+        if job_dir.name == "job-1":
+            return [
+                {
+                    "treatment": "candidate",
+                    "failure_class": "ok",
+                    "reward": 1,
+                    "infra_error": False,
+                },
+                {
+                    "treatment": "baseline",
+                    "failure_class": "model",
+                    "reward": 0,
+                    "infra_error": False,
+                },
+            ]
+        return []
+
+    payload = run_pipeline(
+        pipeline,
+        screen,
+        tmp_path,
+        screen_path=screen_path,
+        run_fn=run_fn,
+        rows_fn=rows_fn,
+    )
+    assert payload["executed"] is True
+    assert len(calls) == 2
+    assert calls[0] == screen_path
+    confirm_spec_path = Path(payload["confirm"]["spec_path"])
+    assert calls[1] == confirm_spec_path
+    confirm = load_yaml(confirm_spec_path)
+    assert confirm["repeat"] == 3
+    assert {item["name"] for item in confirm["treatments"]} == {"candidate"}
+    assert payload["ranked_treatments"] == ["candidate"]
+    assert payload["screen"]["job_dir"].endswith("job-1")
+    assert payload["confirm"]["job_dir"].endswith("job-2")
+
+
+def test_pipeline_skips_screen_when_results_given(tmp_path: Path) -> None:
+    root = repo_root()
+    calls: list[Path] = []
+
+    def run_fn(config: Path) -> Path:
+        calls.append(config)
+        job = tmp_path / "confirm-job"
+        job.mkdir()
+        return job
+
+    pipeline = load_yaml(root / "configs/experiments/stage4-pipeline.yaml")
+    pipeline["confirm"]["top_k"] = 1
+    payload = run_pipeline(
+        pipeline,
+        load_yaml(root / "configs/experiments/stage4-screen.yaml"),
+        tmp_path,
+        screen_path=root / "configs/experiments/stage4-screen.yaml",
+        rows=[
+            {"treatment": "candidate", "failure_class": "ok", "reward": 1, "infra_error": False},
+            {"treatment": "baseline", "failure_class": "model", "reward": 0, "infra_error": False},
+        ],
+        run_fn=run_fn,
+        rows_fn=lambda _job: [],
+    )
+    assert len(calls) == 1
+    assert payload["screen"]["job_dir"] is None
+    assert payload["executed"] is True
+    assert payload["ranked_treatments"] == ["candidate"]
