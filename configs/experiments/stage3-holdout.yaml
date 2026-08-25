@@ -21,5 +21,7 @@ treatments:
   - name: baseline
     prompt: baseline
     skills: []
+assemble_sealed: true
+assembled_path: jobs/.assembled/holdout
 datasets:
   - path: tasks/private

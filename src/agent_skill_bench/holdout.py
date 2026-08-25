@@ -8,16 +8,21 @@ from __future__ import annotations
 
 import importlib.util
 import os
+import shutil
+import subprocess
 import sys
 import tomllib
 from pathlib import Path
 from typing import Any
 
 from agent_skill_bench.constants import (
+    ASSEMBLED_PATH,
     AUTHORED_AT,
     CUTOFF_POLICY,
     DATASET_ID,
     DATASET_REVISION,
+    SEALED_REF,
+    SEALED_REPO,
     repo_root,
 )
 from agent_skill_bench.fingerprint import sha256_file, sha256_tree
@@ -79,7 +84,17 @@ def _write_task(spec: Any, public_dir: Path, sealed_dir: Path, catalog: Any) -> 
     negative = sealed_dir / "variants" / "negative"
     for path in (env, tests, solution, alt, negative):
         path.mkdir(parents=True, exist_ok=True)
-    (public_dir / "instruction.md").write_text(spec.instruction.strip() + "\n")
+    rev = DATASET_REVISION
+    instruction = (
+        spec.instruction.strip()
+        + f"\n\nAlso write `{rev}` followed by a newline to `/app/ASB_REVISION`.\n"
+    )
+    test_py = (
+        spec.test_py.rstrip()
+        + f"\nassert (APP / 'ASB_REVISION').read_text().strip() == {rev!r}\n"
+    )
+    stamp = f'\n(app / "ASB_REVISION").write_text({rev!r} + "\\n")\n'
+    (public_dir / "instruction.md").write_text(instruction)
     (public_dir / "task.toml").write_text(catalog._task_toml(spec))
     (env / "Dockerfile").write_text(catalog._dockerfile())
     for rel, content in spec.env_files.items():
@@ -95,12 +110,12 @@ def _write_task(spec: Any, public_dir: Path, sealed_dir: Path, catalog: Any) -> 
     (tests / "test.sh").write_text(catalog._test_sh())
     (tests / "test.sh").chmod(0o755)
     (tests / "canary.py").write_text(catalog._canary_py())
-    (tests / "test_outputs.py").write_text(spec.test_py)
+    (tests / "test_outputs.py").write_text(test_py)
     (tests / "HIDDEN_CANARY.txt").write_text(catalog.HIDDEN_CANARY + "\n")
-    (solution / "solve.sh").write_text(catalog._py_script(spec.gold_py))
+    (solution / "solve.sh").write_text(catalog._py_script(spec.gold_py + stamp))
     (solution / "solve.sh").chmod(0o755)
     (solution / "HIDDEN_CANARY.txt").write_text(catalog.HIDDEN_CANARY + "\n")
-    (alt / "solve.sh").write_text(catalog._py_script(spec.alt_py))
+    (alt / "solve.sh").write_text(catalog._py_script(spec.alt_py + stamp))
     (alt / "solve.sh").chmod(0o755)
     (negative / "solve.sh").write_text(catalog._py_script(spec.negative_py))
     (negative / "solve.sh").chmod(0o755)
@@ -125,7 +140,7 @@ def write_manifest(root: Path, entries: list[dict[str, str]]) -> Path:
         f'authored_at = "{AUTHORED_AT}"',
         f'cutoff_policy = "{CUTOFF_POLICY}"',
         f"n_private_tasks = {len(entries)}",
-        'sealed_access = "ASB_SEALED_DIR or <repo>/sealed/holdout (gitignored)"',
+        f'sealed_access = "gh repo clone {SEALED_REPO} -- --branch {SEALED_REF}"',
         "",
     ]
     for entry in entries:
@@ -165,3 +180,100 @@ def generate(root: Path | None = None) -> Path:
         }
         entries.append(entry)
     return write_manifest(root, entries)
+
+
+def remote_pin_path(root: Path | None = None) -> Path:
+    return (root or repo_root()) / "datasets" / "sealed-remote.toml"
+
+
+def load_remote_pin(root: Path | None = None) -> dict[str, Any]:
+    path = remote_pin_path(root)
+    if not path.exists():
+        raise HoldoutError(f"missing sealed remote pin: {path}")
+    return tomllib.loads(path.read_text())
+
+
+def verify_sealed(root: Path | None = None, sealed: Path | None = None) -> None:
+    root = root or repo_root()
+    sealed = sealed or sealed_root(root)
+    manifest = load_manifest(root)
+    public_base = private_root(root)
+    problems: list[str] = []
+    for entry in manifest.get("tasks") or []:
+        slug = entry["slug"]
+        got = task_digests(public_base / slug, sealed / slug)
+        for key in ("tests_digest", "gold_digest", "alt_digest", "negative_digest"):
+            if got.get(key) != entry.get(key):
+                problems.append(f"{slug} {key}: expected {entry.get(key)}, got {got.get(key)}")
+    if problems:
+        raise HoldoutError("sealed corpus failed integrity check:\n" + "\n".join(problems))
+
+
+def fetch_sealed(root: Path | None = None) -> Path:
+    """Authorized fetch of the pinned private corpus, then integrity-check."""
+    root = root or repo_root()
+    pin = load_remote_pin(root)
+    dest = sealed_root(root)
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    if dest.exists():
+        shutil.rmtree(dest)
+    repo = str(pin.get("repo") or SEALED_REPO)
+    ref = str(pin.get("ref") or SEALED_REF)
+    cmd = ["gh", "repo", "clone", repo, str(dest), "--", "--depth", "1", "--branch", ref]
+    result = subprocess.run(cmd, capture_output=True, text=True)
+    if result.returncode != 0:
+        raise HoldoutError(
+            f"authorized fetch failed for {repo}@{ref}: {result.stderr.strip()}\n"
+            "Grant the caller read access to the private holdout repo, then retry "
+            "`asb fetch-sealed`."
+        )
+    sha = subprocess.run(
+        ["git", "rev-parse", "HEAD"],
+        cwd=dest,
+        capture_output=True,
+        text=True,
+        check=True,
+    ).stdout.strip()
+    expected = str(pin.get("commit") or "")
+    if expected and sha != expected:
+        raise HoldoutError(f"sealed commit mismatch: got {sha}, pin wants {expected}")
+    verify_sealed(root, dest)
+    return dest
+
+
+def assemble_dataset(root: Path | None = None, dest: Path | None = None) -> Path:
+    """Merge public agent-visible files with sealed tests/solution for Harbor."""
+    from agent_skill_bench.validity import assemble
+
+    root = root or repo_root()
+    dest = dest or (root / ASSEMBLED_PATH)
+    sealed = sealed_root(root)
+    if not sealed.exists():
+        raise HoldoutError(
+            f"sealed corpus missing at {sealed}; run `asb fetch-sealed` first"
+        )
+    verify_sealed(root, sealed)
+    if dest.exists():
+        shutil.rmtree(dest)
+    dest.mkdir(parents=True, exist_ok=True)
+    for entry in load_manifest(root).get("tasks") or []:
+        slug = entry["slug"]
+        assemble(private_root(root) / slug, sealed / slug, dest / slug)
+    return dest
+
+
+def write_remote_pin(root: Path, commit: str, ref: str = SEALED_REF) -> Path:
+    path = remote_pin_path(root)
+    path.write_text(
+        "\n".join(
+            [
+                f'repo = "{SEALED_REPO}"',
+                f'ref = "{ref}"',
+                f'commit = "{commit}"',
+                f'dataset_revision = "{DATASET_REVISION}"',
+                "fetch = \"asb fetch-sealed\"",
+                "",
+            ]
+        )
+    )
+    return path

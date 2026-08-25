@@ -1,5 +1,5 @@
 dataset_id = "asb-private-holdout"
-dataset_revision = "2026.08.25"
+dataset_revision = "2026.08.25.r2"
 authored_at = "2026-08-25"
 cutoff_policy = "authored-after-2026-08-01"
 n_private_tasks = 24
@@ -10,9 +10,9 @@ network_mode = "no-network"
 cpus = 1
 memory_mb = 512
 storage_mb = 1024
-leakage_evidence = "original tasks authored 2026-08-25; unique hidden canary; tests/ and solution/ are not copied into the agent workspace"
+leakage_evidence = "revision 2026.08.25.r2 rotated after leak of 2026.08.25 in b124dff4f14e91dfd7d2e743a917ebfbf635f800"
 
-sealed_access = "ASB_SEALED_DIR or <repo>/sealed/holdout (gitignored; hidden tests/gold/alt/negative)"
+sealed_access = "asb fetch-sealed → AkaraChen/agent-skill-bench-holdout@v2026.08.25.r2"
 
 [[public_subset]]
 name = "harbor/hello-world"

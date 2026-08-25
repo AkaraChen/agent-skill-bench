@@ -1,1 +1,3 @@
 Write `/app/cases.json` as a JSON list of objects `{a, b, expect}` for anagram checks that ignore case and whitespace. `expect` is a boolean. Include at least one true pair, one false pair, one pair that uses spaces, and one pair that differs only by case. Every `expect` must be correct.
+
+Also write `2026.08.25.r2` followed by a newline to `/app/ASB_REVISION`.

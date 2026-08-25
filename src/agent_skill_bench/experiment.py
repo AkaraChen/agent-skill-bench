@@ -99,6 +99,8 @@ class Plan:
     skill_hashes: list[dict[str, str]] = field(default_factory=list)
     datasets: list[DatasetRef] = field(default_factory=list)
     retry: dict[str, Any] = field(default_factory=dict)
+    assemble_sealed: bool = False
+    assembled_path: str = "jobs/.assembled/holdout"
 
     @property
     def n_cells(self) -> int:
@@ -584,6 +586,8 @@ def expand(spec: dict[str, Any], root: Path) -> Plan:
         skill_hashes=_skill_hashes(root, cells),
         datasets=datasets,
         retry=harbor_retry(int(spec.get("max_retries") or 0)),
+        assemble_sealed=bool(spec.get("assemble_sealed")),
+        assembled_path=str(spec.get("assembled_path") or "jobs/.assembled/holdout"),
     )
 
 
@@ -622,6 +626,7 @@ def format_dry_run(plan: Plan) -> str:
         f"estimated_usd: {cost}",
         f"pairs: {', '.join(f'{a} vs {b}' for a, b in plan.pairs) or '(none)'}",
         f"retry.max_retries: {plan.retry.get('max_retries')}",
+        f"assemble_sealed: {plan.assemble_sealed}",
         "datasets:",
     ]
     if plan.datasets:
@@ -677,6 +682,8 @@ def resolved_manifest(plan: Plan) -> dict[str, Any]:
         "tasks": list(plan.tasks),
         "datasets": [item.to_harbor() | {"resolved_n_tasks": item.resolved_n_tasks} for item in plan.datasets],
         "retry": plan.retry,
+        "assemble_sealed": plan.assemble_sealed,
+        "assembled_path": plan.assembled_path,
         "n_task_units": plan.n_task_units,
         "pairs": [{"id": _pair_id(left, right), "left": left, "right": right} for left, right in plan.pairs],
         "selection": plan.selection,
@@ -730,8 +737,15 @@ def compile_harbor_job(plan: Plan, job_name: str) -> dict[str, Any]:
         "environment": plan.environment,
         "agents": agents,
         "tasks": [{"path": path} for path in plan.tasks],
-        "datasets": [item.to_harbor() for item in plan.datasets],
+        "datasets": [_harbor_dataset(item, plan) for item in plan.datasets],
     }
+
+
+def _harbor_dataset(item: DatasetRef, plan: Plan) -> dict[str, Any]:
+    payload = item.to_harbor()
+    if plan.assemble_sealed and item.path:
+        payload["path"] = plan.assembled_path
+    return payload
 
 
 def dump_harbor_job(job: dict[str, Any]) -> str:

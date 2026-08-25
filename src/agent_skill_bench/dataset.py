@@ -55,9 +55,11 @@ def revision_payload(root: Path | None = None) -> dict[str, Any]:
         "image": f"{DOCKER_IMAGE}@{DOCKER_DIGEST}",
         "retry": harbor_retry(),
         "public_subset": [PUBLIC_SUBSET, PUBLIC_TERMINAL],
+        "sealed_remote": "datasets/sealed-remote.toml",
+        "compromised": "datasets/compromised.toml",
         "leakage_evidence": (
-            "original tasks authored 2026-08-25; unique hidden canary; "
-            "tests/ and solution/ are not copied into the agent workspace"
+            "revision 2026.08.25.r2 rotated after 2026.08.25 leaked in "
+            "b124dff4f14e91dfd7d2e743a917ebfbf635f800; fetch via asb fetch-sealed"
         ),
         "revision_file": str((root / "datasets" / "revision.toml").relative_to(root)),
     }

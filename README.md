@@ -29,8 +29,10 @@ uv run asb run --config configs/experiments/track-b.example.yaml --dry-run
 uv run asb run --config configs/experiments/stage3-holdout.yaml --dry-run
 uv run asb run --config configs/experiments/stage3-public-subset.yaml --dry-run
 uv run asb run --resume jobs/<job-dir>            # Harbor job resume
-uv run asb generate-holdout                       # writes sealed corpus; not used by validate
-uv run asb validate                               # fail-closed pinned-container gates (needs ASB_SEALED_DIR)
+uv run asb fetch-sealed                           # authorized clone of private holdout + digest check
+uv run asb assemble                               # public + sealed → jobs/.assembled/holdout
+uv run asb validate                               # fail-closed pinned-container gates (needs sealed corpus)
+uv run asb run --config configs/experiments/stage3-holdout.yaml --dry-run
 uv run asb dataset                                # revision, image digest, scorer version
 uv run asb summarize
 uv run --extra dev pytest
@@ -47,9 +49,10 @@ Harbor cartesian-products `agents[] × tasks[] × n_attempts`. Repeat is `repeat
 ## Stage 3 task set
 
 - Public subset pin: `datasets/public-subset.toml` — `harbor/hello-world` and `terminal-bench/terminal-bench-2` with dataset `ref` (content hash) and explicit task names + task digests.
-- Private temporal holdout: 24 original tasks authored 2026-08-25. The public tree has agent-visible files (`tasks/private/*/instruction.md`, `environment/`, `task.toml`) plus `datasets/private-manifest.toml` (provenance + irreversible digests). Hidden tests, gold, alternative, and negative live **outside git** at `$ASB_SEALED_DIR` (default `sealed/holdout/`, gitignored).
-- `asb generate-holdout` writes the sealed corpus from a sealed catalog. `asb validate` never generates; it fail-closes if the sealed dir is missing or digests drift, then runs gold/alt/negative in the pinned image (`--network=none`, 1 CPU, 512MB).
-- Scorer: hidden-test failures count as **model** failure; only verifier exceptions are `TEST`; infra is not model failure. LLM judge is auxiliary only.
+- Private holdout **revision `2026.08.25.r2`**. Public tree: agent-visible files + `datasets/private-manifest.toml` (digests). Hidden tests / gold / alt / negative live in the **private** GitHub repo `AkaraChen/agent-skill-bench-holdout` at tag `v2026.08.25.r2` (pin in `datasets/sealed-remote.toml`). Fetch with `asb fetch-sealed` (needs read access), which verifies per-task digests.
+- Revision `2026.08.25` is **compromised** (`datasets/compromised.toml`, public commit `b124dff…`) and must not be used as a holdout.
+- `asb run --config configs/experiments/stage3-holdout.yaml` sets `assemble_sealed: true` and points Harbor at `jobs/.assembled/holdout` (public + sealed merged). Do not run Harbor against `tasks/private` alone.
+- `asb validate` never generates. Scorer: hidden-test failures are **model** failure; only verifier exceptions are `TEST`.
 
 
 ## What each trial stores

@@ -6,7 +6,7 @@ from pathlib import Path
 
 from agent_skill_bench.dataset import revision_payload
 from agent_skill_bench.experiment import ExperimentError
-from agent_skill_bench.holdout import HoldoutError, generate
+from agent_skill_bench.holdout import HoldoutError, assemble_dataset, fetch_sealed, generate
 from agent_skill_bench.run import run_job
 from agent_skill_bench.summarize import summarize_latest
 from agent_skill_bench.validity import ValidityError, validate_private, write_validity_report
@@ -48,6 +48,14 @@ def main(argv: list[str] | None = None) -> int:
         "generate-holdout",
         help="Write sealed corpus + public manifest from the sealed catalog. Not used by validate.",
     )
+    sub.add_parser(
+        "fetch-sealed",
+        help="Clone the pinned private holdout repo and verify digests.",
+    )
+    sub.add_parser(
+        "assemble",
+        help="Merge public task trees with sealed tests/solution for Harbor.",
+    )
 
     sub.add_parser("dataset", help="Print the pinned dataset revision.")
 
@@ -86,6 +94,22 @@ def main(argv: list[str] | None = None) -> int:
     if args.cmd == "generate-holdout":
         try:
             path = generate()
+        except HoldoutError as exc:
+            print(f"error: {exc}")
+            return 2
+        print(path)
+        return 0
+    if args.cmd == "fetch-sealed":
+        try:
+            path = fetch_sealed()
+        except HoldoutError as exc:
+            print(f"error: {exc}")
+            return 2
+        print(path)
+        return 0
+    if args.cmd == "assemble":
+        try:
+            path = assemble_dataset()
         except HoldoutError as exc:
             print(f"error: {exc}")
             return 2

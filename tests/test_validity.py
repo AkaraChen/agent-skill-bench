@@ -1,8 +1,10 @@
+import json
+import subprocess
 from pathlib import Path
 
-from agent_skill_bench.constants import DOCKER_DIGEST, HIDDEN_CANARY, repo_root
-from agent_skill_bench.holdout import generate, write_manifest, task_digests
-from agent_skill_bench.validity import ValidityError, validate_private
+from agent_skill_bench.constants import DOCKER_DIGEST, HIDDEN_CANARY
+from agent_skill_bench.holdout import assemble_dataset, generate, task_digests, write_manifest
+from agent_skill_bench.validity import ValidityError, assemble, validate_private
 
 MINI_TOML = f"""schema_version = "1.4"
 
@@ -179,3 +181,54 @@ def test_generate_is_separate_from_validate() -> None:
     source = inspect.getsource(validity.validate_private)
     assert "generate(" not in source
     assert "materialize" not in source
+
+
+def test_assemble_merges_sealed_tests_and_solution(tmp_path: Path) -> None:
+    write_mini(tmp_path)
+    dest = assemble_dataset(tmp_path, tmp_path / "assembled")
+    task = dest / "echo-n"
+    assert (task / "instruction.md").exists()
+    assert (task / "environment" / "n.txt").exists()
+    assert (task / "tests" / "test.sh").exists()
+    assert (task / "solution" / "solve.sh").exists()
+    assert not (tmp_path / "tasks" / "private" / "echo-n" / "tests").exists()
+
+
+def test_harbor_oracle_verifier_e2e(tmp_path: Path) -> None:
+    write_mini(tmp_path)
+    public = tmp_path / "tasks" / "private" / "echo-n"
+    sealed = tmp_path / "sealed" / "holdout" / "echo-n"
+    assembled = assemble(public, sealed, tmp_path / "assembled" / "echo-n")
+    jobs = tmp_path / "jobs"
+    result = subprocess.run(
+        [
+            "harbor",
+            "run",
+            "-p",
+            str(assembled),
+            "-a",
+            "oracle",
+            "-o",
+            str(jobs),
+            "--job-name",
+            "e2e-oracle",
+            "-n",
+            "1",
+            "--yes",
+        ],
+        cwd=tmp_path,
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode == 0, result.stdout + "\n" + result.stderr
+    rewards = []
+    for path in jobs.rglob("result.json"):
+        payload = json.loads(path.read_text())
+        reward = ((payload.get("verifier_result") or {}).get("rewards") or {}).get("reward")
+        rewards.append(reward)
+    for path in jobs.rglob("results.json"):
+        payload = json.loads(path.read_text())
+        if isinstance(payload, dict) and "verifier_result" in payload:
+            reward = ((payload.get("verifier_result") or {}).get("rewards") or {}).get("reward")
+            rewards.append(reward)
+    assert 1 in rewards or 1.0 in rewards, f"no oracle reward=1 in {list(jobs.rglob('*'))}"
