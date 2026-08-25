@@ -2,7 +2,7 @@
 
 Composable **Agent × Prompt × Skill** programming benchmark on [Harbor](https://github.com/harbor-framework/harbor).
 
-Stage 3: isolated private holdout + validity gates + a scorer that keeps infra errors out of model failure. **Do not treat scores as a ranking or a generalization about models, agents, prompts, or skills.**
+Stage 4: concurrent isolated workers, durable artifacts, resume-without-rebill, and task-level paired stats. **Do not treat scores as a ranking or a generalization about models, agents, prompts, or skills.** There is no composite total.
 
 ## Frozen versions
 
@@ -28,7 +28,12 @@ uv run asb run                                    # A-track 2×2 smoke, 20 trial
 uv run asb run --config configs/experiments/track-b.example.yaml --dry-run
 uv run asb run --config configs/experiments/stage3-holdout.yaml --dry-run
 uv run asb run --config configs/experiments/stage3-public-subset.yaml --dry-run
-uv run asb run --resume jobs/<job-dir>            # Harbor job resume
+uv run asb run --resume jobs/<job-dir>            # Harbor job resume (completed trials are not re-run or re-billed)
+uv run asb cancel jobs/<job-dir>                  # SIGINT if still running; writes asb_cancelled.json
+uv run asb pipeline --config configs/experiments/stage4-pipeline.yaml --dry-run
+uv run asb report --job jobs/<job-dir>            # warehouse + McNemar/bootstrap + dashboard
+uv run asb warehouse
+uv run asb prune --days 30                        # list expired jobs; add --delete to remove
 uv run asb fetch-sealed                           # authorized clone of private holdout + digest check
 uv run asb assemble                               # public + sealed → cache/asb/assembled/holdout
 uv run asb validate                               # fail-closed pinned-container gates (needs sealed corpus)
@@ -44,7 +49,16 @@ uv run --extra dev pytest
 
 See `configs/experiments/smoke-2x2.yaml`. Treatments are the factorial unit (not an implicit prompt × skill cartesian). Add `include` / `exclude`, `cells` for an explicit matrix, `sample` (`2` or `{n: 1, by: treatment|agent|model|pairing}`), and `pairs` for same-agent/model paired treatments. `agents[].kwargs` pass through to Harbor.
 
-Harbor cartesian-products `agents[] × tasks[] × n_attempts`. Repeat is `repeat` → Harbor `n_attempts`. Retry is Harbor `max_retries` with a **pre-registered infra-only include list** (agent/model/test outcomes are never retried). Interrupted jobs resume with `asb run --resume`. Each job writes `asb_experiment.json` (resolved schema, seed, cells, pairs, skill tree hashes, dataset refs).
+Harbor cartesian-products `agents[] × tasks[] × n_attempts`. Repeat is `repeat` → Harbor `n_attempts`. Retry is Harbor `max_retries` with a **pre-registered infra-only include list** (agent/model/test outcomes are never retried). Interrupted jobs resume with `asb run --resume`. Completed trials keep their `result.json`; `asb_ledger.json` refuses to bill or score the same `trial_id` twice. A new run of the same spec gets a new timestamped job directory — patches live under that trial dir and are never looked up by config fingerprint (`policy.cache_scope` may be `image` or `none`, never `patch`). Each job writes `asb_experiment.json` (resolved schema, seed, cells, pairs, skill tree hashes, dataset refs). `environment.type` selects an isolated worker Harbor already supports (`docker`, `daytona`, `e2b`, `modal`, …).
+
+## Stage 4 analysis
+
+- `asb report` writes `index.json` (trial_id → manifest, result, patch digest, tests, trajectory), `stats.json` / `stats.md` (slice tables, pass^k, paired bootstrap CI, McNemar, task-clustered interaction bootstrap), and `dashboard.html`.
+- Paired tests are task × agent × model. Infra errors are dropped, not counted as model failure.
+- Interaction uses a hierarchical (task-clustered) bootstrap, not a single score and not a mixed-model fitter.
+- `asb pipeline` screens with `sample`, ranks treatments by success rate as a **filter**, then expands a confirm spec with higher `repeat`. The rank is not published as a total.
+
+Policy keys (`policy.cache_scope`, `retention_days`, `secret_allowlist`, `durable_artifacts`) stay out of Harbor's job YAML. Secret-looking keys are redacted in manifests; allowlisted names are recorded as present, never as values.
 
 ## Stage 3 task set
 
@@ -57,4 +71,4 @@ Harbor cartesian-products `agents[] × tasks[] × n_attempts`. Repeat is `repeat
 
 ## What each trial stores
 
-Harbor writes `config.json`, `lock.json`, `results.json`, agent logs, verifier logs, and workspace artifacts. `asb summarize` adds `asb_manifest.json` with the experiment seed, pairing key, agent kwargs, skill hashes, track, and an `agent/model/test/infra` failure class.
+Harbor writes `config.json`, `lock.json`, `result.json`, agent logs, verifier logs, and workspace artifacts. `asb summarize` adds `asb_manifest.json` with the experiment seed, pairing key, agent kwargs, skill hashes, track, an `agent/model/test/infra` failure class, token/cost/duration, tool-call counts, and URIs for the manifest, tests, trajectory, and patch digest. `asb warehouse` / `asb report` index those URIs so a table row is always traceable to the raw files.

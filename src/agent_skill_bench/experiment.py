@@ -111,6 +111,11 @@ class Plan:
     retry: dict[str, Any] = field(default_factory=dict)
     assemble_sealed: bool = False
     assembled_path: str = "jobs/.assembled/holdout"
+    timeout_multiplier: float = 1.0
+    retention_days: int | None = None
+    secret_allowlist: tuple[str, ...] = ()
+    cache_scope: str = "image"
+    durable_artifacts: bool = True
 
     @property
     def n_cells(self) -> int:
@@ -572,7 +577,12 @@ def expand(spec: dict[str, Any], root: Path) -> Plan:
     pairs = _assert_pairs_complete(cells, pairs)
 
     environment = dict(spec.get("environment") or {"type": "docker", "delete": True})
+    policy = spec.get("policy") if isinstance(spec.get("policy"), dict) else {}
     budget = spec.get("budget_usd")
+    retention = policy.get("retention_days", spec.get("retention_days"))
+    allowlist = policy.get("secret_allowlist", spec.get("secret_allowlist") or [])
+    cache_scope = str(policy.get("cache_scope") or spec.get("cache_scope") or "image")
+    durable = policy.get("durable_artifacts", spec.get("durable_artifacts"))
     return Plan(
         name=name,
         track=track,
@@ -598,6 +608,11 @@ def expand(spec: dict[str, Any], root: Path) -> Plan:
         retry=harbor_retry(int(spec.get("max_retries") or 0)),
         assemble_sealed=bool(spec.get("assemble_sealed")),
         assembled_path=_assembled_path(spec, root),
+        timeout_multiplier=float(spec.get("timeout_multiplier") or 1.0),
+        retention_days=None if retention is None else int(retention),
+        secret_allowlist=tuple(str(item) for item in _as_list(allowlist)),
+        cache_scope=cache_scope,
+        durable_artifacts=True if durable is None else bool(durable),
     )
 
 
@@ -636,6 +651,10 @@ def format_dry_run(plan: Plan) -> str:
         f"estimated_usd: {cost}",
         f"pairs: {', '.join(f'{a} vs {b}' for a, b in plan.pairs) or '(none)'}",
         f"retry.max_retries: {plan.retry.get('max_retries')}",
+        f"n_concurrent: {plan.n_concurrent}",
+        f"timeout_multiplier: {plan.timeout_multiplier}",
+        f"environment.type: {(plan.environment or {}).get('type')}",
+        f"cache_scope: {plan.cache_scope}",
         f"assemble_sealed: {plan.assemble_sealed}",
         "datasets:",
     ]
@@ -694,6 +713,11 @@ def resolved_manifest(plan: Plan) -> dict[str, Any]:
         "retry": plan.retry,
         "assemble_sealed": plan.assemble_sealed,
         "assembled_path": plan.assembled_path,
+        "timeout_multiplier": plan.timeout_multiplier,
+        "retention_days": plan.retention_days,
+        "secret_allowlist": list(plan.secret_allowlist),
+        "cache_scope": plan.cache_scope,
+        "durable_artifacts": plan.durable_artifacts,
         "n_task_units": plan.n_task_units,
         "pairs": [{"id": _pair_id(left, right), "left": left, "right": right} for left, right in plan.pairs],
         "selection": plan.selection,
@@ -742,7 +766,7 @@ def compile_harbor_job(plan: Plan, job_name: str) -> dict[str, Any]:
         "n_attempts": plan.repeat,
         "n_concurrent_trials": plan.n_concurrent,
         "quiet": False,
-        "timeout_multiplier": 1.0,
+        "timeout_multiplier": plan.timeout_multiplier,
         "retry": plan.retry,
         "environment": plan.environment,
         "agents": agents,
