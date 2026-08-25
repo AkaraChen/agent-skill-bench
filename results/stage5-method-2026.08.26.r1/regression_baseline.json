@@ -1,0 +1,181 @@
+{
+  "revision": "stage5-method-2026.08.26.r1",
+  "n_rows": 48,
+  "slices": {
+    "treatment": [
+      {
+        "treatment": "baseline",
+        "n": 24,
+        "n_scored": 24,
+        "n_infra": 0,
+        "success_rate": 0.375,
+        "cost_usd_mean": 0.0084,
+        "duration_sec_mean": 18.0821975,
+        "failures": {
+          "ok": 9,
+          "test": 9,
+          "model": 6
+        }
+      },
+      {
+        "treatment": "bundle",
+        "n": 24,
+        "n_scored": 24,
+        "n_infra": 0,
+        "success_rate": 1.0,
+        "cost_usd_mean": 0.013125000000000003,
+        "duration_sec_mean": 18.654624333333334,
+        "failures": {
+          "ok": 24
+        }
+      }
+    ],
+    "agent_x_treatment": [
+      {
+        "agent": "plan-solver",
+        "treatment": "baseline",
+        "n": 12,
+        "n_scored": 12,
+        "n_infra": 0,
+        "success_rate": 0.75,
+        "cost_usd_mean": 0.0088,
+        "duration_sec_mean": 18.600528666666666,
+        "failures": {
+          "ok": 9,
+          "test": 3
+        }
+      },
+      {
+        "agent": "plan-solver",
+        "treatment": "bundle",
+        "n": 12,
+        "n_scored": 12,
+        "n_infra": 0,
+        "success_rate": 1.0,
+        "cost_usd_mean": 0.013750000000000004,
+        "duration_sec_mean": 18.880066083333332,
+        "failures": {
+          "ok": 12
+        }
+      },
+      {
+        "agent": "skill-solver",
+        "treatment": "baseline",
+        "n": 12,
+        "n_scored": 12,
+        "n_infra": 0,
+        "success_rate": 0.0,
+        "cost_usd_mean": 0.008,
+        "duration_sec_mean": 17.563866333333333,
+        "failures": {
+          "test": 6,
+          "model": 6
+        }
+      },
+      {
+        "agent": "skill-solver",
+        "treatment": "bundle",
+        "n": 12,
+        "n_scored": 12,
+        "n_infra": 0,
+        "success_rate": 1.0,
+        "cost_usd_mean": 0.012500000000000002,
+        "duration_sec_mean": 18.429182583333333,
+        "failures": {
+          "ok": 12
+        }
+      }
+    ],
+    "model_x_treatment": [
+      {
+        "model_profile": "beta",
+        "treatment": "baseline",
+        "n": 24,
+        "n_scored": 24,
+        "n_infra": 0,
+        "success_rate": 0.375,
+        "cost_usd_mean": 0.0084,
+        "duration_sec_mean": 18.0821975,
+        "failures": {
+          "ok": 9,
+          "test": 9,
+          "model": 6
+        }
+      },
+      {
+        "model_profile": "beta",
+        "treatment": "bundle",
+        "n": 24,
+        "n_scored": 24,
+        "n_infra": 0,
+        "success_rate": 1.0,
+        "cost_usd_mean": 0.013125000000000003,
+        "duration_sec_mean": 18.654624333333334,
+        "failures": {
+          "ok": 24
+        }
+      }
+    ],
+    "task_slice_x_treatment": [
+      {
+        "task_slice": "private",
+        "treatment": "baseline",
+        "n": 12,
+        "n_scored": 12,
+        "n_infra": 0,
+        "success_rate": 0.25,
+        "cost_usd_mean": 0.0084,
+        "duration_sec_mean": 17.958679749999998,
+        "failures": {
+          "ok": 3,
+          "test": 9
+        }
+      },
+      {
+        "task_slice": "private",
+        "treatment": "bundle",
+        "n": 12,
+        "n_scored": 12,
+        "n_infra": 0,
+        "success_rate": 1.0,
+        "cost_usd_mean": 0.013125000000000003,
+        "duration_sec_mean": 18.42800825,
+        "failures": {
+          "ok": 12
+        }
+      },
+      {
+        "task_slice": "public",
+        "treatment": "baseline",
+        "n": 12,
+        "n_scored": 12,
+        "n_infra": 0,
+        "success_rate": 0.5,
+        "cost_usd_mean": 0.0084,
+        "duration_sec_mean": 18.20571525,
+        "failures": {
+          "ok": 6,
+          "model": 6
+        }
+      },
+      {
+        "task_slice": "public",
+        "treatment": "bundle",
+        "n": 12,
+        "n_scored": 12,
+        "n_infra": 0,
+        "success_rate": 1.0,
+        "cost_usd_mean": 0.013125000000000003,
+        "duration_sec_mean": 18.881240416666667,
+        "failures": {
+          "ok": 12
+        }
+      }
+    ]
+  },
+  "reuse": "Add a model/agent/prompt/skill, run configs/experiments/stage5-regression-baseline.yaml (or extend it), then diff new slice tables against this file. Keep the same seed and task pins.",
+  "source_job": "A-stage5-regression-baseline-20260825T180656Z",
+  "screen_job": "A-stage5-screen-20260825T174758Z",
+  "confirm_job": "A-stage5-screen-confirm-20260825T175531Z",
+  "config": "configs/experiments/stage5-regression-baseline.yaml"
+}

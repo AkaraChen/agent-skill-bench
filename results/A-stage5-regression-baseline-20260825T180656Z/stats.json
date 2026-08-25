@@ -1,0 +1,325 @@
+{
+  "disclaimer": "These numbers are per-slice evidence, not a ranking and not a single score. Infra errors are excluded from success rate and paired tests.",
+  "n_rows": 48,
+  "slices": {
+    "model": [
+      {
+        "model": "deterministic/beta@2026-08-26",
+        "n": 48,
+        "n_scored": 48,
+        "n_infra": 0,
+        "success_rate": 0.6875,
+        "cost_usd_mean": 0.010762500000000001,
+        "duration_sec_mean": 18.368410916666665,
+        "failures": {
+          "ok": 33,
+          "test": 9,
+          "model": 6
+        }
+      }
+    ],
+    "agent": [
+      {
+        "agent": "plan-solver",
+        "n": 24,
+        "n_scored": 24,
+        "n_infra": 0,
+        "success_rate": 0.875,
+        "cost_usd_mean": 0.011275,
+        "duration_sec_mean": 18.740297375,
+        "failures": {
+          "ok": 21,
+          "test": 3
+        }
+      },
+      {
+        "agent": "skill-solver",
+        "n": 24,
+        "n_scored": 24,
+        "n_infra": 0,
+        "success_rate": 0.5,
+        "cost_usd_mean": 0.01025,
+        "duration_sec_mean": 17.996524458333333,
+        "failures": {
+          "test": 6,
+          "ok": 12,
+          "model": 6
+        }
+      }
+    ],
+    "prompt": [
+      {
+        "prompt": "baseline",
+        "n": 24,
+        "n_scored": 24,
+        "n_infra": 0,
+        "success_rate": 0.375,
+        "cost_usd_mean": 0.0084,
+        "duration_sec_mean": 18.0821975,
+        "failures": {
+          "ok": 9,
+          "test": 9,
+          "model": 6
+        }
+      },
+      {
+        "prompt": "plan",
+        "n": 24,
+        "n_scored": 24,
+        "n_infra": 0,
+        "success_rate": 1.0,
+        "cost_usd_mean": 0.013125000000000003,
+        "duration_sec_mean": 18.654624333333334,
+        "failures": {
+          "ok": 24
+        }
+      }
+    ],
+    "skill": [
+      {
+        "treatment": "baseline",
+        "n": 24,
+        "n_scored": 24,
+        "n_infra": 0,
+        "success_rate": 0.375,
+        "cost_usd_mean": 0.0084,
+        "duration_sec_mean": 18.0821975,
+        "failures": {
+          "ok": 9,
+          "test": 9,
+          "model": 6
+        }
+      },
+      {
+        "treatment": "bundle",
+        "n": 24,
+        "n_scored": 24,
+        "n_infra": 0,
+        "success_rate": 1.0,
+        "cost_usd_mean": 0.013125000000000003,
+        "duration_sec_mean": 18.654624333333334,
+        "failures": {
+          "ok": 24
+        }
+      }
+    ],
+    "task": [
+      {
+        "task": "asb-private-holdout/clamp-range",
+        "n": 12,
+        "n_scored": 12,
+        "n_infra": 0,
+        "success_rate": 0.75,
+        "cost_usd_mean": 0.010762500000000001,
+        "duration_sec_mean": 18.111013166666666,
+        "failures": {
+          "ok": 9,
+          "test": 3
+        }
+      },
+      {
+        "task": "asb-private-holdout/path-jail",
+        "n": 12,
+        "n_scored": 12,
+        "n_infra": 0,
+        "success_rate": 0.5,
+        "cost_usd_mean": 0.010762500000000001,
+        "duration_sec_mean": 18.275674833333333,
+        "failures": {
+          "test": 6,
+          "ok": 6
+        }
+      },
+      {
+        "task": "asb/reverse-string",
+        "n": 12,
+        "n_scored": 12,
+        "n_infra": 0,
+        "success_rate": 0.75,
+        "cost_usd_mean": 0.010762500000000001,
+        "duration_sec_mean": 18.874612166666665,
+        "failures": {
+          "ok": 9,
+          "model": 3
+        }
+      },
+      {
+        "task": "asb/slugify",
+        "n": 12,
+        "n_scored": 12,
+        "n_infra": 0,
+        "success_rate": 0.75,
+        "cost_usd_mean": 0.010762500000000001,
+        "duration_sec_mean": 18.2123435,
+        "failures": {
+          "ok": 9,
+          "model": 3
+        }
+      }
+    ],
+    "agent_x_treatment": [
+      {
+        "agent": "plan-solver",
+        "treatment": "baseline",
+        "n": 12,
+        "n_scored": 12,
+        "n_infra": 0,
+        "success_rate": 0.75,
+        "cost_usd_mean": 0.0088,
+        "duration_sec_mean": 18.600528666666666,
+        "failures": {
+          "ok": 9,
+          "test": 3
+        }
+      },
+      {
+        "agent": "plan-solver",
+        "treatment": "bundle",
+        "n": 12,
+        "n_scored": 12,
+        "n_infra": 0,
+        "success_rate": 1.0,
+        "cost_usd_mean": 0.013750000000000004,
+        "duration_sec_mean": 18.880066083333332,
+        "failures": {
+          "ok": 12
+        }
+      },
+      {
+        "agent": "skill-solver",
+        "treatment": "baseline",
+        "n": 12,
+        "n_scored": 12,
+        "n_infra": 0,
+        "success_rate": 0.0,
+        "cost_usd_mean": 0.008,
+        "duration_sec_mean": 17.563866333333333,
+        "failures": {
+          "test": 6,
+          "model": 6
+        }
+      },
+      {
+        "agent": "skill-solver",
+        "treatment": "bundle",
+        "n": 12,
+        "n_scored": 12,
+        "n_infra": 0,
+        "success_rate": 1.0,
+        "cost_usd_mean": 0.012500000000000002,
+        "duration_sec_mean": 18.429182583333333,
+        "failures": {
+          "ok": 12
+        }
+      }
+    ]
+  },
+  "reliability": {
+    "pass_hat_1": {
+      "k": 1,
+      "n": 16,
+      "pass_hat_k": 0.6875
+    },
+    "pass_hat_3": {
+      "k": 3,
+      "n": 16,
+      "pass_hat_k": 0.6875
+    }
+  },
+  "overall_cost": {
+    "mean": 0.010762500000000001,
+    "low": 0.010050911458333334,
+    "high": 0.011456276041666668,
+    "n": 48,
+    "n_boot": 2000,
+    "alpha": 0.05
+  },
+  "overall_duration": {
+    "mean": 18.368410916666665,
+    "low": 18.110941666666665,
+    "high": 18.68555154427083,
+    "n": 48,
+    "n_boot": 2000,
+    "alpha": 0.05
+  },
+  "paired": {
+    "n_pairs": 4,
+    "n_cells": 8,
+    "n_tasks": 4,
+    "left_success": 0.75,
+    "right_success": 1.0,
+    "mean_diff": 0.625,
+    "ci": {
+      "mean": 0.625,
+      "low": 0.5,
+      "high": 0.875,
+      "n": 4,
+      "n_boot": 2000,
+      "alpha": 0.05
+    },
+    "table": {
+      "n11": 3,
+      "n00": 0,
+      "n01": 1,
+      "n10": 0
+    },
+    "mcnemar": {
+      "n01": 1,
+      "n10": 0,
+      "n_discordant": 1,
+      "p_value": 1.0,
+      "test": "mcnemar-exact",
+      "n11": 3,
+      "n00": 0,
+      "unit": "task"
+    },
+    "unit": "task",
+    "method": "task-clustered-bootstrap",
+    "left": "baseline",
+    "right": "bundle"
+  },
+  "interaction": {
+    "agent": {
+      "factor": "agent",
+      "left": "baseline",
+      "right": "bundle",
+      "n_tasks": 4,
+      "gaps": {
+        "plan-solver": {
+          "mean": 0.25,
+          "low": 0.0,
+          "high": 0.75,
+          "n_boot": 2000
+        },
+        "skill-solver": {
+          "mean": 1.0,
+          "low": 1.0,
+          "high": 1.0,
+          "n_boot": 2000
+        }
+      },
+      "contrast": {
+        "levels": [
+          "plan-solver",
+          "skill-solver"
+        ],
+        "mean": 0.75175,
+        "low": 0.25,
+        "high": 1.0,
+        "n_boot": 2000,
+        "interpretation": "(bundle-baseline) at skill-solver minus the same gap at plan-solver"
+      },
+      "method": "task-clustered-bootstrap"
+    },
+    "model": {
+      "factor": "model",
+      "levels": [
+        "deterministic/beta@2026-08-26"
+      ],
+      "n_tasks": 4,
+      "gaps": {},
+      "contrast": null,
+      "note": "need \u22651 task and \u22652 factor levels"
+    }
+  }
+}

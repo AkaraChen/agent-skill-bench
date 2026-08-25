@@ -1,0 +1,27 @@
+{
+  "revision": "stage5-method-2026.08.26.r1",
+  "track": "A",
+  "applicability": "fixed-harness-only",
+  "models": [
+    "deterministic/alpha@2026-08-26",
+    "deterministic/beta@2026-08-26",
+    "deterministic/gamma@2026-08-26"
+  ],
+  "failure_taxonomy": {
+    "unknown_task": "Instruction did not map to a known task family.",
+    "security_miss": "Security task failed without an appropriate skill.",
+    "security_partial": "Partial skill bundle on security task.",
+    "incomplete_medium": "Medium task incomplete without planning cue.",
+    "no_scaffold": "Model needs prompt or skill scaffolding.",
+    "plan_without_skill": "Plan prompt alone insufficient for task slice.",
+    "skill_without_plan": "Skill alone insufficient for task slice.",
+    "skill_conflict": "Combined skills conflict for this model/task.",
+    "skill_order_conflict": "Skill load order caused failure.",
+    "brittle_baseline": "Bare baseline prompt failed on a brittle model.",
+    "brittle_medium": "Medium task failed on brittle model.",
+    "unsupported": "Task outside profile support.",
+    "unknown_profile": "Model snapshot has no profile.",
+    "deliberate_wrong": "Solved path skipped; wrong/empty artifact written."
+  },
+  "note": "Profiles are research fixtures for methodology delivery. Do not treat outcomes as evidence about hosted LLM products."
+}

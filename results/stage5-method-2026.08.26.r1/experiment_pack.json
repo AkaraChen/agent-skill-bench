@@ -1,0 +1,18 @@
+{
+  "revision": "stage5-method-2026.08.26.r1",
+  "disclaimer": "Track A fixed-harness study using deterministic capability profiles. Conclusions apply only to this harness revision unless re-confirmed on Track B native agents. Numbers are per-slice with CIs \u2014 not a leaderboard.",
+  "n_rows": 240,
+  "result_dirs": [
+    "results/A-stage5-screen-20260825T174758Z",
+    "results/A-stage5-screen-confirm-20260825T175531Z"
+  ],
+  "artifacts": [
+    "playbook.md",
+    "score_tables.csv",
+    "research_questions.json",
+    "model_cards.json",
+    "failure_taxonomy.json",
+    "regression_baseline.json",
+    "profile_manifest.json"
+  ]
+}

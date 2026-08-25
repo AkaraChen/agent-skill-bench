@@ -1,0 +1,591 @@
+{
+  "disclaimer": "These numbers are per-slice evidence, not a ranking and not a single score. Infra errors are excluded from success rate and paired tests.",
+  "n_rows": 96,
+  "slices": {
+    "model": [
+      {
+        "model": "deterministic/alpha@2026-08-26",
+        "n": 32,
+        "n_scored": 32,
+        "n_infra": 0,
+        "success_rate": 0.8125,
+        "cost_usd_mean": 0.0022500000000000003,
+        "duration_sec_mean": 18.58858034375,
+        "failures": {
+          "ok": 26,
+          "test": 6
+        }
+      },
+      {
+        "model": "deterministic/beta@2026-08-26",
+        "n": 32,
+        "n_scored": 32,
+        "n_infra": 0,
+        "success_rate": 0.625,
+        "cost_usd_mean": 0.010025,
+        "duration_sec_mean": 18.2161375625,
+        "failures": {
+          "test": 8,
+          "ok": 20,
+          "model": 4
+        }
+      },
+      {
+        "model": "deterministic/gamma@2026-08-26",
+        "n": 32,
+        "n_scored": 32,
+        "n_infra": 0,
+        "success_rate": 0.8125,
+        "cost_usd_mean": 0.027568750000000003,
+        "duration_sec_mean": 18.22180359375,
+        "failures": {
+          "ok": 26,
+          "test": 6
+        }
+      }
+    ],
+    "agent": [
+      {
+        "agent": "naive-solver",
+        "n": 32,
+        "n_scored": 32,
+        "n_infra": 0,
+        "success_rate": 0.8125,
+        "cost_usd_mean": 0.0022500000000000003,
+        "duration_sec_mean": 18.58858034375,
+        "failures": {
+          "ok": 26,
+          "test": 6
+        }
+      },
+      {
+        "agent": "plan-solver",
+        "n": 32,
+        "n_scored": 32,
+        "n_infra": 0,
+        "success_rate": 0.8125,
+        "cost_usd_mean": 0.027568750000000003,
+        "duration_sec_mean": 18.22180359375,
+        "failures": {
+          "ok": 26,
+          "test": 6
+        }
+      },
+      {
+        "agent": "skill-solver",
+        "n": 32,
+        "n_scored": 32,
+        "n_infra": 0,
+        "success_rate": 0.625,
+        "cost_usd_mean": 0.010025,
+        "duration_sec_mean": 18.2161375625,
+        "failures": {
+          "test": 8,
+          "ok": 20,
+          "model": 4
+        }
+      }
+    ],
+    "prompt": [
+      {
+        "prompt": "baseline",
+        "n": 48,
+        "n_scored": 48,
+        "n_infra": 0,
+        "success_rate": 0.625,
+        "cost_usd_mean": 0.011666666666666667,
+        "duration_sec_mean": 18.278436270833335,
+        "failures": {
+          "ok": 30,
+          "test": 14,
+          "model": 4
+        }
+      },
+      {
+        "prompt": "plan",
+        "n": 48,
+        "n_scored": 48,
+        "n_infra": 0,
+        "success_rate": 0.875,
+        "cost_usd_mean": 0.014895833333333336,
+        "duration_sec_mean": 18.405911395833332,
+        "failures": {
+          "ok": 42,
+          "test": 6
+        }
+      }
+    ],
+    "skill": [
+      {
+        "treatment": "baseline",
+        "n": 24,
+        "n_scored": 24,
+        "n_infra": 0,
+        "success_rate": 0.5,
+        "cost_usd_mean": 0.010666666666666666,
+        "duration_sec_mean": 18.115443583333334,
+        "failures": {
+          "ok": 12,
+          "test": 8,
+          "model": 4
+        }
+      },
+      {
+        "treatment": "bundle",
+        "n": 24,
+        "n_scored": 24,
+        "n_infra": 0,
+        "success_rate": 0.9166666666666666,
+        "cost_usd_mean": 0.016458333333333335,
+        "duration_sec_mean": 18.657486416666668,
+        "failures": {
+          "ok": 22,
+          "test": 2
+        }
+      },
+      {
+        "treatment": "plan",
+        "n": 24,
+        "n_scored": 24,
+        "n_infra": 0,
+        "success_rate": 0.8333333333333334,
+        "cost_usd_mean": 0.013333333333333334,
+        "duration_sec_mean": 18.154336375,
+        "failures": {
+          "ok": 20,
+          "test": 4
+        }
+      },
+      {
+        "treatment": "skill",
+        "n": 24,
+        "n_scored": 24,
+        "n_infra": 0,
+        "success_rate": 0.75,
+        "cost_usd_mean": 0.012666666666666668,
+        "duration_sec_mean": 18.441428958333333,
+        "failures": {
+          "ok": 18,
+          "test": 6
+        }
+      }
+    ],
+    "task": [
+      {
+        "task": "asb-private-holdout/clamp-range",
+        "n": 12,
+        "n_scored": 12,
+        "n_infra": 0,
+        "success_rate": 0.9166666666666666,
+        "cost_usd_mean": 0.013281250000000001,
+        "duration_sec_mean": 18.537015666666665,
+        "failures": {
+          "ok": 11,
+          "test": 1
+        }
+      },
+      {
+        "task": "asb-private-holdout/path-jail",
+        "n": 12,
+        "n_scored": 12,
+        "n_infra": 0,
+        "success_rate": 0.08333333333333333,
+        "cost_usd_mean": 0.013281250000000001,
+        "duration_sec_mean": 18.43998975,
+        "failures": {
+          "test": 11,
+          "ok": 1
+        }
+      },
+      {
+        "task": "asb-private-holdout/unique-lines",
+        "n": 12,
+        "n_scored": 12,
+        "n_infra": 0,
+        "success_rate": 0.9166666666666666,
+        "cost_usd_mean": 0.013281250000000001,
+        "duration_sec_mean": 18.232300416666668,
+        "failures": {
+          "ok": 11,
+          "test": 1
+        }
+      },
+      {
+        "task": "asb-private-holdout/word-freq",
+        "n": 12,
+        "n_scored": 12,
+        "n_infra": 0,
+        "success_rate": 0.4166666666666667,
+        "cost_usd_mean": 0.013281250000000001,
+        "duration_sec_mean": 18.315516083333332,
+        "failures": {
+          "test": 7,
+          "ok": 5
+        }
+      },
+      {
+        "task": "asb/csv-sum",
+        "n": 12,
+        "n_scored": 12,
+        "n_infra": 0,
+        "success_rate": 0.9166666666666666,
+        "cost_usd_mean": 0.013281250000000001,
+        "duration_sec_mean": 18.05503525,
+        "failures": {
+          "ok": 11,
+          "model": 1
+        }
+      },
+      {
+        "task": "asb/fizzbuzz",
+        "n": 12,
+        "n_scored": 12,
+        "n_infra": 0,
+        "success_rate": 0.9166666666666666,
+        "cost_usd_mean": 0.013281250000000001,
+        "duration_sec_mean": 18.030877083333333,
+        "failures": {
+          "ok": 11,
+          "model": 1
+        }
+      },
+      {
+        "task": "asb/reverse-string",
+        "n": 12,
+        "n_scored": 12,
+        "n_infra": 0,
+        "success_rate": 0.9166666666666666,
+        "cost_usd_mean": 0.013281250000000001,
+        "duration_sec_mean": 19.072098999999998,
+        "failures": {
+          "ok": 11,
+          "model": 1
+        }
+      },
+      {
+        "task": "asb/slugify",
+        "n": 12,
+        "n_scored": 12,
+        "n_infra": 0,
+        "success_rate": 0.9166666666666666,
+        "cost_usd_mean": 0.013281250000000001,
+        "duration_sec_mean": 18.054557416666665,
+        "failures": {
+          "ok": 11,
+          "model": 1
+        }
+      }
+    ],
+    "agent_x_treatment": [
+      {
+        "agent": "naive-solver",
+        "treatment": "baseline",
+        "n": 8,
+        "n_scored": 8,
+        "n_infra": 0,
+        "success_rate": 0.75,
+        "cost_usd_mean": 0.002,
+        "duration_sec_mean": 18.30516475,
+        "failures": {
+          "ok": 6,
+          "test": 2
+        }
+      },
+      {
+        "agent": "naive-solver",
+        "treatment": "bundle",
+        "n": 8,
+        "n_scored": 8,
+        "n_infra": 0,
+        "success_rate": 0.875,
+        "cost_usd_mean": 0.0025,
+        "duration_sec_mean": 18.955323625,
+        "failures": {
+          "ok": 7,
+          "test": 1
+        }
+      },
+      {
+        "agent": "naive-solver",
+        "treatment": "plan",
+        "n": 8,
+        "n_scored": 8,
+        "n_infra": 0,
+        "success_rate": 0.875,
+        "cost_usd_mean": 0.0025,
+        "duration_sec_mean": 18.441564625,
+        "failures": {
+          "ok": 7,
+          "test": 1
+        }
+      },
+      {
+        "agent": "naive-solver",
+        "treatment": "skill",
+        "n": 8,
+        "n_scored": 8,
+        "n_infra": 0,
+        "success_rate": 0.75,
+        "cost_usd_mean": 0.002,
+        "duration_sec_mean": 18.652268375,
+        "failures": {
+          "ok": 6,
+          "test": 2
+        }
+      },
+      {
+        "agent": "plan-solver",
+        "treatment": "baseline",
+        "n": 8,
+        "n_scored": 8,
+        "n_infra": 0,
+        "success_rate": 0.75,
+        "cost_usd_mean": 0.022000000000000002,
+        "duration_sec_mean": 18.04251525,
+        "failures": {
+          "ok": 6,
+          "test": 2
+        }
+      },
+      {
+        "agent": "plan-solver",
+        "treatment": "bundle",
+        "n": 8,
+        "n_scored": 8,
+        "n_infra": 0,
+        "success_rate": 0.875,
+        "cost_usd_mean": 0.034375,
+        "duration_sec_mean": 18.53368875,
+        "failures": {
+          "ok": 7,
+          "test": 1
+        }
+      },
+      {
+        "agent": "plan-solver",
+        "treatment": "plan",
+        "n": 8,
+        "n_scored": 8,
+        "n_infra": 0,
+        "success_rate": 0.875,
+        "cost_usd_mean": 0.027500000000000004,
+        "duration_sec_mean": 18.008931,
+        "failures": {
+          "ok": 7,
+          "test": 1
+        }
+      },
+      {
+        "agent": "plan-solver",
+        "treatment": "skill",
+        "n": 8,
+        "n_scored": 8,
+        "n_infra": 0,
+        "success_rate": 0.75,
+        "cost_usd_mean": 0.026400000000000003,
+        "duration_sec_mean": 18.302079374999998,
+        "failures": {
+          "ok": 6,
+          "test": 2
+        }
+      },
+      {
+        "agent": "skill-solver",
+        "treatment": "baseline",
+        "n": 8,
+        "n_scored": 8,
+        "n_infra": 0,
+        "success_rate": 0.0,
+        "cost_usd_mean": 0.008,
+        "duration_sec_mean": 17.99865075,
+        "failures": {
+          "test": 4,
+          "model": 4
+        }
+      },
+      {
+        "agent": "skill-solver",
+        "treatment": "bundle",
+        "n": 8,
+        "n_scored": 8,
+        "n_infra": 0,
+        "success_rate": 1.0,
+        "cost_usd_mean": 0.0125,
+        "duration_sec_mean": 18.483446875,
+        "failures": {
+          "ok": 8
+        }
+      },
+      {
+        "agent": "skill-solver",
+        "treatment": "plan",
+        "n": 8,
+        "n_scored": 8,
+        "n_infra": 0,
+        "success_rate": 0.75,
+        "cost_usd_mean": 0.01,
+        "duration_sec_mean": 18.0125135,
+        "failures": {
+          "ok": 6,
+          "test": 2
+        }
+      },
+      {
+        "agent": "skill-solver",
+        "treatment": "skill",
+        "n": 8,
+        "n_scored": 8,
+        "n_infra": 0,
+        "success_rate": 0.75,
+        "cost_usd_mean": 0.0096,
+        "duration_sec_mean": 18.369939125,
+        "failures": {
+          "ok": 6,
+          "test": 2
+        }
+      }
+    ]
+  },
+  "reliability": {
+    "pass_hat_1": {
+      "k": 1,
+      "n": 96,
+      "pass_hat_k": 0.75
+    },
+    "pass_hat_3": {
+      "k": 3,
+      "n": 0,
+      "pass_hat_k": null
+    }
+  },
+  "overall_cost": {
+    "mean": 0.013281250000000001,
+    "low": 0.011078750000000002,
+    "high": 0.015501210937500001,
+    "n": 96,
+    "n_boot": 2000,
+    "alpha": 0.05
+  },
+  "overall_duration": {
+    "mean": 18.342173833333334,
+    "low": 18.188107412239585,
+    "high": 18.51776540390625,
+    "n": 96,
+    "n_boot": 2000,
+    "alpha": 0.05
+  },
+  "paired": {
+    "n_pairs": 8,
+    "n_cells": 24,
+    "n_tasks": 8,
+    "left_success": 0.75,
+    "right_success": 0.875,
+    "mean_diff": 0.41666666666666663,
+    "ci": {
+      "mean": 0.41666666666666663,
+      "low": 0.3333333333333333,
+      "high": 0.5833333333333334,
+      "n": 8,
+      "n_boot": 2000,
+      "alpha": 0.05
+    },
+    "table": {
+      "n11": 6,
+      "n00": 1,
+      "n01": 1,
+      "n10": 0
+    },
+    "mcnemar": {
+      "n01": 1,
+      "n10": 0,
+      "n_discordant": 1,
+      "p_value": 1.0,
+      "test": "mcnemar-exact",
+      "n11": 6,
+      "n00": 1,
+      "unit": "task"
+    },
+    "unit": "task",
+    "method": "task-clustered-bootstrap",
+    "left": "baseline",
+    "right": "bundle"
+  },
+  "interaction": {
+    "agent": {
+      "factor": "agent",
+      "left": "baseline",
+      "right": "bundle",
+      "n_tasks": 8,
+      "gaps": {
+        "naive-solver": {
+          "mean": 0.125,
+          "low": 0.0,
+          "high": 0.375,
+          "n_boot": 2000
+        },
+        "plan-solver": {
+          "mean": 0.125,
+          "low": 0.0,
+          "high": 0.375,
+          "n_boot": 2000
+        },
+        "skill-solver": {
+          "mean": 1.0,
+          "low": 1.0,
+          "high": 1.0,
+          "n_boot": 2000
+        }
+      },
+      "contrast": {
+        "levels": [
+          "naive-solver",
+          "plan-solver"
+        ],
+        "mean": 0.0,
+        "low": 0.0,
+        "high": 0.0,
+        "n_boot": 2000,
+        "interpretation": "(bundle-baseline) at plan-solver minus the same gap at naive-solver"
+      },
+      "method": "task-clustered-bootstrap"
+    },
+    "model": {
+      "factor": "model",
+      "left": "baseline",
+      "right": "bundle",
+      "n_tasks": 8,
+      "gaps": {
+        "deterministic/alpha@2026-08-26": {
+          "mean": 0.125,
+          "low": 0.0,
+          "high": 0.375,
+          "n_boot": 2000
+        },
+        "deterministic/beta@2026-08-26": {
+          "mean": 1.0,
+          "low": 1.0,
+          "high": 1.0,
+          "n_boot": 2000
+        },
+        "deterministic/gamma@2026-08-26": {
+          "mean": 0.125,
+          "low": 0.0,
+          "high": 0.375,
+          "n_boot": 2000
+        }
+      },
+      "contrast": {
+        "levels": [
+          "deterministic/alpha@2026-08-26",
+          "deterministic/beta@2026-08-26"
+        ],
+        "mean": 0.87725,
+        "low": 0.625,
+        "high": 1.0,
+        "n_boot": 2000,
+        "interpretation": "(bundle-baseline) at deterministic/beta@2026-08-26 minus the same gap at deterministic/alpha@2026-08-26"
+      },
+      "method": "task-clustered-bootstrap"
+    }
+  }
+}

@@ -1,0 +1,209 @@
+{
+  "revision": "stage5-method-2026.08.26.r1",
+  "catalog": {
+    "unknown_task": "Instruction did not map to a known task family.",
+    "security_miss": "Security task failed without an appropriate skill.",
+    "security_partial": "Partial skill bundle on security task.",
+    "incomplete_medium": "Medium task incomplete without planning cue.",
+    "no_scaffold": "Model needs prompt or skill scaffolding.",
+    "plan_without_skill": "Plan prompt alone insufficient for task slice.",
+    "skill_without_plan": "Skill alone insufficient for task slice.",
+    "skill_conflict": "Combined skills conflict for this model/task.",
+    "skill_order_conflict": "Skill load order caused failure.",
+    "brittle_baseline": "Bare baseline prompt failed on a brittle model.",
+    "brittle_medium": "Medium task failed on brittle model.",
+    "unsupported": "Task outside profile support.",
+    "unknown_profile": "Model snapshot has no profile.",
+    "deliberate_wrong": "Solved path skipped; wrong/empty artifact written."
+  },
+  "counts": {
+    "success": 186,
+    "no_scaffold": 7,
+    "security_miss": 33,
+    "skill_conflict": 7,
+    "security_partial": 1,
+    "incomplete_medium": 2,
+    "brittle_medium": 2,
+    "plan_without_skill": 1,
+    "skill_without_plan": 1
+  },
+  "samples_for_blind_review": {
+    "success": [
+      {
+        "trial_id": "61236091-f9f4-4a97-bd83-36f22e56e8f1",
+        "task": "asb-private-holdout/clamp-range",
+        "agent": "naive-solver",
+        "model": "deterministic/alpha@2026-08-26",
+        "treatment": "baseline",
+        "failure_class": "ok"
+      },
+      {
+        "trial_id": "eed5d5a1-709c-4770-a4ec-6cdd0a7bed26",
+        "task": "asb-private-holdout/clamp-range",
+        "agent": "naive-solver",
+        "model": "deterministic/alpha@2026-08-26",
+        "treatment": "bundle",
+        "failure_class": "ok"
+      },
+      {
+        "trial_id": "e69c5b16-4372-4307-a004-7dccff23aa35",
+        "task": "asb-private-holdout/clamp-range",
+        "agent": "naive-solver",
+        "model": "deterministic/alpha@2026-08-26",
+        "treatment": "plan",
+        "failure_class": "ok"
+      }
+    ],
+    "no_scaffold": [
+      {
+        "trial_id": "7301caa4-585c-4504-91b3-ce191c820d1a",
+        "task": "asb-private-holdout/clamp-range",
+        "agent": "skill-solver",
+        "model": "deterministic/beta@2026-08-26",
+        "treatment": "baseline",
+        "failure_class": "test"
+      },
+      {
+        "trial_id": "cd9a21cf-f92b-4fa8-84bf-8f1481b568f4",
+        "task": "asb-private-holdout/unique-lines",
+        "agent": "skill-solver",
+        "model": "deterministic/beta@2026-08-26",
+        "treatment": "baseline",
+        "failure_class": "test"
+      },
+      {
+        "trial_id": "c1cb1848-ca37-4a68-ba8c-37bf680ecb93",
+        "task": "asb-private-holdout/word-freq",
+        "agent": "skill-solver",
+        "model": "deterministic/beta@2026-08-26",
+        "treatment": "baseline",
+        "failure_class": "test"
+      }
+    ],
+    "security_miss": [
+      {
+        "trial_id": "5aa9ee7c-cabb-4560-9778-dc674db7f46a",
+        "task": "asb-private-holdout/path-jail",
+        "agent": "naive-solver",
+        "model": "deterministic/alpha@2026-08-26",
+        "treatment": "baseline",
+        "failure_class": "test"
+      },
+      {
+        "trial_id": "1eeef7cb-3d0c-4594-b50a-608210c138d3",
+        "task": "asb-private-holdout/path-jail",
+        "agent": "naive-solver",
+        "model": "deterministic/alpha@2026-08-26",
+        "treatment": "bundle",
+        "failure_class": "test"
+      },
+      {
+        "trial_id": "598de8bc-7581-4398-8c43-9b21bf2846dc",
+        "task": "asb-private-holdout/path-jail",
+        "agent": "naive-solver",
+        "model": "deterministic/alpha@2026-08-26",
+        "treatment": "plan",
+        "failure_class": "test"
+      }
+    ],
+    "skill_conflict": [
+      {
+        "trial_id": "7ccccdec-d79b-40a9-8243-e0a5c87c85d0",
+        "task": "asb-private-holdout/path-jail",
+        "agent": "plan-solver",
+        "model": "deterministic/gamma@2026-08-26",
+        "treatment": "bundle",
+        "failure_class": "test"
+      },
+      {
+        "trial_id": "7ff4d9dd-c0c1-4635-84c2-8a2a0d777d30",
+        "task": "asb-private-holdout/path-jail",
+        "agent": "plan-solver",
+        "model": "deterministic/gamma@2026-08-26",
+        "treatment": "bundle",
+        "failure_class": "test"
+      },
+      {
+        "trial_id": "ac913440-2a1b-4d14-bf42-0af4f385b178",
+        "task": "asb-private-holdout/path-jail",
+        "agent": "plan-solver",
+        "model": "deterministic/gamma@2026-08-26",
+        "treatment": "bundle",
+        "failure_class": "test"
+      }
+    ],
+    "security_partial": [
+      {
+        "trial_id": "0001fc65-92ce-4111-afce-8ef7cde89b0a",
+        "task": "asb-private-holdout/path-jail",
+        "agent": "skill-solver",
+        "model": "deterministic/beta@2026-08-26",
+        "treatment": "skill",
+        "failure_class": "test"
+      }
+    ],
+    "incomplete_medium": [
+      {
+        "trial_id": "e4d64cb2-72af-4c1a-a61b-2cddd1a270dd",
+        "task": "asb-private-holdout/word-freq",
+        "agent": "naive-solver",
+        "model": "deterministic/alpha@2026-08-26",
+        "treatment": "baseline",
+        "failure_class": "test"
+      },
+      {
+        "trial_id": "f7793ce0-d0ae-4f10-9a8e-eb0d60e36c83",
+        "task": "asb-private-holdout/word-freq",
+        "agent": "naive-solver",
+        "model": "deterministic/alpha@2026-08-26",
+        "treatment": "skill",
+        "failure_class": "test"
+      }
+    ],
+    "brittle_medium": [
+      {
+        "trial_id": "30ecc98f-2509-414f-b940-4d640cbc56b4",
+        "task": "asb-private-holdout/word-freq",
+        "agent": "plan-solver",
+        "model": "deterministic/gamma@2026-08-26",
+        "treatment": "baseline",
+        "failure_class": "test"
+      },
+      {
+        "trial_id": "8f15ed84-7742-43c3-ba3e-6c92adba601e",
+        "task": "asb-private-holdout/word-freq",
+        "agent": "plan-solver",
+        "model": "deterministic/gamma@2026-08-26",
+        "treatment": "skill",
+        "failure_class": "test"
+      }
+    ],
+    "plan_without_skill": [
+      {
+        "trial_id": "c5f43885-384d-424c-98b4-6ea481ee5756",
+        "task": "asb-private-holdout/word-freq",
+        "agent": "skill-solver",
+        "model": "deterministic/beta@2026-08-26",
+        "treatment": "plan",
+        "failure_class": "test"
+      }
+    ],
+    "skill_without_plan": [
+      {
+        "trial_id": "bae5835b-a759-4e17-a726-a09f293ae591",
+        "task": "asb-private-holdout/word-freq",
+        "agent": "skill-solver",
+        "model": "deterministic/beta@2026-08-26",
+        "treatment": "skill",
+        "failure_class": "test"
+      }
+    ]
+  },
+  "trajectory_decision_files": 296,
+  "blind_review_protocol": [
+    "Sample up to 3 trials per failure mode from samples_for_blind_review.",
+    "Hide model/agent/treatment labels before human rubric scoring.",
+    "Score: instruction_follow, security, maintainability (1-5).",
+    "Do not use LLM-as-judge as primary evidence."
+  ]
+}
