@@ -1,0 +1,501 @@
+{
+  "revision": "stage7-ericway-2026.08.26.r1",
+  "stages": [
+    {
+      "stage": "8A",
+      "n_trials": 47,
+      "estimated_usd": 94.0,
+      "budget_usd": 117.5,
+      "max_trials": 55,
+      "n_cells": 47,
+      "n_task_units": 1
+    },
+    {
+      "stage": "8B",
+      "n_trials": 50,
+      "estimated_usd": 100.0,
+      "budget_usd": 125.0,
+      "max_trials": 58,
+      "n_cells": 50,
+      "n_task_units": 1
+    },
+    {
+      "stage": "8C",
+      "n_trials": 16,
+      "estimated_usd": 32.0,
+      "budget_usd": 40.0,
+      "max_trials": 24,
+      "n_cells": 16,
+      "n_task_units": 1
+    },
+    {
+      "stage": "8D",
+      "n_trials": 19,
+      "estimated_usd": 38.0,
+      "budget_usd": 47.5,
+      "max_trials": 27,
+      "n_cells": 19,
+      "n_task_units": 1
+    }
+  ],
+  "manifest": {
+    "revision": "stage7-ericway-2026.08.26.r1",
+    "track": "B",
+    "applicability": "Codex-only Track B; no other model or agent in the matrix.",
+    "pins": {
+      "eric_way_commit": "786ba75fa2de5238da80415dfad8d7e7ce5b4eab",
+      "agent_skill_bench_base_commit": "7587e40d4a26a8b0a7c004ab81c28f2c89f42256",
+      "harbor_version": "0.22.0",
+      "codex_cli_version": "0.149.1",
+      "model_snapshot": "openai/gpt-5.6",
+      "reasoning_effort": "medium",
+      "web_search": "disabled",
+      "system_prompt": "prompts/stage7-codex.md",
+      "system_prompt_sha256": "sha256:bafdc728e63d2318c2f5610638e0cfa48754c26c3b13218db910c84336d4cd37",
+      "network_mode": "no-network",
+      "docker_image": "python:3.12.11-slim-bookworm",
+      "docker_digest": "sha256:519591d6871b7bc437060736b9f7456b8731f1499a57e22e6c285135ae657bf7",
+      "n_concurrent": 2,
+      "usd_per_trial": 2.0,
+      "agent_timeout_sec": 900,
+      "verifier_timeout_sec": 180
+    },
+    "included_skills": [
+      {
+        "name": "eric-backend",
+        "path": "./skills/eric-way/eric-backend",
+        "digest": "sha256:7d2a5192fb82544acd7511ec08df33e442c92ced32d96fb0029865c6bd0aa924",
+        "source_commit": "786ba75fa2de5238da80415dfad8d7e7ce5b4eab"
+      },
+      {
+        "name": "eric-design",
+        "path": "./skills/eric-way/eric-design",
+        "digest": "sha256:64b718b3ba4fe5686ec18b1c6e73e8c74fc35129ec57554bb934b8b9eed44ec4",
+        "source_commit": "786ba75fa2de5238da80415dfad8d7e7ce5b4eab"
+      },
+      {
+        "name": "eric-desktop",
+        "path": "./skills/eric-way/eric-desktop",
+        "digest": "sha256:034b7ef96fc0add1a10567326fd36e779feddb1c6649c086beccc0bc6f1031bf",
+        "source_commit": "786ba75fa2de5238da80415dfad8d7e7ce5b4eab"
+      },
+      {
+        "name": "eric-e2e-testing",
+        "path": "./skills/eric-way/eric-e2e-testing",
+        "digest": "sha256:61ae2412dee4379044a102a7f7c4ec51fb6fcef0b94bc98e257ad347fb62baf0",
+        "source_commit": "786ba75fa2de5238da80415dfad8d7e7ce5b4eab"
+      },
+      {
+        "name": "eric-frontend",
+        "path": "./skills/eric-way/eric-frontend",
+        "digest": "sha256:a48012a593347ceee4b2583f371bbaa41d5c368c5dec02532711b49c30c26c0b",
+        "source_commit": "786ba75fa2de5238da80415dfad8d7e7ce5b4eab"
+      },
+      {
+        "name": "eric-github-actions",
+        "path": "./skills/eric-way/eric-github-actions",
+        "digest": "sha256:e32c78a844f68895b91c1e32c32d3112dfadce1c831b27e914c54ba99bd5e38f",
+        "source_commit": "786ba75fa2de5238da80415dfad8d7e7ce5b4eab"
+      },
+      {
+        "name": "eric-grill",
+        "path": "./skills/eric-way/eric-grill",
+        "digest": "sha256:76bf2f6330f6ca804045601aec799efaa637a67e36f0b4a5e3e8eb875613f2b1",
+        "source_commit": "786ba75fa2de5238da80415dfad8d7e7ce5b4eab"
+      },
+      {
+        "name": "eric-javascript",
+        "path": "./skills/eric-way/eric-javascript",
+        "digest": "sha256:378a4c0972432cbef3f8f6b7f9435bc6613a334217375c07d73e6a4d137f9d6b",
+        "source_commit": "786ba75fa2de5238da80415dfad8d7e7ce5b4eab"
+      },
+      {
+        "name": "eric-quality-control",
+        "path": "./skills/eric-way/eric-quality-control",
+        "digest": "sha256:e642bcfd22346be4c320cbb96237e8c9e1e5b76588e0dfe64ed8de6832ff4461",
+        "source_commit": "786ba75fa2de5238da80415dfad8d7e7ce5b4eab"
+      },
+      {
+        "name": "eric-react",
+        "path": "./skills/eric-way/eric-react",
+        "digest": "sha256:0a1ea3b752bd8442fb2914e3448d1fe2c06cab9c08d8a35a487065d8c7ff3a30",
+        "source_commit": "786ba75fa2de5238da80415dfad8d7e7ce5b4eab"
+      },
+      {
+        "name": "eric-review",
+        "path": "./skills/eric-way/eric-review",
+        "digest": "sha256:66e54f3bba91d6f5f2ef6e995726c200b5d084a49b440cf1728c66a4059e555f",
+        "source_commit": "786ba75fa2de5238da80415dfad8d7e7ce5b4eab"
+      },
+      {
+        "name": "eric-ui",
+        "path": "./skills/eric-way/eric-ui",
+        "digest": "sha256:da1cb7de095b3a7d1fdbea83df564795c6f9c4d2d1086794e308f005a1dce117",
+        "source_commit": "786ba75fa2de5238da80415dfad8d7e7ce5b4eab"
+      },
+      {
+        "name": "eric-writing-tests",
+        "path": "./skills/eric-way/eric-writing-tests",
+        "digest": "sha256:3f4238d604bff6353f031c625d0d97682e9712814283009f1bd8112a85b6c7ef",
+        "source_commit": "786ba75fa2de5238da80415dfad8d7e7ce5b4eab"
+      }
+    ],
+    "excluded_skills": {
+      "eric-github-pr": "GitHub PR viewed-state / GraphQL operations; collaboration, not local review.",
+      "design-dna": "Vendored extractor, not an Eric atomic coding skill in this round.",
+      "guided-review": "PR walkthrough artifacts; collaboration-adjacent.",
+      "kill-ai-slop": "Vendored writing-style skill, not in the Stage 7 candidate list.",
+      "native-feel-skill": "Vendored desktop-feel skill, not in the Stage 7 candidate list."
+    },
+    "scenarios": {
+      "backend": {
+        "stage": "8A",
+        "issue": "KIT-913",
+        "label": "\u540e\u7aef"
+      },
+      "javascript": {
+        "stage": "8A",
+        "issue": "KIT-913",
+        "label": "JavaScript/\u5de5\u5177\u94fe"
+      },
+      "quality": {
+        "stage": "8A",
+        "issue": "KIT-913",
+        "label": "\u8d28\u91cf\u4e0e\u6d4b\u8bd5"
+      },
+      "ci": {
+        "stage": "8A",
+        "issue": "KIT-913",
+        "label": "CI"
+      },
+      "frontend": {
+        "stage": "8B",
+        "issue": "KIT-914",
+        "label": "\u524d\u7aef"
+      },
+      "react": {
+        "stage": "8B",
+        "issue": "KIT-914",
+        "label": "React"
+      },
+      "ui": {
+        "stage": "8B",
+        "issue": "KIT-914",
+        "label": "UI \u6b63\u786e\u6027"
+      },
+      "design": {
+        "stage": "8B",
+        "issue": "KIT-914",
+        "label": "\u89c6\u89c9\u8bbe\u8ba1"
+      },
+      "e2e": {
+        "stage": "8B",
+        "issue": "KIT-914",
+        "label": "\u6d4f\u89c8\u5668\u884c\u4e3a"
+      },
+      "desktop": {
+        "stage": "8C",
+        "issue": "KIT-915",
+        "label": "\u684c\u9762\u7aef"
+      },
+      "grill": {
+        "stage": "8D",
+        "issue": "KIT-916",
+        "label": "\u65b9\u6848\u63a8\u6f14"
+      },
+      "review": {
+        "stage": "8D",
+        "issue": "KIT-916",
+        "label": "\u4ee3\u7801\u5ba1\u67e5"
+      }
+    },
+    "n_tasks": 41,
+    "independent_controls": [
+      {
+        "skill": "eric-backend",
+        "n_tasks": "3",
+        "task_ids": "be-thin-transport,be-typed-errors,be-trust-boundary",
+        "control": "baseline vs single-backend on those tasks"
+      },
+      {
+        "skill": "eric-design",
+        "n_tasks": "3",
+        "task_ids": "ds-landing-hero,ds-anti-slop,ds-style-menu",
+        "control": "baseline vs single-design on those tasks"
+      },
+      {
+        "skill": "eric-desktop",
+        "n_tasks": "5",
+        "task_ids": "dt-ipc-boundary,dt-packaged-path,dt-off-ui-thread,dt-electron-webview,dt-tauri-contract",
+        "control": "baseline vs single-desktop on those tasks"
+      },
+      {
+        "skill": "eric-e2e-testing",
+        "n_tasks": "3",
+        "task_ids": "e2e-smoke-critical,e2e-screenshot-repro,e2e-not-unit",
+        "control": "baseline vs single-e2e-testing on those tasks"
+      },
+      {
+        "skill": "eric-frontend",
+        "n_tasks": "3",
+        "task_ids": "fe-feature-folder,fe-query-layer,fe-classname",
+        "control": "baseline vs single-frontend on those tasks"
+      },
+      {
+        "skill": "eric-github-actions",
+        "n_tasks": "3",
+        "task_ids": "ci-pin-actions,ci-permissions,ci-local-commands",
+        "control": "baseline vs single-github-actions on those tasks"
+      },
+      {
+        "skill": "eric-grill",
+        "n_tasks": "3",
+        "task_ids": "gr-fuzzy-terms,gr-context-boundary,gr-adr-worthy",
+        "control": "baseline vs single-grill on those tasks"
+      },
+      {
+        "skill": "eric-javascript",
+        "n_tasks": "3",
+        "task_ids": "js-ni-scripts,js-new-project-pm,js-mixed-pm",
+        "control": "baseline vs single-javascript on those tasks"
+      },
+      {
+        "skill": "eric-quality-control",
+        "n_tasks": "3",
+        "task_ids": "qc-add-gates,qc-fix-lint,qc-too-many-tools",
+        "control": "baseline vs single-quality-control on those tasks"
+      },
+      {
+        "skill": "eric-react",
+        "n_tasks": "3",
+        "task_ids": "re-no-usememo,re-effect-fetch,re-provider-scope",
+        "control": "baseline vs single-react on those tasks"
+      },
+      {
+        "skill": "eric-review",
+        "n_tasks": "3",
+        "task_ids": "rv-backend-diff,rv-frontend-diff,rv-desktop-diff",
+        "control": "baseline vs single-review on those tasks"
+      },
+      {
+        "skill": "eric-ui",
+        "n_tasks": "3",
+        "task_ids": "ui-disclosure,ui-privacy,ui-copy-status",
+        "control": "baseline vs single-ui on those tasks"
+      },
+      {
+        "skill": "eric-writing-tests",
+        "n_tasks": "3",
+        "task_ids": "wt-regression,wt-skip-trivial,wt-adversarial",
+        "control": "baseline vs single-writing-tests on those tasks"
+      }
+    ],
+    "screening": {
+      "repeat": 1,
+      "n_trials": 132,
+      "estimated_usd": 264.0,
+      "budget_usd": 330.0,
+      "max_wall_hours_serial": 18.0,
+      "max_wall_hours_parallel_stages": 8.33,
+      "by_stage": {
+        "8A": {
+          "n_tasks": 15,
+          "n_treatments": 13,
+          "n_cells": 47,
+          "n_trials": 47,
+          "estimated_usd": 94.0,
+          "budget_usd": 117.5,
+          "max_trials": 55,
+          "max_wall_hours": 6.0,
+          "issue": {
+            "id": "01a03a2b-6f04-7c28-8c02-1871b937692c",
+            "key": "KIT-913",
+            "config": "configs/experiments/stage8a-screen.yaml"
+          },
+          "config": "configs/experiments/stage8a-screen.yaml"
+        },
+        "8B": {
+          "n_tasks": 15,
+          "n_treatments": 16,
+          "n_cells": 50,
+          "n_trials": 50,
+          "estimated_usd": 100.0,
+          "budget_usd": 125.0,
+          "max_trials": 58,
+          "max_wall_hours": 8.33,
+          "issue": {
+            "id": "01a03a2b-7859-7c5f-8860-475faee34cf9",
+            "key": "KIT-914",
+            "config": "configs/experiments/stage8b-screen.yaml"
+          },
+          "config": "configs/experiments/stage8b-screen.yaml"
+        },
+        "8C": {
+          "n_tasks": 5,
+          "n_treatments": 4,
+          "n_cells": 16,
+          "n_trials": 16,
+          "estimated_usd": 32.0,
+          "budget_usd": 40.0,
+          "max_trials": 24,
+          "max_wall_hours": 2.0,
+          "issue": {
+            "id": "01a03a2b-81c4-7247-9dd3-b732fc7e600c",
+            "key": "KIT-915",
+            "config": "configs/experiments/stage8c-screen.yaml"
+          },
+          "config": "configs/experiments/stage8c-screen.yaml"
+        },
+        "8D": {
+          "n_tasks": 6,
+          "n_treatments": 8,
+          "n_cells": 19,
+          "n_trials": 19,
+          "estimated_usd": 38.0,
+          "budget_usd": 47.5,
+          "max_trials": 27,
+          "max_wall_hours": 1.67,
+          "issue": {
+            "id": "01a03a2b-8ae6-7c3b-a075-8a43b03f098c",
+            "key": "KIT-916",
+            "config": "configs/experiments/stage8d-screen.yaml"
+          },
+          "config": "configs/experiments/stage8d-screen.yaml"
+        }
+      }
+    },
+    "confirm": {
+      "repeat": 3,
+      "n_trials_placeholder": 192,
+      "estimated_usd": 384.0,
+      "issue": {
+        "id": "01a03a2b-947b-7938-b59e-2949c75c5626",
+        "key": "KIT-917",
+        "config": "configs/experiments/stage9-confirm.example.yaml"
+      },
+      "note": "Do not run until screening finishes and Akara confirms budget.",
+      "by_stage": {
+        "8A": {
+          "stage": "8A",
+          "repeat": 3,
+          "n_treatments_placeholder": 4,
+          "n_tasks_placeholder": 4,
+          "n_trials": 48,
+          "estimated_usd": 96.0,
+          "max_wall_hours": 6.0,
+          "selection_rule": "After screening: keep baseline, best single, best realistic, and every pre-registered overload/wrong/contrast with a large effect or harm. Do not rank across scenarios."
+        },
+        "8B": {
+          "stage": "8B",
+          "repeat": 3,
+          "n_treatments_placeholder": 4,
+          "n_tasks_placeholder": 4,
+          "n_trials": 48,
+          "estimated_usd": 96.0,
+          "max_wall_hours": 8.0,
+          "selection_rule": "After screening: keep baseline, best single, best realistic, and every pre-registered overload/wrong/contrast with a large effect or harm. Do not rank across scenarios."
+        },
+        "8C": {
+          "stage": "8C",
+          "repeat": 3,
+          "n_treatments_placeholder": 4,
+          "n_tasks_placeholder": 4,
+          "n_trials": 48,
+          "estimated_usd": 96.0,
+          "max_wall_hours": 6.0,
+          "selection_rule": "After screening: keep baseline, best single, best realistic, and every pre-registered overload/wrong/contrast with a large effect or harm. Do not rank across scenarios."
+        },
+        "8D": {
+          "stage": "8D",
+          "repeat": 3,
+          "n_treatments_placeholder": 4,
+          "n_tasks_placeholder": 4,
+          "n_trials": 48,
+          "estimated_usd": 96.0,
+          "max_wall_hours": 4.0,
+          "selection_rule": "After screening: keep baseline, best single, best realistic, and every pre-registered overload/wrong/contrast with a large effect or harm. Do not rank across scenarios."
+        }
+      }
+    },
+    "hard_gates": {
+      "do_not_start_without_budget_confirmation": true,
+      "usd_per_trial_required": true,
+      "max_trials_blocks_explosion": true,
+      "budget_usd_blocks_overage": true,
+      "single_agent": "codex",
+      "single_model": "openai/gpt-5.6"
+    },
+    "scoring": {
+      "primary": "hidden_tests for execution tasks; blinded human rubric for UI/visual/grill/review",
+      "infra_excluded": true,
+      "no_composite_total": true,
+      "axes": [
+        {
+          "id": "correctness",
+          "scale": "pass/fail",
+          "prompt": "Hidden tests and stated oracle passed?"
+        },
+        {
+          "id": "hidden_tests",
+          "scale": "pass/fail",
+          "prompt": "Hidden tests passed? Infra errors are not model failure."
+        },
+        {
+          "id": "static_checks",
+          "scale": "pass/fail",
+          "prompt": "Format/lint/typecheck/compile of the touched path passed?"
+        },
+        {
+          "id": "diff_quality",
+          "scale": "1-5",
+          "prompt": "Is the diff local, named honestly, and free of drive-by edits?"
+        },
+        {
+          "id": "overengineering",
+          "scale": "1-5",
+          "prompt": "Did the agent add unneeded abstractions, tools, or files?"
+        },
+        {
+          "id": "test_value",
+          "scale": "1-5",
+          "prompt": "Did tests lock a real contract instead of mirroring code or chasing coverage?"
+        },
+        {
+          "id": "ui_correctness",
+          "scale": "1-5",
+          "prompt": "Does the UI disclose the right information and hide internals?"
+        },
+        {
+          "id": "visual_quality",
+          "scale": "1-5",
+          "prompt": "Visual craft only: tokens, anti-slop, landing vs app. Ignore usefulness."
+        },
+        {
+          "id": "review_tp",
+          "scale": "count",
+          "prompt": "True-positive findings vs the gold list."
+        },
+        {
+          "id": "review_fp",
+          "scale": "count",
+          "prompt": "False-positive findings vs the gold list."
+        },
+        {
+          "id": "review_fn",
+          "scale": "count",
+          "prompt": "Missed gold findings."
+        },
+        {
+          "id": "cost_usd",
+          "scale": "usd",
+          "prompt": "Trial USD cost from the agent metrics."
+        },
+        {
+          "id": "duration_sec",
+          "scale": "seconds",
+          "prompt": "Wall-clock duration."
+        }
+      ]
+    }
+  }
+}

@@ -10,6 +10,7 @@ from typing import Any
 
 from agent_skill_bench.classify import FailureClass, classify_trial
 from agent_skill_bench.constants import SCORER_VERSION
+from agent_skill_bench.stage7 import STAGE7_RUBRIC_AXES
 
 RUBRIC_AXES = (
     {"id": "maintainability", "scale": "1-5", "prompt": "How easy is this change to maintain?"},
@@ -55,6 +56,15 @@ def rubric_packet(*, instruction: str, files: dict[str, str], task_id: str = "")
         "llm_judge_auxiliary": True,
         "note": "Fill scores without seeing model, agent, prompt, or skill identity.",
     }
+
+
+def stage7_rubric_packet(*, instruction: str, files: dict[str, str], task_id: str = "") -> dict[str, Any]:
+    """Blinded Stage 7 packet. Axes include UI/visual/review/cost; still no identity."""
+    packet = rubric_packet(instruction=instruction, files=files, task_id=task_id)
+    packet["schema"] = "asb.rubric.stage7.v1"
+    packet["axes"] = list(STAGE7_RUBRIC_AXES)
+    packet["no_composite_total"] = True
+    return packet
 
 
 def llm_judge_auxiliary(_packet: dict[str, Any]) -> None:

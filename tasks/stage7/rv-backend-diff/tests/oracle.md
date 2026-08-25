@@ -1,0 +1,1 @@
+Gold bugs: transport bypasses service; stringly error in reusable code; missing focused test. False positives: asking for useMemo, extra runtime validation of typed internals. Score TP/FP/FN against the gold list.

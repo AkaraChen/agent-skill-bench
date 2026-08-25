@@ -1,0 +1,11 @@
+# Frozen Stage 7 catalog. Bump only with an explicit revision.
+
+[stage7]
+revision = "stage7-ericway-2026.08.26.r1"
+eric_way_commit = "786ba75fa2de5238da80415dfad8d7e7ce5b4eab"
+bench_base_commit = "7587e40d4a26a8b0a7c004ab81c28f2c89f42256"
+model_snapshot = "openai/gpt-5.6"
+codex_cli_version = "0.149.1"
+reasoning_effort = "medium"
+n_tasks = 41
+screening_trials = 132

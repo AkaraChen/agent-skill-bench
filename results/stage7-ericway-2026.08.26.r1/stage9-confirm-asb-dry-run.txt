@@ -1,0 +1,35 @@
+track: B
+experiment: stage9-confirm-placeholder
+seed: 919
+cells: 7
+tasks: 1
+repeat: 3
+trials: 21
+max_trials: 29
+estimated_usd: $42.00
+pairs: baseline vs single-backend, baseline vs realistic-backend, single-backend vs realistic-backend, baseline vs overload-backend-kitchen
+retry.max_retries: 1
+n_concurrent: 2
+timeout_multiplier: 1.0
+environment.type: docker
+cache_scope: image
+assemble_sealed: False
+datasets:
+  - (none)
+skill_hashes:
+  - 0 eric-backend sha256:7d2a5192fb82544acd7511ec08df33e442c92ced32d96fb0029865c6bd0aa924
+  - 0 eric-javascript sha256:378a4c0972432cbef3f8f6b7f9435bc6613a334217375c07d73e6a4d137f9d6b
+  - 2 eric-writing-tests sha256:3f4238d604bff6353f031c625d0d97682e9712814283009f1bd8112a85b6c7ef
+  - 1 eric-frontend sha256:a48012a593347ceee4b2583f371bbaa41d5c368c5dec02532711b49c30c26c0b
+  - 2 eric-design sha256:64b718b3ba4fe5686ec18b1c6e73e8c74fc35129ec57554bb934b8b9eed44ec4
+  - 3 eric-grill sha256:76bf2f6330f6ca804045601aec799efaa637a67e36f0b4a5e3e8eb875613f2b1
+  - 4 eric-review sha256:66e54f3bba91d6f5f2ef6e995726c200b5d084a49b440cf1728c66a4059e555f
+  - 5 eric-github-actions sha256:e32c78a844f68895b91c1e32c32d3112dfadce1c831b27e914c54ba99bd5e38f
+cells:
+  - harbor:codex | openai/gpt-5.6 | baseline | prompt=stage7 | skills=none | pair=baseline__single-backend,baseline__realistic-backend,baseline__overload-backend-kitchen | kwargs=asb_task='tasks/stage7/be-thin-transport',prompt_template_path='prompts/stage7-codex.md',reasoning_effort='medium',version='0.149.1',web_search='disabled'
+  - harbor:codex | openai/gpt-5.6 | single-backend | prompt=stage7 | skills=eric-backend | pair=baseline__single-backend,single-backend__realistic-backend | kwargs=asb_task='tasks/stage7/be-thin-transport',prompt_template_path='prompts/stage7-codex.md',reasoning_effort='medium',version='0.149.1',web_search='disabled'
+  - harbor:codex | openai/gpt-5.6 | realistic-backend | prompt=stage7 | skills=eric-javascript+eric-backend+eric-writing-tests | pair=baseline__realistic-backend,single-backend__realistic-backend | kwargs=asb_task='tasks/stage7/be-thin-transport',prompt_template_path='prompts/stage7-codex.md',reasoning_effort='medium',version='0.149.1',web_search='disabled'
+  - harbor:codex | openai/gpt-5.6 | overload-backend-kitchen | prompt=stage7 | skills=eric-backend+eric-frontend+eric-design+eric-grill+eric-review+eric-github-actions | pair=baseline__overload-backend-kitchen | kwargs=asb_task='tasks/stage7/be-thin-transport',prompt_template_path='prompts/stage7-codex.md',reasoning_effort='medium',version='0.149.1',web_search='disabled'
+  - harbor:codex | openai/gpt-5.6 | baseline | prompt=stage7 | skills=none | pair=baseline__single-backend,baseline__realistic-backend,baseline__overload-backend-kitchen | kwargs=asb_task='tasks/stage7/js-ni-scripts',prompt_template_path='prompts/stage7-codex.md',reasoning_effort='medium',version='0.149.1',web_search='disabled'
+  - harbor:codex | openai/gpt-5.6 | baseline | prompt=stage7 | skills=none | pair=baseline__single-backend,baseline__realistic-backend,baseline__overload-backend-kitchen | kwargs=asb_task='tasks/stage7/qc-add-gates',prompt_template_path='prompts/stage7-codex.md',reasoning_effort='medium',version='0.149.1',web_search='disabled'
+  - harbor:codex | openai/gpt-5.6 | baseline | prompt=stage7 | skills=none | pair=baseline__single-backend,baseline__realistic-backend,baseline__overload-backend-kitchen | kwargs=asb_task='tasks/stage7/ci-pin-actions',prompt_template_path='prompts/stage7-codex.md',reasoning_effort='medium',version='0.149.1',web_search='disabled'

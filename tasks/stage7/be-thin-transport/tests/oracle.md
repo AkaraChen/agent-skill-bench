@@ -1,0 +1,1 @@
+Hidden tests: handler stays thin (parse, call service, map result); service owns lookup; transport does not import the Drizzle client. Static: tsc. Diff quality: no new abstraction layer. Overengineering = fail rubric.

@@ -1,0 +1,1 @@
+This repo is a small Hono + Drizzle TypeScript API. Routes currently call the database from the handler. Add GET /orders/:id that returns the order or 404. Reuse existing types. Do not invent a new framework.

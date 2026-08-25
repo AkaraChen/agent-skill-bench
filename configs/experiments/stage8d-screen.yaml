@@ -1,0 +1,201 @@
+# stage7-ericway-2026.08.26.r1 screening for Stage 8D. Repeat=1. Do not billed-run until budget confirmation.
+schema_version: 1
+name: stage8d-screen
+track: B
+seed: 919
+repeat: 1
+max_trials: 27
+n_concurrent: 2
+max_retries: 1
+timeout_multiplier: 1.0
+usd_per_trial: 2.0
+budget_usd: 47.5
+policy:
+  cache_scope: image
+  durable_artifacts: true
+  retention_days: 30
+  secret_allowlist:
+  - OPENAI_API_KEY
+environment:
+  type: docker
+  force_build: false
+  delete: true
+models:
+- openai/gpt-5.6
+agents:
+- name: codex
+  kwargs:
+    version: 0.149.1
+    reasoning_effort: medium
+    web_search: disabled
+    prompt_template_path: prompts/stage7-codex.md
+prompts:
+  stage7: prompts/stage7-codex.md
+treatments:
+- name: baseline
+  prompt: stage7
+  skills: []
+  skill_bundle: baseline
+- name: single-grill
+  prompt: stage7
+  skills:
+  - ./skills/eric-way/eric-grill
+  skill_bundle: single-grill
+- name: realistic-grill
+  prompt: stage7
+  skills:
+  - ./skills/eric-way/eric-grill
+  - ./skills/eric-way/eric-backend
+  skill_bundle: realistic-grill
+- name: single-review
+  prompt: stage7
+  skills:
+  - ./skills/eric-way/eric-review
+  skill_bundle: single-review
+- name: realistic-review
+  prompt: stage7
+  skills:
+  - ./skills/eric-way/eric-review
+  - ./skills/eric-way/eric-backend
+  skill_bundle: realistic-review
+- name: wrong-javascript-on-review
+  prompt: stage7
+  skills:
+  - ./skills/eric-way/eric-javascript
+  skill_bundle: wrong-javascript-on-review
+- name: realistic-review-frontend
+  prompt: stage7
+  skills:
+  - ./skills/eric-way/eric-review
+  - ./skills/eric-way/eric-frontend
+  - ./skills/eric-way/eric-react
+  - ./skills/eric-way/eric-ui
+  skill_bundle: realistic-review-frontend
+- name: realistic-review-desktop
+  prompt: stage7
+  skills:
+  - ./skills/eric-way/eric-review
+  - ./skills/eric-way/eric-desktop
+  - ./skills/eric-way/eric-frontend
+  skill_bundle: realistic-review-desktop
+pairs:
+- - baseline
+  - single-grill
+- - baseline
+  - realistic-grill
+- - single-grill
+  - realistic-grill
+- - baseline
+  - single-review
+- - baseline
+  - realistic-review
+- - single-review
+  - realistic-review
+- - baseline
+  - wrong-javascript-on-review
+- - baseline
+  - realistic-review-frontend
+- - single-review
+  - realistic-review-frontend
+- - baseline
+  - realistic-review-desktop
+- - single-review
+  - realistic-review-desktop
+cells:
+- agent: codex
+  model: openai/gpt-5.6
+  treatment: baseline
+  kwargs:
+    asb_task: tasks/stage7/gr-fuzzy-terms
+- agent: codex
+  model: openai/gpt-5.6
+  treatment: single-grill
+  kwargs:
+    asb_task: tasks/stage7/gr-fuzzy-terms
+- agent: codex
+  model: openai/gpt-5.6
+  treatment: realistic-grill
+  kwargs:
+    asb_task: tasks/stage7/gr-fuzzy-terms
+- agent: codex
+  model: openai/gpt-5.6
+  treatment: baseline
+  kwargs:
+    asb_task: tasks/stage7/gr-context-boundary
+- agent: codex
+  model: openai/gpt-5.6
+  treatment: single-grill
+  kwargs:
+    asb_task: tasks/stage7/gr-context-boundary
+- agent: codex
+  model: openai/gpt-5.6
+  treatment: realistic-grill
+  kwargs:
+    asb_task: tasks/stage7/gr-context-boundary
+- agent: codex
+  model: openai/gpt-5.6
+  treatment: baseline
+  kwargs:
+    asb_task: tasks/stage7/gr-adr-worthy
+- agent: codex
+  model: openai/gpt-5.6
+  treatment: single-grill
+  kwargs:
+    asb_task: tasks/stage7/gr-adr-worthy
+- agent: codex
+  model: openai/gpt-5.6
+  treatment: realistic-grill
+  kwargs:
+    asb_task: tasks/stage7/gr-adr-worthy
+- agent: codex
+  model: openai/gpt-5.6
+  treatment: baseline
+  kwargs:
+    asb_task: tasks/stage7/rv-backend-diff
+- agent: codex
+  model: openai/gpt-5.6
+  treatment: single-review
+  kwargs:
+    asb_task: tasks/stage7/rv-backend-diff
+- agent: codex
+  model: openai/gpt-5.6
+  treatment: realistic-review
+  kwargs:
+    asb_task: tasks/stage7/rv-backend-diff
+- agent: codex
+  model: openai/gpt-5.6
+  treatment: wrong-javascript-on-review
+  kwargs:
+    asb_task: tasks/stage7/rv-backend-diff
+- agent: codex
+  model: openai/gpt-5.6
+  treatment: baseline
+  kwargs:
+    asb_task: tasks/stage7/rv-frontend-diff
+- agent: codex
+  model: openai/gpt-5.6
+  treatment: single-review
+  kwargs:
+    asb_task: tasks/stage7/rv-frontend-diff
+- agent: codex
+  model: openai/gpt-5.6
+  treatment: realistic-review-frontend
+  kwargs:
+    asb_task: tasks/stage7/rv-frontend-diff
+- agent: codex
+  model: openai/gpt-5.6
+  treatment: baseline
+  kwargs:
+    asb_task: tasks/stage7/rv-desktop-diff
+- agent: codex
+  model: openai/gpt-5.6
+  treatment: single-review
+  kwargs:
+    asb_task: tasks/stage7/rv-desktop-diff
+- agent: codex
+  model: openai/gpt-5.6
+  treatment: realistic-review-desktop
+  kwargs:
+    asb_task: tasks/stage7/rv-desktop-diff
+tasks:
+- tasks/stage7/_anchor

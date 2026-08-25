@@ -1,0 +1,383 @@
+# stage7-ericway-2026.08.26.r1 screening for Stage 8A. Repeat=1. Do not billed-run until budget confirmation.
+schema_version: 1
+name: stage8a-screen
+track: B
+seed: 919
+repeat: 1
+max_trials: 55
+n_concurrent: 2
+max_retries: 1
+timeout_multiplier: 1.0
+usd_per_trial: 2.0
+budget_usd: 117.5
+policy:
+  cache_scope: image
+  durable_artifacts: true
+  retention_days: 30
+  secret_allowlist:
+  - OPENAI_API_KEY
+environment:
+  type: docker
+  force_build: false
+  delete: true
+models:
+- openai/gpt-5.6
+agents:
+- name: codex
+  kwargs:
+    version: 0.149.1
+    reasoning_effort: medium
+    web_search: disabled
+    prompt_template_path: prompts/stage7-codex.md
+prompts:
+  stage7: prompts/stage7-codex.md
+treatments:
+- name: baseline
+  prompt: stage7
+  skills: []
+  skill_bundle: baseline
+- name: single-backend
+  prompt: stage7
+  skills:
+  - ./skills/eric-way/eric-backend
+  skill_bundle: single-backend
+- name: realistic-backend
+  prompt: stage7
+  skills:
+  - ./skills/eric-way/eric-javascript
+  - ./skills/eric-way/eric-backend
+  - ./skills/eric-way/eric-writing-tests
+  skill_bundle: realistic-backend
+- name: overload-backend-kitchen
+  prompt: stage7
+  skills:
+  - ./skills/eric-way/eric-backend
+  - ./skills/eric-way/eric-frontend
+  - ./skills/eric-way/eric-design
+  - ./skills/eric-way/eric-grill
+  - ./skills/eric-way/eric-review
+  - ./skills/eric-way/eric-github-actions
+  skill_bundle: overload-backend-kitchen
+- name: single-javascript
+  prompt: stage7
+  skills:
+  - ./skills/eric-way/eric-javascript
+  skill_bundle: single-javascript
+- name: realistic-javascript
+  prompt: stage7
+  skills:
+  - ./skills/eric-way/eric-javascript
+  - ./skills/eric-way/eric-quality-control
+  skill_bundle: realistic-javascript
+- name: single-quality-control
+  prompt: stage7
+  skills:
+  - ./skills/eric-way/eric-quality-control
+  skill_bundle: single-quality-control
+- name: realistic-quality-control
+  prompt: stage7
+  skills:
+  - ./skills/eric-way/eric-javascript
+  - ./skills/eric-way/eric-quality-control
+  skill_bundle: realistic-quality-control
+- name: single-writing-tests
+  prompt: stage7
+  skills:
+  - ./skills/eric-way/eric-writing-tests
+  skill_bundle: single-writing-tests
+- name: realistic-writing-tests
+  prompt: stage7
+  skills:
+  - ./skills/eric-way/eric-writing-tests
+  - ./skills/eric-way/eric-quality-control
+  skill_bundle: realistic-writing-tests
+- name: single-github-actions
+  prompt: stage7
+  skills:
+  - ./skills/eric-way/eric-github-actions
+  skill_bundle: single-github-actions
+- name: realistic-github-actions
+  prompt: stage7
+  skills:
+  - ./skills/eric-way/eric-quality-control
+  - ./skills/eric-way/eric-github-actions
+  skill_bundle: realistic-github-actions
+- name: wrong-grill-design-on-ci
+  prompt: stage7
+  skills:
+  - ./skills/eric-way/eric-grill
+  - ./skills/eric-way/eric-design
+  skill_bundle: wrong-grill-design-on-ci
+pairs:
+- - baseline
+  - single-backend
+- - baseline
+  - realistic-backend
+- - single-backend
+  - realistic-backend
+- - baseline
+  - overload-backend-kitchen
+- - baseline
+  - single-javascript
+- - baseline
+  - realistic-javascript
+- - single-javascript
+  - realistic-javascript
+- - baseline
+  - single-quality-control
+- - baseline
+  - realistic-quality-control
+- - single-quality-control
+  - realistic-quality-control
+- - baseline
+  - single-writing-tests
+- - baseline
+  - realistic-writing-tests
+- - single-writing-tests
+  - realistic-writing-tests
+- - baseline
+  - single-github-actions
+- - baseline
+  - realistic-github-actions
+- - single-github-actions
+  - realistic-github-actions
+- - baseline
+  - wrong-grill-design-on-ci
+cells:
+- agent: codex
+  model: openai/gpt-5.6
+  treatment: baseline
+  kwargs:
+    asb_task: tasks/stage7/be-thin-transport
+- agent: codex
+  model: openai/gpt-5.6
+  treatment: single-backend
+  kwargs:
+    asb_task: tasks/stage7/be-thin-transport
+- agent: codex
+  model: openai/gpt-5.6
+  treatment: realistic-backend
+  kwargs:
+    asb_task: tasks/stage7/be-thin-transport
+- agent: codex
+  model: openai/gpt-5.6
+  treatment: overload-backend-kitchen
+  kwargs:
+    asb_task: tasks/stage7/be-thin-transport
+- agent: codex
+  model: openai/gpt-5.6
+  treatment: baseline
+  kwargs:
+    asb_task: tasks/stage7/be-typed-errors
+- agent: codex
+  model: openai/gpt-5.6
+  treatment: single-backend
+  kwargs:
+    asb_task: tasks/stage7/be-typed-errors
+- agent: codex
+  model: openai/gpt-5.6
+  treatment: realistic-backend
+  kwargs:
+    asb_task: tasks/stage7/be-typed-errors
+- agent: codex
+  model: openai/gpt-5.6
+  treatment: baseline
+  kwargs:
+    asb_task: tasks/stage7/be-trust-boundary
+- agent: codex
+  model: openai/gpt-5.6
+  treatment: single-backend
+  kwargs:
+    asb_task: tasks/stage7/be-trust-boundary
+- agent: codex
+  model: openai/gpt-5.6
+  treatment: realistic-backend
+  kwargs:
+    asb_task: tasks/stage7/be-trust-boundary
+- agent: codex
+  model: openai/gpt-5.6
+  treatment: baseline
+  kwargs:
+    asb_task: tasks/stage7/js-ni-scripts
+- agent: codex
+  model: openai/gpt-5.6
+  treatment: single-javascript
+  kwargs:
+    asb_task: tasks/stage7/js-ni-scripts
+- agent: codex
+  model: openai/gpt-5.6
+  treatment: realistic-javascript
+  kwargs:
+    asb_task: tasks/stage7/js-ni-scripts
+- agent: codex
+  model: openai/gpt-5.6
+  treatment: baseline
+  kwargs:
+    asb_task: tasks/stage7/js-new-project-pm
+- agent: codex
+  model: openai/gpt-5.6
+  treatment: single-javascript
+  kwargs:
+    asb_task: tasks/stage7/js-new-project-pm
+- agent: codex
+  model: openai/gpt-5.6
+  treatment: realistic-javascript
+  kwargs:
+    asb_task: tasks/stage7/js-new-project-pm
+- agent: codex
+  model: openai/gpt-5.6
+  treatment: baseline
+  kwargs:
+    asb_task: tasks/stage7/js-mixed-pm
+- agent: codex
+  model: openai/gpt-5.6
+  treatment: single-javascript
+  kwargs:
+    asb_task: tasks/stage7/js-mixed-pm
+- agent: codex
+  model: openai/gpt-5.6
+  treatment: realistic-javascript
+  kwargs:
+    asb_task: tasks/stage7/js-mixed-pm
+- agent: codex
+  model: openai/gpt-5.6
+  treatment: baseline
+  kwargs:
+    asb_task: tasks/stage7/qc-add-gates
+- agent: codex
+  model: openai/gpt-5.6
+  treatment: single-quality-control
+  kwargs:
+    asb_task: tasks/stage7/qc-add-gates
+- agent: codex
+  model: openai/gpt-5.6
+  treatment: realistic-quality-control
+  kwargs:
+    asb_task: tasks/stage7/qc-add-gates
+- agent: codex
+  model: openai/gpt-5.6
+  treatment: baseline
+  kwargs:
+    asb_task: tasks/stage7/qc-fix-lint
+- agent: codex
+  model: openai/gpt-5.6
+  treatment: single-quality-control
+  kwargs:
+    asb_task: tasks/stage7/qc-fix-lint
+- agent: codex
+  model: openai/gpt-5.6
+  treatment: realistic-quality-control
+  kwargs:
+    asb_task: tasks/stage7/qc-fix-lint
+- agent: codex
+  model: openai/gpt-5.6
+  treatment: baseline
+  kwargs:
+    asb_task: tasks/stage7/qc-too-many-tools
+- agent: codex
+  model: openai/gpt-5.6
+  treatment: single-quality-control
+  kwargs:
+    asb_task: tasks/stage7/qc-too-many-tools
+- agent: codex
+  model: openai/gpt-5.6
+  treatment: realistic-quality-control
+  kwargs:
+    asb_task: tasks/stage7/qc-too-many-tools
+- agent: codex
+  model: openai/gpt-5.6
+  treatment: baseline
+  kwargs:
+    asb_task: tasks/stage7/wt-regression
+- agent: codex
+  model: openai/gpt-5.6
+  treatment: single-writing-tests
+  kwargs:
+    asb_task: tasks/stage7/wt-regression
+- agent: codex
+  model: openai/gpt-5.6
+  treatment: realistic-writing-tests
+  kwargs:
+    asb_task: tasks/stage7/wt-regression
+- agent: codex
+  model: openai/gpt-5.6
+  treatment: baseline
+  kwargs:
+    asb_task: tasks/stage7/wt-skip-trivial
+- agent: codex
+  model: openai/gpt-5.6
+  treatment: single-writing-tests
+  kwargs:
+    asb_task: tasks/stage7/wt-skip-trivial
+- agent: codex
+  model: openai/gpt-5.6
+  treatment: realistic-writing-tests
+  kwargs:
+    asb_task: tasks/stage7/wt-skip-trivial
+- agent: codex
+  model: openai/gpt-5.6
+  treatment: baseline
+  kwargs:
+    asb_task: tasks/stage7/wt-adversarial
+- agent: codex
+  model: openai/gpt-5.6
+  treatment: single-writing-tests
+  kwargs:
+    asb_task: tasks/stage7/wt-adversarial
+- agent: codex
+  model: openai/gpt-5.6
+  treatment: realistic-writing-tests
+  kwargs:
+    asb_task: tasks/stage7/wt-adversarial
+- agent: codex
+  model: openai/gpt-5.6
+  treatment: baseline
+  kwargs:
+    asb_task: tasks/stage7/ci-pin-actions
+- agent: codex
+  model: openai/gpt-5.6
+  treatment: single-github-actions
+  kwargs:
+    asb_task: tasks/stage7/ci-pin-actions
+- agent: codex
+  model: openai/gpt-5.6
+  treatment: realistic-github-actions
+  kwargs:
+    asb_task: tasks/stage7/ci-pin-actions
+- agent: codex
+  model: openai/gpt-5.6
+  treatment: wrong-grill-design-on-ci
+  kwargs:
+    asb_task: tasks/stage7/ci-pin-actions
+- agent: codex
+  model: openai/gpt-5.6
+  treatment: baseline
+  kwargs:
+    asb_task: tasks/stage7/ci-permissions
+- agent: codex
+  model: openai/gpt-5.6
+  treatment: single-github-actions
+  kwargs:
+    asb_task: tasks/stage7/ci-permissions
+- agent: codex
+  model: openai/gpt-5.6
+  treatment: realistic-github-actions
+  kwargs:
+    asb_task: tasks/stage7/ci-permissions
+- agent: codex
+  model: openai/gpt-5.6
+  treatment: baseline
+  kwargs:
+    asb_task: tasks/stage7/ci-local-commands
+- agent: codex
+  model: openai/gpt-5.6
+  treatment: single-github-actions
+  kwargs:
+    asb_task: tasks/stage7/ci-local-commands
+- agent: codex
+  model: openai/gpt-5.6
+  treatment: realistic-github-actions
+  kwargs:
+    asb_task: tasks/stage7/ci-local-commands
+tasks:
+- tasks/stage7/_anchor

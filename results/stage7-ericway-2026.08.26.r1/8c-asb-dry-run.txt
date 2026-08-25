@@ -1,0 +1,43 @@
+track: B
+experiment: stage8c-screen
+seed: 919
+cells: 16
+tasks: 1
+repeat: 1
+trials: 16
+max_trials: 24
+estimated_usd: $32.00
+pairs: baseline vs single-desktop, baseline vs realistic-desktop, single-desktop vs realistic-desktop, baseline vs overload-desktop-visual
+retry.max_retries: 1
+n_concurrent: 2
+timeout_multiplier: 1.0
+environment.type: docker
+cache_scope: image
+assemble_sealed: False
+datasets:
+  - (none)
+skill_hashes:
+  - 0 eric-desktop sha256:034b7ef96fc0add1a10567326fd36e779feddb1c6649c086beccc0bc6f1031bf
+  - 0 eric-javascript sha256:378a4c0972432cbef3f8f6b7f9435bc6613a334217375c07d73e6a4d137f9d6b
+  - 1 eric-backend sha256:7d2a5192fb82544acd7511ec08df33e442c92ced32d96fb0029865c6bd0aa924
+  - 2 eric-frontend sha256:a48012a593347ceee4b2583f371bbaa41d5c368c5dec02532711b49c30c26c0b
+  - 0 eric-design sha256:64b718b3ba4fe5686ec18b1c6e73e8c74fc35129ec57554bb934b8b9eed44ec4
+  - 1 eric-ui sha256:da1cb7de095b3a7d1fdbea83df564795c6f9c4d2d1086794e308f005a1dce117
+  - 3 eric-react sha256:0a1ea3b752bd8442fb2914e3448d1fe2c06cab9c08d8a35a487065d8c7ff3a30
+cells:
+  - harbor:codex | openai/gpt-5.6 | baseline | prompt=stage7 | skills=none | pair=baseline__single-desktop,baseline__realistic-desktop,baseline__overload-desktop-visual | kwargs=asb_task='tasks/stage7/dt-ipc-boundary',prompt_template_path='prompts/stage7-codex.md',reasoning_effort='medium',version='0.149.1',web_search='disabled'
+  - harbor:codex | openai/gpt-5.6 | single-desktop | prompt=stage7 | skills=eric-desktop | pair=baseline__single-desktop,single-desktop__realistic-desktop | kwargs=asb_task='tasks/stage7/dt-ipc-boundary',prompt_template_path='prompts/stage7-codex.md',reasoning_effort='medium',version='0.149.1',web_search='disabled'
+  - harbor:codex | openai/gpt-5.6 | realistic-desktop | prompt=stage7 | skills=eric-javascript+eric-backend+eric-frontend+eric-desktop | pair=baseline__realistic-desktop,single-desktop__realistic-desktop | kwargs=asb_task='tasks/stage7/dt-ipc-boundary',prompt_template_path='prompts/stage7-codex.md',reasoning_effort='medium',version='0.149.1',web_search='disabled'
+  - harbor:codex | openai/gpt-5.6 | overload-desktop-visual | prompt=stage7 | skills=eric-design+eric-ui+eric-frontend+eric-react | pair=baseline__overload-desktop-visual | kwargs=asb_task='tasks/stage7/dt-ipc-boundary',prompt_template_path='prompts/stage7-codex.md',reasoning_effort='medium',version='0.149.1',web_search='disabled'
+  - harbor:codex | openai/gpt-5.6 | baseline | prompt=stage7 | skills=none | pair=baseline__single-desktop,baseline__realistic-desktop,baseline__overload-desktop-visual | kwargs=asb_task='tasks/stage7/dt-packaged-path',prompt_template_path='prompts/stage7-codex.md',reasoning_effort='medium',version='0.149.1',web_search='disabled'
+  - harbor:codex | openai/gpt-5.6 | single-desktop | prompt=stage7 | skills=eric-desktop | pair=baseline__single-desktop,single-desktop__realistic-desktop | kwargs=asb_task='tasks/stage7/dt-packaged-path',prompt_template_path='prompts/stage7-codex.md',reasoning_effort='medium',version='0.149.1',web_search='disabled'
+  - harbor:codex | openai/gpt-5.6 | realistic-desktop | prompt=stage7 | skills=eric-javascript+eric-backend+eric-frontend+eric-desktop | pair=baseline__realistic-desktop,single-desktop__realistic-desktop | kwargs=asb_task='tasks/stage7/dt-packaged-path',prompt_template_path='prompts/stage7-codex.md',reasoning_effort='medium',version='0.149.1',web_search='disabled'
+  - harbor:codex | openai/gpt-5.6 | baseline | prompt=stage7 | skills=none | pair=baseline__single-desktop,baseline__realistic-desktop,baseline__overload-desktop-visual | kwargs=asb_task='tasks/stage7/dt-off-ui-thread',prompt_template_path='prompts/stage7-codex.md',reasoning_effort='medium',version='0.149.1',web_search='disabled'
+  - harbor:codex | openai/gpt-5.6 | single-desktop | prompt=stage7 | skills=eric-desktop | pair=baseline__single-desktop,single-desktop__realistic-desktop | kwargs=asb_task='tasks/stage7/dt-off-ui-thread',prompt_template_path='prompts/stage7-codex.md',reasoning_effort='medium',version='0.149.1',web_search='disabled'
+  - harbor:codex | openai/gpt-5.6 | realistic-desktop | prompt=stage7 | skills=eric-javascript+eric-backend+eric-frontend+eric-desktop | pair=baseline__realistic-desktop,single-desktop__realistic-desktop | kwargs=asb_task='tasks/stage7/dt-off-ui-thread',prompt_template_path='prompts/stage7-codex.md',reasoning_effort='medium',version='0.149.1',web_search='disabled'
+  - harbor:codex | openai/gpt-5.6 | baseline | prompt=stage7 | skills=none | pair=baseline__single-desktop,baseline__realistic-desktop,baseline__overload-desktop-visual | kwargs=asb_task='tasks/stage7/dt-electron-webview',prompt_template_path='prompts/stage7-codex.md',reasoning_effort='medium',version='0.149.1',web_search='disabled'
+  - harbor:codex | openai/gpt-5.6 | single-desktop | prompt=stage7 | skills=eric-desktop | pair=baseline__single-desktop,single-desktop__realistic-desktop | kwargs=asb_task='tasks/stage7/dt-electron-webview',prompt_template_path='prompts/stage7-codex.md',reasoning_effort='medium',version='0.149.1',web_search='disabled'
+  - harbor:codex | openai/gpt-5.6 | realistic-desktop | prompt=stage7 | skills=eric-javascript+eric-backend+eric-frontend+eric-desktop | pair=baseline__realistic-desktop,single-desktop__realistic-desktop | kwargs=asb_task='tasks/stage7/dt-electron-webview',prompt_template_path='prompts/stage7-codex.md',reasoning_effort='medium',version='0.149.1',web_search='disabled'
+  - harbor:codex | openai/gpt-5.6 | baseline | prompt=stage7 | skills=none | pair=baseline__single-desktop,baseline__realistic-desktop,baseline__overload-desktop-visual | kwargs=asb_task='tasks/stage7/dt-tauri-contract',prompt_template_path='prompts/stage7-codex.md',reasoning_effort='medium',version='0.149.1',web_search='disabled'
+  - harbor:codex | openai/gpt-5.6 | single-desktop | prompt=stage7 | skills=eric-desktop | pair=baseline__single-desktop,single-desktop__realistic-desktop | kwargs=asb_task='tasks/stage7/dt-tauri-contract',prompt_template_path='prompts/stage7-codex.md',reasoning_effort='medium',version='0.149.1',web_search='disabled'
+  - harbor:codex | openai/gpt-5.6 | realistic-desktop | prompt=stage7 | skills=eric-javascript+eric-backend+eric-frontend+eric-desktop | pair=baseline__realistic-desktop,single-desktop__realistic-desktop | kwargs=asb_task='tasks/stage7/dt-tauri-contract',prompt_template_path='prompts/stage7-codex.md',reasoning_effort='medium',version='0.149.1',web_search='disabled'

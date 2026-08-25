@@ -1,0 +1,1 @@
+POST /accounts accepts a JSON body and passes it straight into core logic. Untrusted fields include negative balances and extra keys. Put validation at the trust boundary. Do not add a generic validation framework if the repo already has a schema helper.

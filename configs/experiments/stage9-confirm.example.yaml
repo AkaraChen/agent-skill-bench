@@ -1,0 +1,108 @@
+# Stage 9 placeholder. Replace treatments/tasks with screening shortlist.
+# Do not run billed trials from this file as-is.
+schema_version: 1
+name: stage9-confirm-placeholder
+track: B
+seed: 919
+repeat: 3
+max_trials: 29
+n_concurrent: 2
+max_retries: 1
+timeout_multiplier: 1.0
+usd_per_trial: 2.0
+budget_usd: 52.5
+policy:
+  cache_scope: image
+  durable_artifacts: true
+  retention_days: 30
+  secret_allowlist:
+  - OPENAI_API_KEY
+environment:
+  type: docker
+  force_build: false
+  delete: true
+models:
+- openai/gpt-5.6
+agents:
+- name: codex
+  kwargs:
+    version: 0.149.1
+    reasoning_effort: medium
+    web_search: disabled
+    prompt_template_path: prompts/stage7-codex.md
+prompts:
+  stage7: prompts/stage7-codex.md
+treatments:
+- name: baseline
+  prompt: stage7
+  skills: []
+  skill_bundle: baseline
+- name: single-backend
+  prompt: stage7
+  skills:
+  - ./skills/eric-way/eric-backend
+  skill_bundle: single-backend
+- name: realistic-backend
+  prompt: stage7
+  skills:
+  - ./skills/eric-way/eric-javascript
+  - ./skills/eric-way/eric-backend
+  - ./skills/eric-way/eric-writing-tests
+  skill_bundle: realistic-backend
+- name: overload-backend-kitchen
+  prompt: stage7
+  skills:
+  - ./skills/eric-way/eric-backend
+  - ./skills/eric-way/eric-frontend
+  - ./skills/eric-way/eric-design
+  - ./skills/eric-way/eric-grill
+  - ./skills/eric-way/eric-review
+  - ./skills/eric-way/eric-github-actions
+  skill_bundle: overload-backend-kitchen
+pairs:
+- - baseline
+  - single-backend
+- - baseline
+  - realistic-backend
+- - single-backend
+  - realistic-backend
+- - baseline
+  - overload-backend-kitchen
+cells:
+- agent: codex
+  model: openai/gpt-5.6
+  treatment: baseline
+  kwargs:
+    asb_task: tasks/stage7/be-thin-transport
+- agent: codex
+  model: openai/gpt-5.6
+  treatment: single-backend
+  kwargs:
+    asb_task: tasks/stage7/be-thin-transport
+- agent: codex
+  model: openai/gpt-5.6
+  treatment: realistic-backend
+  kwargs:
+    asb_task: tasks/stage7/be-thin-transport
+- agent: codex
+  model: openai/gpt-5.6
+  treatment: overload-backend-kitchen
+  kwargs:
+    asb_task: tasks/stage7/be-thin-transport
+- agent: codex
+  model: openai/gpt-5.6
+  treatment: baseline
+  kwargs:
+    asb_task: tasks/stage7/js-ni-scripts
+- agent: codex
+  model: openai/gpt-5.6
+  treatment: baseline
+  kwargs:
+    asb_task: tasks/stage7/qc-add-gates
+- agent: codex
+  model: openai/gpt-5.6
+  treatment: baseline
+  kwargs:
+    asb_task: tasks/stage7/ci-pin-actions
+tasks:
+- tasks/stage7/_anchor

@@ -1,0 +1,47 @@
+track: B
+experiment: stage8d-screen
+seed: 919
+cells: 19
+tasks: 1
+repeat: 1
+trials: 19
+max_trials: 27
+estimated_usd: $38.00
+pairs: baseline vs single-grill, baseline vs realistic-grill, single-grill vs realistic-grill, baseline vs single-review, baseline vs realistic-review, single-review vs realistic-review, baseline vs wrong-javascript-on-review, baseline vs realistic-review-frontend, single-review vs realistic-review-frontend, baseline vs realistic-review-desktop, single-review vs realistic-review-desktop
+retry.max_retries: 1
+n_concurrent: 2
+timeout_multiplier: 1.0
+environment.type: docker
+cache_scope: image
+assemble_sealed: False
+datasets:
+  - (none)
+skill_hashes:
+  - 0 eric-grill sha256:76bf2f6330f6ca804045601aec799efaa637a67e36f0b4a5e3e8eb875613f2b1
+  - 1 eric-backend sha256:7d2a5192fb82544acd7511ec08df33e442c92ced32d96fb0029865c6bd0aa924
+  - 0 eric-review sha256:66e54f3bba91d6f5f2ef6e995726c200b5d084a49b440cf1728c66a4059e555f
+  - 0 eric-javascript sha256:378a4c0972432cbef3f8f6b7f9435bc6613a334217375c07d73e6a4d137f9d6b
+  - 1 eric-frontend sha256:a48012a593347ceee4b2583f371bbaa41d5c368c5dec02532711b49c30c26c0b
+  - 2 eric-react sha256:0a1ea3b752bd8442fb2914e3448d1fe2c06cab9c08d8a35a487065d8c7ff3a30
+  - 3 eric-ui sha256:da1cb7de095b3a7d1fdbea83df564795c6f9c4d2d1086794e308f005a1dce117
+  - 1 eric-desktop sha256:034b7ef96fc0add1a10567326fd36e779feddb1c6649c086beccc0bc6f1031bf
+cells:
+  - harbor:codex | openai/gpt-5.6 | baseline | prompt=stage7 | skills=none | pair=baseline__single-grill,baseline__realistic-grill,baseline__single-review,baseline__realistic-review,baseline__wrong-javascript-on-review,baseline__realistic-review-frontend,baseline__realistic-review-desktop | kwargs=asb_task='tasks/stage7/gr-fuzzy-terms',prompt_template_path='prompts/stage7-codex.md',reasoning_effort='medium',version='0.149.1',web_search='disabled'
+  - harbor:codex | openai/gpt-5.6 | single-grill | prompt=stage7 | skills=eric-grill | pair=baseline__single-grill,single-grill__realistic-grill | kwargs=asb_task='tasks/stage7/gr-fuzzy-terms',prompt_template_path='prompts/stage7-codex.md',reasoning_effort='medium',version='0.149.1',web_search='disabled'
+  - harbor:codex | openai/gpt-5.6 | realistic-grill | prompt=stage7 | skills=eric-grill+eric-backend | pair=baseline__realistic-grill,single-grill__realistic-grill | kwargs=asb_task='tasks/stage7/gr-fuzzy-terms',prompt_template_path='prompts/stage7-codex.md',reasoning_effort='medium',version='0.149.1',web_search='disabled'
+  - harbor:codex | openai/gpt-5.6 | baseline | prompt=stage7 | skills=none | pair=baseline__single-grill,baseline__realistic-grill,baseline__single-review,baseline__realistic-review,baseline__wrong-javascript-on-review,baseline__realistic-review-frontend,baseline__realistic-review-desktop | kwargs=asb_task='tasks/stage7/gr-context-boundary',prompt_template_path='prompts/stage7-codex.md',reasoning_effort='medium',version='0.149.1',web_search='disabled'
+  - harbor:codex | openai/gpt-5.6 | single-grill | prompt=stage7 | skills=eric-grill | pair=baseline__single-grill,single-grill__realistic-grill | kwargs=asb_task='tasks/stage7/gr-context-boundary',prompt_template_path='prompts/stage7-codex.md',reasoning_effort='medium',version='0.149.1',web_search='disabled'
+  - harbor:codex | openai/gpt-5.6 | realistic-grill | prompt=stage7 | skills=eric-grill+eric-backend | pair=baseline__realistic-grill,single-grill__realistic-grill | kwargs=asb_task='tasks/stage7/gr-context-boundary',prompt_template_path='prompts/stage7-codex.md',reasoning_effort='medium',version='0.149.1',web_search='disabled'
+  - harbor:codex | openai/gpt-5.6 | baseline | prompt=stage7 | skills=none | pair=baseline__single-grill,baseline__realistic-grill,baseline__single-review,baseline__realistic-review,baseline__wrong-javascript-on-review,baseline__realistic-review-frontend,baseline__realistic-review-desktop | kwargs=asb_task='tasks/stage7/gr-adr-worthy',prompt_template_path='prompts/stage7-codex.md',reasoning_effort='medium',version='0.149.1',web_search='disabled'
+  - harbor:codex | openai/gpt-5.6 | single-grill | prompt=stage7 | skills=eric-grill | pair=baseline__single-grill,single-grill__realistic-grill | kwargs=asb_task='tasks/stage7/gr-adr-worthy',prompt_template_path='prompts/stage7-codex.md',reasoning_effort='medium',version='0.149.1',web_search='disabled'
+  - harbor:codex | openai/gpt-5.6 | realistic-grill | prompt=stage7 | skills=eric-grill+eric-backend | pair=baseline__realistic-grill,single-grill__realistic-grill | kwargs=asb_task='tasks/stage7/gr-adr-worthy',prompt_template_path='prompts/stage7-codex.md',reasoning_effort='medium',version='0.149.1',web_search='disabled'
+  - harbor:codex | openai/gpt-5.6 | baseline | prompt=stage7 | skills=none | pair=baseline__single-grill,baseline__realistic-grill,baseline__single-review,baseline__realistic-review,baseline__wrong-javascript-on-review,baseline__realistic-review-frontend,baseline__realistic-review-desktop | kwargs=asb_task='tasks/stage7/rv-backend-diff',prompt_template_path='prompts/stage7-codex.md',reasoning_effort='medium',version='0.149.1',web_search='disabled'
+  - harbor:codex | openai/gpt-5.6 | single-review | prompt=stage7 | skills=eric-review | pair=baseline__single-review,single-review__realistic-review,single-review__realistic-review-frontend,single-review__realistic-review-desktop | kwargs=asb_task='tasks/stage7/rv-backend-diff',prompt_template_path='prompts/stage7-codex.md',reasoning_effort='medium',version='0.149.1',web_search='disabled'
+  - harbor:codex | openai/gpt-5.6 | realistic-review | prompt=stage7 | skills=eric-review+eric-backend | pair=baseline__realistic-review,single-review__realistic-review | kwargs=asb_task='tasks/stage7/rv-backend-diff',prompt_template_path='prompts/stage7-codex.md',reasoning_effort='medium',version='0.149.1',web_search='disabled'
+  - harbor:codex | openai/gpt-5.6 | wrong-javascript-on-review | prompt=stage7 | skills=eric-javascript | pair=baseline__wrong-javascript-on-review | kwargs=asb_task='tasks/stage7/rv-backend-diff',prompt_template_path='prompts/stage7-codex.md',reasoning_effort='medium',version='0.149.1',web_search='disabled'
+  - harbor:codex | openai/gpt-5.6 | baseline | prompt=stage7 | skills=none | pair=baseline__single-grill,baseline__realistic-grill,baseline__single-review,baseline__realistic-review,baseline__wrong-javascript-on-review,baseline__realistic-review-frontend,baseline__realistic-review-desktop | kwargs=asb_task='tasks/stage7/rv-frontend-diff',prompt_template_path='prompts/stage7-codex.md',reasoning_effort='medium',version='0.149.1',web_search='disabled'
+  - harbor:codex | openai/gpt-5.6 | single-review | prompt=stage7 | skills=eric-review | pair=baseline__single-review,single-review__realistic-review,single-review__realistic-review-frontend,single-review__realistic-review-desktop | kwargs=asb_task='tasks/stage7/rv-frontend-diff',prompt_template_path='prompts/stage7-codex.md',reasoning_effort='medium',version='0.149.1',web_search='disabled'
+  - harbor:codex | openai/gpt-5.6 | realistic-review-frontend | prompt=stage7 | skills=eric-review+eric-frontend+eric-react+eric-ui | pair=baseline__realistic-review-frontend,single-review__realistic-review-frontend | kwargs=asb_task='tasks/stage7/rv-frontend-diff',prompt_template_path='prompts/stage7-codex.md',reasoning_effort='medium',version='0.149.1',web_search='disabled'
+  - harbor:codex | openai/gpt-5.6 | baseline | prompt=stage7 | skills=none | pair=baseline__single-grill,baseline__realistic-grill,baseline__single-review,baseline__realistic-review,baseline__wrong-javascript-on-review,baseline__realistic-review-frontend,baseline__realistic-review-desktop | kwargs=asb_task='tasks/stage7/rv-desktop-diff',prompt_template_path='prompts/stage7-codex.md',reasoning_effort='medium',version='0.149.1',web_search='disabled'
+  - harbor:codex | openai/gpt-5.6 | single-review | prompt=stage7 | skills=eric-review | pair=baseline__single-review,single-review__realistic-review,single-review__realistic-review-frontend,single-review__realistic-review-desktop | kwargs=asb_task='tasks/stage7/rv-desktop-diff',prompt_template_path='prompts/stage7-codex.md',reasoning_effort='medium',version='0.149.1',web_search='disabled'
+  - harbor:codex | openai/gpt-5.6 | realistic-review-desktop | prompt=stage7 | skills=eric-review+eric-desktop+eric-frontend | pair=baseline__realistic-review-desktop,single-review__realistic-review-desktop | kwargs=asb_task='tasks/stage7/rv-desktop-diff',prompt_template_path='prompts/stage7-codex.md',reasoning_effort='medium',version='0.149.1',web_search='disabled'

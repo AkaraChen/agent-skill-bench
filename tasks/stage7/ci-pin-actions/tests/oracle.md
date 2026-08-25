@@ -1,0 +1,1 @@
+Fixture `gh` returns frozen latest SHAs for actions/checkout and actions/setup-node. Workflow uses those SHAs with version comments; permissions are contents:read; no pull_request_target; actionlint-clean YAML.

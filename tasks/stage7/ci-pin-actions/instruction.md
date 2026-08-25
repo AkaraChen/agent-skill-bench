@@ -1,0 +1,1 @@
+Add a CI workflow that runs the repo's existing `nr lint`, `nr typecheck`, and `nr test`. External actions must be current and pinned. A `gh` CLI is on PATH; use it if you need version data. Do not invent new test commands.

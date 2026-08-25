@@ -1,0 +1,1 @@
+We need to 'delete an account' when a customer leaves. The codebase has User, WorkspaceMember, and BillingAccount. Grill the plan before anyone implements. Ask one question at a time if you must; otherwise write the shared understanding.

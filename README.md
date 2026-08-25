@@ -11,6 +11,7 @@ See `versions.lock.toml`.
 - Harbor `0.22.0`
 - Base image `python:3.12.11-slim-bookworm@sha256:519591d6871b7bc437060736b9f7456b8731f1499a57e22e6c285135ae657bf7`
 - Track A smoke model `deterministic/smoke-solver@2026-08-24` (no hosted LLM)
+- Stage 7 Codex freeze `stage7-ericway-2026.08.26.r1`: Track B `codex` + `openai/gpt-5.6` + CLI `0.149.1` + reasoning `medium`. See `docs/stage7/README.md`. Do not billed-run until budget confirmation.
 
 ## Tracks
 
@@ -35,6 +36,10 @@ uv run asb pipeline --config configs/experiments/stage4-pipeline.yaml   # runs s
 uv run asb pipeline --config configs/experiments/stage5-pipeline.yaml --dry-run
 uv run asb pipeline --config configs/experiments/stage5-pipeline.yaml   # Stage 5 screen → confirm
 uv run asb study --results results/<screen-job> --results results/<confirm-job>
+uv run asb run --config configs/experiments/stage8a-screen.yaml --dry-run   # KIT-919 freeze; no billed trials
+uv run asb run --config configs/experiments/stage8b-screen.yaml --dry-run
+uv run asb run --config configs/experiments/stage8c-screen.yaml --dry-run
+uv run asb run --config configs/experiments/stage8d-screen.yaml --dry-run
 uv run asb report --job jobs/<job-dir>            # warehouse + McNemar/bootstrap + dashboard
 uv run asb warehouse
 uv run asb prune --days 30                        # list expired jobs; add --delete to remove
