@@ -22,8 +22,10 @@ def test_private_manifest_is_stratified() -> None:
             "gold_digest",
             "alt_digest",
             "negative_digest",
+            "compromised_gold_digest",
         ):
             assert item[key].startswith("sha256:")
+    assert len(tasks) == 24
 
 
 def test_revision_is_traceable() -> None:

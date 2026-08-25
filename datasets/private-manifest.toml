@@ -18,6 +18,7 @@ tests_digest = "sha256:0f2802f601a196f929c33da69632ab19f833496b761aef996aa612cbc
 gold_digest = "sha256:b25c2c7d9300887edc2f3efc68b5e2465a5d72c13fb1752a34d54bd7b10cb097"
 alt_digest = "sha256:9ad7ec5fdd25b5fbf07f21c4ff4c62d3b2d3cc4635fd27b6b182c0a7638be365"
 negative_digest = "sha256:daf9793cd12feb7b12b598e3374cb32e46e3c009b664ee17a5cf47c7308bab60"
+compromised_gold_digest = "sha256:c13140f2442c2b5912c06e8088c51c291d9dd8f7f9b7c5699a0f117f1cb9d506"
 
 [[tasks]]
 slug = "unique-lines"
@@ -32,6 +33,7 @@ tests_digest = "sha256:6caf5677ef8aa3c21832f957ea50b3914f498fd064be44d404561fb7d
 gold_digest = "sha256:21c01e9893e8b638ddf78d10c13f7713dfaf4a6f717f9d47b1e8a8f287e1c368"
 alt_digest = "sha256:abdaa36832deb97793d6f72dd78bbe5a636d85def01337ffa7309f57492c420c"
 negative_digest = "sha256:b9acc6dca2b08d2475519461dbe5256517d942c0f693da432f98ce25d3312689"
+compromised_gold_digest = "sha256:a44ebc205e876db8d6c9405995e31b435231cf2b3290f4d5b1643d9a6933ae9e"
 
 [[tasks]]
 slug = "csv-threshold"
@@ -46,6 +48,7 @@ tests_digest = "sha256:82060c25d8264fc9f22e7da6d1b72067b9bcd3a0ff4fdb89f3ae31d30
 gold_digest = "sha256:7bdee544a019fdcee82e085b7a90ed7df6fbc0eb2d56e73a47f0b8c19e015063"
 alt_digest = "sha256:f96031d1283ee8b20c37f24ca9ee2ee98d09a04da0fe129ed2b2483a35b41945"
 negative_digest = "sha256:b9444b8d5ed5189a24644a6864f4115356c7e576f1a29ff9c9d6faf4bdd6ad76"
+compromised_gold_digest = "sha256:87f537d41ab61bacb7d0f88cd060b210033a1fb06c705a3e15f207963abfe35f"
 
 [[tasks]]
 slug = "word-freq"
@@ -60,6 +63,7 @@ tests_digest = "sha256:e683c468d4d8e54d10e3347052b3c1efcc77b762c89996baeeb1b3890
 gold_digest = "sha256:de271ff427570c071a61627d2bc5804601bd259cdb36bf22c23a6e856758966e"
 alt_digest = "sha256:feafc21da94b482cbe91325f338655ce6ed656b98e2f487c1261a6e22bad9c22"
 negative_digest = "sha256:560953d1b811bf25ab2b8d39e535b0ce7fe9ba040f12820594d0282398c9ee7f"
+compromised_gold_digest = "sha256:315e77a4922a581365417072f69adc9ddf77bd57bcfa937beab59b75306d7c4b"
 
 [[tasks]]
 slug = "interval-merge"
@@ -74,6 +78,7 @@ tests_digest = "sha256:075a5a3f37acdb8730ad960d3a8810a8fad272268b9837c34c1f9eae2
 gold_digest = "sha256:56e399878c76d535c3437a51c5555b55a6891f1770dad4cc48b755f5485964ed"
 alt_digest = "sha256:f6cbe6ffd55523deca2c7cfd53263fe4f9372906e04201a3ab0c551d7788f3e1"
 negative_digest = "sha256:d63d77dcb1650ab48d00f2b631b6ce904cab28071df3d7024b58182f1e972893"
+compromised_gold_digest = "sha256:69a2d0bb567c2f5cfd665467182761c7417ce46fe2ad01eb2a793a264fc78df8"
 
 [[tasks]]
 slug = "json-pointer"
@@ -88,6 +93,7 @@ tests_digest = "sha256:b3d0e5810afa425321af1449c2b85449b89876eecf71d2e8c8a4d3c06
 gold_digest = "sha256:e6f8a5643e8bddd12cefba8bb00b2a56b193860d5a60f3c71c02221b05f926b1"
 alt_digest = "sha256:19e739b2f0230e69da7ef2033cae1a713c6decfe0ed288926c6f578d844ccfd6"
 negative_digest = "sha256:f4d1376cda45e41e4cb64c519ee1a4b9326f4383a32e4cf0062346cd30d085a7"
+compromised_gold_digest = "sha256:f1dd8eef3ae9b02b8b91b9b65513d2bda6841fec662aeb73041ee7e4fa518913"
 
 [[tasks]]
 slug = "topo-names"
@@ -102,6 +108,7 @@ tests_digest = "sha256:01beabc8eaa57b5977a1b6a64f3db6b662aa1fe28f7abe820d5d970ca
 gold_digest = "sha256:c1ac6fa84542c0e3c281fcea2b16a34c717f0a4f1715e0abdac1e0d955e0e87c"
 alt_digest = "sha256:a5cda040a37d28a0d78f577ff10045240b9c834bc44842ccbbdbac83258c9e3b"
 negative_digest = "sha256:7792da7b037fc3e25fd7001d5a49317f8dadd9be5cdec00ceb7408862b6a1490"
+compromised_gold_digest = "sha256:162ba4d05d3fbec143155c740063df1cf9f0be9ed13ee61655787eee9e9954e2"
 
 [[tasks]]
 slug = "lru-cache"
@@ -116,6 +123,7 @@ tests_digest = "sha256:9986b68d10850abbf49f7f72f695249c634adbb09cfd979d3b7efa938
 gold_digest = "sha256:de9cf617394a555accebeb1145d1a69fef618f3288b52abfc75e0e7e56dfed55"
 alt_digest = "sha256:79b9df136df58bff45387c50d500dae68a54fb4ff6c1f4e579787b1273ab801d"
 negative_digest = "sha256:77136b96d175ba388334aa4c7061d5f27709aae690985704273061920243522b"
+compromised_gold_digest = "sha256:0c7ee1af081b58e66494b41d2838ce8a303c678c0e9bced92bd1b01370ab4a47"
 
 [[tasks]]
 slug = "window-mean"
@@ -130,6 +138,7 @@ tests_digest = "sha256:b4da4e981b046990fb538b19f911df81753418805a752aa6e0991bea2
 gold_digest = "sha256:94f0aa94c6411ced9d4610b56368ac520f4838e2245d9a49dc56ba523d44d9af"
 alt_digest = "sha256:d2ecb5326985f8872cf54331a9fd1a83f4578136c4da0e140e250b2371c7c698"
 negative_digest = "sha256:6ebfb8b8cc7233dec81324990586e8ec52898ab171d2f35661464babed0e8415"
+compromised_gold_digest = "sha256:26930904be4fa4dbeb2592afbbcba6983dc4d9b2950dd07089c733ca3cdd534a"
 
 [[tasks]]
 slug = "quoted-csv"
@@ -144,6 +153,7 @@ tests_digest = "sha256:12f0bd309f6dde815514f4b051b18d2316d7059d8137c3246e1d60952
 gold_digest = "sha256:86e99409d245b1abf5645f2502586b097f9a130a86a68e1c9828c7a4f0137292"
 alt_digest = "sha256:d50eca0d4fbc56f0fc30eb5b9fbd1b5ad44014758805810f877387216713166b"
 negative_digest = "sha256:e7f1e43839759c81ccc49cc6126a029f62874e0386398aa1d30c655c5f0568e3"
+compromised_gold_digest = "sha256:1cb85294b04a64c3bf13d3ee130d1d1c64ce8f0bdf1ab7096d0c9c98f7b24ee6"
 
 [[tasks]]
 slug = "month-add"
@@ -158,6 +168,7 @@ tests_digest = "sha256:81fca061fcfe3c93762165d13e67f32a971a52e9b15215844582810ef
 gold_digest = "sha256:5c12e57935c70f0bfae68f70190a5d4a8fef440e0c298782b1d10517e5b4c955"
 alt_digest = "sha256:72d4e29815fd6e75e21d8857e8d53b959cccbc54806aa672401335ab6f007e2b"
 negative_digest = "sha256:bbcefdd83485b624c004371a17be2cef9bfc8a34076c47355b4b203cd55845b5"
+compromised_gold_digest = "sha256:7d0df03026dc82813f4a1081e5bf7fe1feb15c9f60850956629685b876293442"
 
 [[tasks]]
 slug = "count-balance"
@@ -172,6 +183,7 @@ tests_digest = "sha256:f01bb772e9434a7de601d16fadf6c79e47c1dca1886341d08d17c5071
 gold_digest = "sha256:b32bca3178092c9ad2d67efff2de93d785e8115b8e7f9a94cfd346965f08fef0"
 alt_digest = "sha256:4e0e8ae9513a1b50405b0d9b5a05e469d4f41f323ff98f29e7b7d149e442e935"
 negative_digest = "sha256:a2dcb1dec50e74afdb667980369aebe0c2d90d6e590ccc20a62054001f324ac4"
+compromised_gold_digest = "sha256:b05c25a3d863ee48754f2b8f6f35a6beee5682f10f5c5bd1a11ef337e2546ed8"
 
 [[tasks]]
 slug = "fence-headings"
@@ -186,6 +198,7 @@ tests_digest = "sha256:d9e5e33c88daea9f79624365eb9699ad61812985599a13c07da89e475
 gold_digest = "sha256:90cb4d586795b4ee515bf033f1360cd6917d9660a5c1a86f6d6a3b9890cb80f1"
 alt_digest = "sha256:91191c6f738981db184810dc08b0d463ae69453c20041c887594f72ed6062d9a"
 negative_digest = "sha256:b5833a523fd6d66f1a7995acef566020d3bae6e539ba1a079ee2a91ca75a92ce"
+compromised_gold_digest = "sha256:c2d28b846ce2a4b56a667cb8032651c5e05adc7ce14f30136bc9bad768cd30ef"
 
 [[tasks]]
 slug = "tax-brackets"
@@ -200,6 +213,7 @@ tests_digest = "sha256:f9622275b76135fdbad117510ee9f7f818a539995f62e43e33a53836a
 gold_digest = "sha256:9c07892d1b54cc36d0d4d6897c53b8d619f8c3cab9c746f52d678f0c617ea3db"
 alt_digest = "sha256:0765b03ef3f0438555462a09e7e22e7e21e1baad598974abfc67220dc47081ec"
 negative_digest = "sha256:269bcbd600963ebcb5e68ba4939e113cc4565a8c3f822c70ae106110eca1bfe3"
+compromised_gold_digest = "sha256:90e9d7f31068500169fd01d27b33e96d3353ffb8ee88d8389cdfb5e4968c0b5c"
 
 [[tasks]]
 slug = "id-lookup"
@@ -214,6 +228,7 @@ tests_digest = "sha256:a1697689b1e8f9d711016843cda596767d177b5218c55b3df13503e18
 gold_digest = "sha256:3b8031cfa94d1fd2733b5b2b875ca20c3c398fa4ae91fbcd34ec39aee3fd1b8a"
 alt_digest = "sha256:f42c04395130cf26554c2c05433173bb6a48abe87d2a91a5f256a3e3170eb479"
 negative_digest = "sha256:6808ad7ae0ef9724b177b486621a6f718edb0a8ae00b91bbfb7df5a70a111ab4"
+compromised_gold_digest = "sha256:a6ca48577c12e05c4c2cf3707bf4884bafa6fd4e8237afc8aa07343ff57ef924"
 
 [[tasks]]
 slug = "flatten-config"
@@ -228,6 +243,7 @@ tests_digest = "sha256:aa5d795cbd587a78942a65737364233e05f0d1293c9545b90a7d0fc75
 gold_digest = "sha256:8a8f3a5c71b11c9d101094100dc25b4e6b9f171b7c92c995abdbc74660258f97"
 alt_digest = "sha256:94fded0046731add162fd76ad25bfc3a933cd7cb959cec2ebf0e164893a6435f"
 negative_digest = "sha256:5d5ad2e9b2b66482854fe39c03a3410499aa86b5cdcba8d34b0682a105656fe1"
+compromised_gold_digest = "sha256:0cfc03b4a8bd59d2e65c98ff4dd21bf721f76c426ea123fafd6611b0e2907583"
 
 [[tasks]]
 slug = "invert-tests"
@@ -242,6 +258,7 @@ tests_digest = "sha256:f49a7f64dabba7bce96f76cf6cf72f75670759f2b11009b64004de9ef
 gold_digest = "sha256:41682813abec917b280601981d2f4c1882e5483bc7e245b89b47bf692c3aacfa"
 alt_digest = "sha256:bb0ffd236663daf70616970b469ed7014cc9476dbf0f737abd763bb1d0c743fa"
 negative_digest = "sha256:4ebbac726f6fd21fdd564c7823ce14b789e9a8e996b0e17bc05f35eb16a8daa4"
+compromised_gold_digest = "sha256:57161249bbd543a563bd465fa19154371423148e7ef29571cbd95cfb1317aa8b"
 
 [[tasks]]
 slug = "fixture-fill"
@@ -256,6 +273,7 @@ tests_digest = "sha256:abbeec5bd7483310aade5a1f65d440ccdedfac8595facf4c89bfdc8c5
 gold_digest = "sha256:73ca4b29e3832dbb9d7cc02cead7803be01c301f925f94ee05bb81547ee7a7c1"
 alt_digest = "sha256:a90ff9298165c523228541db6bf99e5976aee5713cb3178248d50e201b060b28"
 negative_digest = "sha256:f0d1b7cacd2a418796d2c735b54449e5cfaea412ce12a8ea02417c2a48614bdd"
+compromised_gold_digest = "sha256:abf09ae2fcaae2cfd1be1f1f8f2d3b6d1e73f6bd4407a82336e027ec8016777e"
 
 [[tasks]]
 slug = "cases-cover"
@@ -270,6 +288,7 @@ tests_digest = "sha256:d522d6224f9d02809581aac46e54c2436c909ec5ccf0fc81d0ff365a4
 gold_digest = "sha256:71ce0836d18405d2695453ba65e29ee94b8fb74ca7f818be3b70d6c8184846f0"
 alt_digest = "sha256:d30e110b029eef53d049581fcf92782a836ae499f7d4d057ca6ed89886b31b31"
 negative_digest = "sha256:99fe79603f8b2f095b54b527dd96c2b7d33c73d4388dd44ba59b92d064270e6b"
+compromised_gold_digest = "sha256:6c9628988c1ae7ad8d42365d28fb607d174d2256db71e65ee94fc94efe11da38"
 
 [[tasks]]
 slug = "cmd-safe"
@@ -284,6 +303,7 @@ tests_digest = "sha256:308bfa4ab9c30aaff3c18e58923033d626d75c4fe303563a399184949
 gold_digest = "sha256:b703da8a60afc00576be9dde23e1f71b9eac2937f9ecc2200dd59bad5efb98e2"
 alt_digest = "sha256:a8b886bca050ca9e2a8e48ee1989f0b0cd48395f5e4e8ce3743161c49ba65c8d"
 negative_digest = "sha256:ba4a7002bc8a644a925a33ffc8dde516660b344357cc3f4c882d43525d3f9b85"
+compromised_gold_digest = "sha256:5860042c63ad85892e52006e1d338a71f08b773eee027b9ede0647c3471803a0"
 
 [[tasks]]
 slug = "path-jail"
@@ -298,6 +318,7 @@ tests_digest = "sha256:dfc35705e3e63e0a92e18551c01da37fff493775c65d2a85f44b2f463
 gold_digest = "sha256:ae0c8e1f879916c15df38d0e54916ae79ee09ddeaf91548aaef22bc416de2cdf"
 alt_digest = "sha256:d12eb761b852a585b97e5edf6258db94c9f8b4fc13da92d37c6b843b012643c9"
 negative_digest = "sha256:f056cec112112cfaeffca299fed5027441132deef8cf513b19c55b153dc7fdd1"
+compromised_gold_digest = "sha256:6c96282896f2905ac40353d862a419420a7c2393877824f432f13673bca6df81"
 
 [[tasks]]
 slug = "redact-tokens"
@@ -312,6 +333,7 @@ tests_digest = "sha256:7b0629d88fcce5602d393cd60d2e8896f9061d549502832cb4888e729
 gold_digest = "sha256:5b5c6e90773a0f971d43d042cdb2efd9963dcbad057f36e6feee86fbd1d8bfac"
 alt_digest = "sha256:98d3a43b6ee95956833f6936ef2f2f2784ed2b0922c45d00835a8965c76ceb07"
 negative_digest = "sha256:11d89bfa9b981aea707cd316d2b398658d71ff5f10929dfcb918753ed7b116ae"
+compromised_gold_digest = "sha256:6f2cd5f25fe19d12498b64a4b24cb6346d1491d64e1b3c7e294183bfad3f2952"
 
 [[tasks]]
 slug = "envfile-parse"
@@ -326,6 +348,7 @@ tests_digest = "sha256:07d46b47e48edf1dd7a21816f377bf92365c607fc9174c4ddb19b90ad
 gold_digest = "sha256:e61ecbc6b77647328bf4447dd971c4f35af230901fe84000ac17f8aa199f6a55"
 alt_digest = "sha256:e3f6519e6852a343ae26a9c4368e8b1224f4ed4d909625f092f67d03df5c0dfa"
 negative_digest = "sha256:45d3005028550033ffe46675910350c0cd961ce5b259f7d2ed78d6d82db906c4"
+compromised_gold_digest = "sha256:8e05732816fb235714024e489cdbe2512d5e924c14eb173136b5e79b4843f214"
 
 [[tasks]]
 slug = "keep-newest"
@@ -340,3 +363,4 @@ tests_digest = "sha256:2398e5b8146d1c947d70290619bd3ce4044d9d0948efc9663990624c6
 gold_digest = "sha256:2c9f8e08a94742a3a915e25e06577458e1c1e32d783e79ca2ee81048ee299052"
 alt_digest = "sha256:dd1f29765757a6f647f98fb22353c3d55de3f2cbd28399348e14ac201d2c3616"
 negative_digest = "sha256:f3e50cd7b0f54225cdaada53e752cad3f48de68c895b6b6548670944256f7108"
+compromised_gold_digest = "sha256:43cdeddd57cb85bfc62c5991b19373a1435691e557eb25bceae4777c29dbe09d"

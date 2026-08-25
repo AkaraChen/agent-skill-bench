@@ -27,8 +27,10 @@ from agent_skill_bench.constants import (
     RESOURCE_STORAGE_MB,
     repo_root,
 )
+from agent_skill_bench.fingerprint import sha256_file
 from agent_skill_bench.holdout import (
     HoldoutError,
+    compromised_gold_script,
     load_manifest,
     private_root,
     sealed_root,
@@ -187,10 +189,14 @@ def run_assembled_variant(assembled: Path, script: Path) -> subprocess.Completed
 def gate_digest(entry: dict[str, str], public_dir: Path, sealed_dir: Path) -> GateResult:
     got = task_digests(public_dir, sealed_dir)
     problems = [
-        f"{key}: expected {entry[key]}, got {got[key]}"
+        f"{key}: expected {entry.get(key)}, got {got[key]}"
         for key in got
         if entry.get(key) != got[key]
     ]
+    if not entry.get("compromised_gold_digest"):
+        problems.append("compromised_gold_digest missing from manifest")
+    if not got.get("compromised_gold_digest"):
+        problems.append("compromised gold fixture missing")
     return GateResult(entry["slug"], "digest", not problems, "; ".join(problems))
 
 
@@ -250,13 +256,40 @@ def _container_bash(app: Path, tests: Path, command: str, extra_mount: tuple[str
     return subprocess.run(cmd, capture_output=True, text=True)
 
 
-def gate_compromised(assembled: Path, sealed_dir: Path) -> GateResult:
-    """Leaked gold plus the correct revision stamp must still fail hidden tests."""
+def gate_compromised(
+    assembled: Path | None,
+    sealed_dir: Path,
+    entry: dict[str, str] | None = None,
+    *,
+    execute: bool = True,
+) -> GateResult:
+    """Leaked gold plus the correct revision stamp must still fail hidden tests.
+
+    Missing or digest-drifted fixtures fail closed. A crashing fixture is not
+    evidence that hidden tests reject the leaked gold.
+    """
     from agent_skill_bench.constants import DATASET_REVISION
 
-    old = sealed_dir.parent / "compromised" / "2026.08.25" / assembled.name / "solve.sh"
-    if not old.exists():
-        return GateResult(assembled.name, "compromised-gold", False, f"missing {old}")
+    slug = (assembled.name if assembled is not None else sealed_dir.name)
+    old = compromised_gold_script(sealed_dir.parent, slug)
+    if not old.is_file():
+        return GateResult(slug, "compromised-gold", False, f"missing compromised gold: {old}")
+    got = sha256_file(old)
+    expected = (entry or {}).get("compromised_gold_digest")
+    if entry is not None:
+        if not expected:
+            return GateResult(
+                slug, "compromised-gold", False, "compromised_gold_digest missing from manifest"
+            )
+        if got != expected:
+            return GateResult(
+                slug,
+                "compromised-gold",
+                False,
+                f"compromised_gold_digest drift: expected {expected}, got {got}",
+            )
+    if not execute or assembled is None:
+        return GateResult(slug, "compromised-gold", True, "")
     with tempfile.TemporaryDirectory(prefix="asb-comp-", ignore_cleanup_errors=True) as tmp:
         tests = Path(tmp) / "tests"
         shutil.copytree(assembled / "tests", tests)
@@ -272,13 +305,19 @@ def gate_compromised(assembled: Path, sealed_dir: Path) -> GateResult:
             extra_mount=(str(old.resolve()), "/oldgold.sh"),
         )
         if apply.returncode != 0:
-            # old gold itself crashed; still stamp and test
-            pass
+            detail = (apply.stderr or apply.stdout or "leaked gold did not apply")[-500:]
+            return GateResult(
+                slug,
+                "compromised-gold",
+                False,
+                "leaked gold did not apply; cannot attest hidden tests reject it: "
+                + detail,
+            )
         (app / "ASB_REVISION").write_text(DATASET_REVISION + "\n")
         tested = _container_bash(app, tests, "python3 /tests/test_outputs.py")
         ok = tested.returncode != 0
         detail = "" if ok else "leaked gold + stamp still satisfies hidden tests"
-        return GateResult(assembled.name, "compromised-gold", ok, detail)
+        return GateResult(slug, "compromised-gold", ok, detail)
 
 
 def gate_negative(assembled: Path) -> GateResult:
@@ -383,13 +422,15 @@ def evaluate_task(
             gate_git_history(public_dir, root),
         ],
     )
-    if not execute:
-        return report
     digest_ok = all(g.ok for g in report.gates if g.gate == "digest")
+    if not execute:
+        report.gates.append(gate_compromised(None, sealed_dir, entry, execute=False))
+        return report
     if not digest_ok:
         report.gates.append(GateResult(entry["slug"], "oracle", False, "skipped: digest drift"))
         report.gates.append(GateResult(entry["slug"], "alternative", False, "skipped: digest drift"))
         report.gates.append(GateResult(entry["slug"], "mutation", False, "skipped: digest drift"))
+        report.gates.append(gate_compromised(None, sealed_dir, entry, execute=False))
         return report
     with tempfile.TemporaryDirectory(prefix="asb-assemble-", ignore_cleanup_errors=True) as tmp:
         assembled = assemble(public_dir, sealed_dir, Path(tmp) / entry["slug"])
@@ -398,10 +439,9 @@ def evaluate_task(
                 gate_oracle(assembled),
                 gate_alternative(assembled),
                 gate_negative(assembled),
+                gate_compromised(assembled, sealed_dir, entry, execute=True),
             ]
         )
-        if (sealed_dir.parent / "compromised" / "2026.08.25" / assembled.name / "solve.sh").exists():
-            report.gates.append(gate_compromised(assembled, sealed_dir))
     return report
 
 

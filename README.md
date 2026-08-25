@@ -50,7 +50,7 @@ Harbor cartesian-products `agents[] × tasks[] × n_attempts`. Repeat is `repeat
 
 - Public subset pin: `datasets/public-subset.toml` — `harbor/hello-world` and `terminal-bench/terminal-bench-2` with dataset `ref` (content hash) and explicit task names + task digests.
 - Private holdout **revision `2026.08.25.r3`**. Public tree: agent-visible files + `datasets/private-manifest.toml`. Hidden tests / gold / alt / negative live in private `AkaraChen/agent-skill-bench-holdout` at tag `v2026.08.25.r3`. Fetch: `asb fetch-sealed` (cache only under `cache/asb/`, atomic replace after verify).
-- Revisions `2026.08.25` and `2026.08.25.r2` are **compromised** (`datasets/compromised.toml`).
+- Revisions `2026.08.25` and `2026.08.25.r2` are **compromised** (`datasets/compromised.toml`). Each task pins a `compromised_gold_digest`; fetch and validate check the inventory, and the `compromised-gold` gate always runs (missing or drift fails).
 - `assemble_sealed` jobs write into `cache/asb/assembled/holdout`. Absolute/`..` paths are rejected.
 - `asb validate` never generates. Scorer: hidden-test failures are **model** failure; only verifier exceptions are `TEST`.
 

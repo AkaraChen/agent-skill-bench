@@ -79,7 +79,7 @@ def test_old_gold_fails_new_hidden_tests_after_stamp(tmp_path) -> None:
         f"assert (APP / 'ASB_REVISION').read_text().strip() == {DATASET_REVISION!r}\n"
     )
     old = tmp_path / "cache" / "asb" / "sealed" / "compromised" / "2026.08.25" / "echo-n"
-    old.mkdir(parents=True)
+    old.mkdir(parents=True, exist_ok=True)
     (old / "solve.sh").write_text(
         "#!/bin/bash\nset -euo pipefail\nAPP=\"${APP:-/app}\"\n"
         "python3 - \"$APP\" <<'PY'\nfrom pathlib import Path\nimport sys\n"

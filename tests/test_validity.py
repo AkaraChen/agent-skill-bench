@@ -2,8 +2,17 @@ import json
 import subprocess
 from pathlib import Path
 
-from agent_skill_bench.constants import DOCKER_DIGEST, HIDDEN_CANARY
-from agent_skill_bench.holdout import assemble_dataset, generate, task_digests, write_manifest
+from agent_skill_bench.constants import DOCKER_DIGEST, HIDDEN_CANARY, N_PRIVATE_TASKS, repo_root
+from agent_skill_bench.holdout import (
+    assemble_dataset,
+    compromised_gold_script,
+    generate,
+    load_manifest,
+    sealed_root,
+    task_digests,
+    verify_sealed,
+    write_manifest,
+)
 from agent_skill_bench.validity import ValidityError, assemble, validate_private
 
 MINI_TOML = f"""schema_version = "1.4"
@@ -112,6 +121,10 @@ def write_mini(root: Path) -> None:
     )
     (negative / "solve.sh").chmod(0o755)
     (negative / "REASON.txt").write_text("writes 4 instead of n\n")
+    leaked = sealed.parent / "compromised" / "2026.08.25" / "echo-n"
+    leaked.mkdir(parents=True, exist_ok=True)
+    (leaked / "solve.sh").write_text(_script('(app / "output.txt").write_text("0\\n")'))
+    (leaked / "solve.sh").chmod(0o755)
     (root / "datasets").mkdir(parents=True, exist_ok=True)
     (root / "datasets" / "quarantine.toml").write_text("# none\n")
     entry = {
@@ -136,6 +149,7 @@ def test_validate_does_not_generate(tmp_path: Path, monkeypatch) -> None:
     payload = validate_private(tmp_path, execute=False)
     assert payload["n_tasks"] == 1
     assert payload["live_failures"] == []
+    assert _compromised_gold_count(payload) == 1
 
 
 def test_corpus_drift_fails(tmp_path: Path) -> None:
@@ -172,6 +186,8 @@ def test_pinned_container_gold_alt_negative(tmp_path: Path) -> None:
     assert by_gate["alternative"] is True
     assert by_gate["mutation"] is True
     assert by_gate["digest"] is True
+    assert by_gate["compromised-gold"] is True
+    assert sum(1 for g in payload["reports"][0]["gates"] if g["gate"] == "compromised-gold") == 1
 
 
 def test_generate_is_separate_from_validate() -> None:
@@ -232,3 +248,77 @@ def test_harbor_oracle_verifier_e2e(tmp_path: Path) -> None:
             reward = ((payload.get("verifier_result") or {}).get("rewards") or {}).get("reward")
             rewards.append(reward)
     assert 1 in rewards or 1.0 in rewards, f"no oracle reward=1 in {list(jobs.rglob('*'))}"
+
+
+def _compromised_gold_count(payload: dict) -> int:
+    return sum(
+        1
+        for report in payload["reports"]
+        for gate in report["gates"]
+        if gate["gate"] == "compromised-gold"
+    )
+
+
+def test_missing_compromised_gold_fails_and_keeps_gate(tmp_path: Path) -> None:
+    write_mini(tmp_path)
+    compromised_gold_script(tmp_path / "cache" / "asb" / "sealed", "echo-n").unlink()
+    payload = validate_private(tmp_path, execute=False)
+    assert payload["live_failures"] == ["fixture/echo-n"]
+    assert _compromised_gold_count(payload) == 1
+    gate = next(g for g in payload["reports"][0]["gates"] if g["gate"] == "compromised-gold")
+    assert gate["ok"] is False
+    assert "missing" in gate["detail"]
+
+
+def test_tampered_compromised_gold_fails_closed(tmp_path: Path) -> None:
+    write_mini(tmp_path)
+    script = compromised_gold_script(tmp_path / "cache" / "asb" / "sealed", "echo-n")
+    script.write_text("#!/bin/bash\nexit 1\n")
+    payload = validate_private(tmp_path, execute=False)
+    assert payload["live_failures"] == ["fixture/echo-n"]
+    assert _compromised_gold_count(payload) == 1
+    gate = next(g for g in payload["reports"][0]["gates"] if g["gate"] == "compromised-gold")
+    assert gate["ok"] is False
+    assert "drift" in gate["detail"] or "missing" in gate["detail"]
+
+
+def test_crashing_compromised_gold_does_not_pass_gate(tmp_path: Path) -> None:
+    write_mini(tmp_path)
+    sealed = tmp_path / "cache" / "asb" / "sealed"
+    public = tmp_path / "tasks" / "private" / "echo-n"
+    script = compromised_gold_script(sealed, "echo-n")
+    script.write_text("#!/bin/bash\nexit 1\n")
+    script.chmod(0o755)
+    entry = {
+        "slug": "echo-n",
+        "id": "fixture/echo-n",
+        "language": "python",
+        "kind": "feature",
+        "size": "tiny",
+        "difficulty": "easy",
+        **task_digests(public, sealed / "echo-n"),
+    }
+    write_manifest(tmp_path, [entry])
+    payload = validate_private(tmp_path, execute=True)
+    assert payload["live_failures"] == ["fixture/echo-n"]
+    assert _compromised_gold_count(payload) == 1
+    gate = next(g for g in payload["reports"][0]["gates"] if g["gate"] == "compromised-gold")
+    assert gate["ok"] is False
+    assert "did not apply" in gate["detail"]
+
+
+def test_full_holdout_report_has_24_compromised_gold_gates() -> None:
+    root = repo_root()
+    tasks = load_manifest(root)["tasks"]
+    assert len(tasks) == N_PRIVATE_TASKS
+    assert all(item.get("compromised_gold_digest", "").startswith("sha256:") for item in tasks)
+    verify_sealed(root)
+    payload = validate_private(root, execute=False)
+    assert payload["n_tasks"] == N_PRIVATE_TASKS
+    assert _compromised_gold_count(payload) == N_PRIVATE_TASKS
+    assert all(
+        gate["ok"]
+        for report in payload["reports"]
+        for gate in report["gates"]
+        if gate["gate"] == "compromised-gold"
+    )

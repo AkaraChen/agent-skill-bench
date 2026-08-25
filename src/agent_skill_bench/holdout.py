@@ -19,6 +19,7 @@ from agent_skill_bench.constants import (
     ASSEMBLED_PATH,
     AUTHORED_AT,
     CACHE_DIR,
+    COMPROMISED_GOLD_REV,
     CUTOFF_POLICY,
     DATASET_ID,
     DATASET_REVISION,
@@ -179,6 +180,15 @@ def _write_task(spec: Any, public_dir: Path, sealed_dir: Path, catalog: Any) -> 
     (negative / "REASON.txt").write_text(spec.negative_reason + "\n")
 
 
+def compromised_gold_script(sealed_root_dir: Path, slug: str) -> Path:
+    return sealed_root_dir / "compromised" / COMPROMISED_GOLD_REV / slug / "solve.sh"
+
+
+def compromised_gold_digest(sealed_root_dir: Path, slug: str) -> str:
+    path = compromised_gold_script(sealed_root_dir, slug)
+    return sha256_file(path) if path.is_file() else ""
+
+
 def task_digests(public_dir: Path, sealed_dir: Path) -> dict[str, str]:
     return {
         "instruction_digest": sha256_file(public_dir / "instruction.md"),
@@ -187,6 +197,7 @@ def task_digests(public_dir: Path, sealed_dir: Path) -> dict[str, str]:
         "gold_digest": sha256_tree(sealed_dir / "solution"),
         "alt_digest": sha256_tree(sealed_dir / "variants" / "alt"),
         "negative_digest": sha256_tree(sealed_dir / "variants" / "negative"),
+        "compromised_gold_digest": compromised_gold_digest(sealed_dir.parent, sealed_dir.name),
     }
 
 
@@ -228,9 +239,8 @@ def generate(root: Path | None = None) -> Path:
         shutil.copy2(src_catalog, dest_catalog)
     compromised = getattr(catalog, "COMPROMISED_GOLD", {})
     for slug, body in compromised.items():
-        d = sealed_base / "compromised" / "2026.08.25" / slug
-        d.mkdir(parents=True, exist_ok=True)
-        script = d / "solve.sh"
+        script = compromised_gold_script(sealed_base, slug)
+        script.parent.mkdir(parents=True, exist_ok=True)
         script.write_text(catalog._py_script(body))
         script.chmod(0o755)
     entries: list[dict[str, str]] = []
@@ -268,11 +278,31 @@ def verify_sealed(root: Path | None = None, sealed: Path | None = None) -> None:
     manifest = load_manifest(root)
     public_base = private_root(root)
     problems: list[str] = []
-    for entry in manifest.get("tasks") or []:
+    tasks = list(manifest.get("tasks") or [])
+    expected_slugs = [entry["slug"] for entry in tasks]
+    found_slugs = sorted(
+        path.parent.name
+        for path in (sealed / "compromised" / COMPROMISED_GOLD_REV).glob("*/solve.sh")
+    )
+    if found_slugs != sorted(expected_slugs):
+        problems.append(
+            "compromised gold inventory: expected "
+            f"{sorted(expected_slugs)}, got {found_slugs}"
+        )
+    digest_keys = (
+        "tests_digest",
+        "gold_digest",
+        "alt_digest",
+        "negative_digest",
+        "compromised_gold_digest",
+    )
+    for entry in tasks:
         slug = entry["slug"]
         got = task_digests(public_base / slug, sealed / slug)
-        for key in ("tests_digest", "gold_digest", "alt_digest", "negative_digest"):
-            if got.get(key) != entry.get(key):
+        for key in digest_keys:
+            if not entry.get(key):
+                problems.append(f"{slug} {key} missing from manifest")
+            elif got.get(key) != entry.get(key):
                 problems.append(f"{slug} {key}: expected {entry.get(key)}, got {got.get(key)}")
     if problems:
         raise HoldoutError("sealed corpus failed integrity check:\n" + "\n".join(problems))
