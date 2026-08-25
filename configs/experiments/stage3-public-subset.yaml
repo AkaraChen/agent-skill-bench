@@ -1,0 +1,39 @@
+schema_version: 1
+name: stage3-public-subset
+track: A
+seed: 42
+repeat: 1
+max_trials: 16
+n_concurrent: 2
+max_retries: 2
+usd_per_trial: 0
+environment:
+  type: docker
+  force_build: false
+  delete: true
+models:
+  - none
+agents:
+  - name: oracle
+prompts:
+  baseline: prompts/baseline.md
+treatments:
+  - name: baseline
+    prompt: baseline
+    skills: []
+datasets:
+  - name: harbor/hello-world
+    ref: sha256:d10e96e201d6816b22553504e06e7de0153a26381e808d11404cbca530b9d388
+    task_names:
+      - hello-world/hello-world
+  - name: terminal-bench/terminal-bench-2
+    ref: sha256:c6fc2e2382c1dbae99b2d5ecd2f4f4a60c3c01e0d84642d69b4afd92e99d078b
+    task_names:
+      - terminal-bench/make-mips-interpreter
+      - terminal-bench/circuit-fibsqrt
+      - terminal-bench/build-pov-ray
+      - terminal-bench/overfull-hbox
+      - terminal-bench/video-processing
+      - terminal-bench/distribution-search
+      - terminal-bench/break-filter-js-from-html
+      - terminal-bench/protein-assembly

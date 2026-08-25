@@ -1,0 +1,1 @@
+`/app/toc.py` should list `## ` headings from `/app/doc.md` that are not inside fenced code blocks (lines that are exactly ```). Write heading text without the leading `## `, one per line, to `/app/toc.txt`. Fix extraction that ignores fences.

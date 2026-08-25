@@ -6,8 +6,18 @@ def test_ok_when_reward_one() -> None:
     assert classify_trial(result) is FailureClass.OK
 
 
-def test_test_failure_when_reward_zero() -> None:
+def test_hidden_test_failure_is_model() -> None:
     result = {"verifier_result": {"rewards": {"reward": 0}}}
+    assert classify_trial(result) is FailureClass.MODEL
+
+
+def test_verifier_exception_is_test_not_model() -> None:
+    result = {
+        "exception_info": {
+            "exception_type": "VerifierTimeoutError",
+            "exception_message": "verifier exceeded timeout",
+        }
+    }
     assert classify_trial(result) is FailureClass.TEST
 
 

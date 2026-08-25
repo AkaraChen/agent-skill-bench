@@ -1,0 +1,1 @@
+`/app/edges.txt` lists directed edges `a b` meaning a must come before b. Nodes are the names that appear. Produce a topological order: whenever multiple nodes are ready, pick the lexicographically smallest name. Write names one per line to `/app/order.txt`. If the graph has a cycle, write exactly `CYCLE\n`.

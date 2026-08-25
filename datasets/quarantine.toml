@@ -1,0 +1,8 @@
+# Bad tasks isolated here. Live validate fails if a non-quarantined task
+# misses gold/alt or lets a known-wrong variant through.
+#
+# [[excluded]]
+# task = "asb-private-holdout/example"
+# gate = "mutation"
+# reason = "negative variant passed hidden tests"
+# date = "2026-08-25"

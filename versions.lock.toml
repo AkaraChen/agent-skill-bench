@@ -1,4 +1,4 @@
-# Frozen versions for KIT-906 / KIT-908 experiments.
+# Frozen versions for KIT-905 / KIT-906 / KIT-908 experiments.
 # Bump only with an explicit experiment revision.
 
 [harbor]
@@ -27,3 +27,9 @@ verifier_timeout_sec = 60
 network_mode = "no-network"
 cpus = 1
 memory_mb = 512
+
+[dataset]
+id = "asb-private-holdout"
+revision = "2026.08.25"
+scorer_version = "1.0.0"
+authored_at = "2026-08-25"
