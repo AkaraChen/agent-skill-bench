@@ -138,6 +138,10 @@ def summarize_job(job_dir: Path, out_dir: Path) -> Path:
         skills_path = trial_dir / "agent" / "skills.json"
         if skills_path.exists():
             skills_log = _load_json(skills_path)
+        profile_decision = None
+        profile_path = trial_dir / "agent" / "profile_decision.json"
+        if profile_path.exists():
+            profile_decision = _load_json(profile_path)
         prompt_path = trial_dir / "agent" / "prompt.md"
         prompt_sha256 = sha256_file(prompt_path) if prompt_path.exists() else ""
         treatment, prompt_name, track = _treatment_from_agent(config)
@@ -147,6 +151,10 @@ def summarize_job(job_dir: Path, out_dir: Path) -> Path:
         kwargs = agent_cfg.get("kwargs") or {}
         if kwargs.get("prompt_name"):
             prompt_name = kwargs["prompt_name"]
+        if kwargs.get("asb_treatment"):
+            treatment = str(kwargs["asb_treatment"])
+        if kwargs.get("asb_track"):
+            track = str(kwargs["asb_track"])
         model_name = agent_cfg.get("model_name")
         seed = kwargs.get("asb_seed")
         if seed is None:
@@ -244,6 +252,8 @@ def summarize_job(job_dir: Path, out_dir: Path) -> Path:
             "skill_injected": bool(fingerprint["skill_bundle"]),
             "skill_loaded": skill_loaded,
             "reward": rewards.get("reward"),
+            "failure_mode": (profile_decision or {}).get("failure_mode"),
+            "profile_reason": (profile_decision or {}).get("reason"),
             "failure_class": failure.value,
             "infra_error": scored["infra_error"],
             "counted_as_model_failure": scored["counted_as_model_failure"],

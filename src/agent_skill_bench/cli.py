@@ -12,6 +12,7 @@ from agent_skill_bench.pipeline import format_pipeline, run_pipeline
 from agent_skill_bench.policy import list_expired_jobs
 from agent_skill_bench.report import write_report
 from agent_skill_bench.run import cancel_job, run_job
+from agent_skill_bench.study import STAGE5_REVISION, write_study_package
 from agent_skill_bench.summarize import summarize_latest
 from agent_skill_bench.validity import ValidityError, validate_private, write_validity_report
 from agent_skill_bench.warehouse import index_jobs, write_warehouse
@@ -88,6 +89,20 @@ def main(argv: list[str] | None = None) -> int:
     prune_p.add_argument("--days", type=int, required=True)
     prune_p.add_argument("--jobs-dir", type=Path, default=None)
     prune_p.add_argument("--delete", action="store_true", help="Actually delete expired jobs.")
+
+    study_p = sub.add_parser(
+        "study",
+        help="Build Stage 5 playbook, score tables, taxonomy, and regression baseline.",
+    )
+    study_p.add_argument(
+        "--results",
+        type=Path,
+        action="append",
+        default=[],
+        help="Results dir (or results.json). Repeatable.",
+    )
+    study_p.add_argument("--out", type=Path, default=None)
+    study_p.add_argument("--jobs-dir", type=Path, default=None)
 
     args = parser.parse_args(argv)
     if args.cmd == "run":
@@ -196,6 +211,18 @@ def main(argv: list[str] | None = None) -> int:
         if args.delete:
             for path in expired:
                 shutil.rmtree(path)
+        return 0
+    if args.cmd == "study":
+        if not args.results:
+            print("error: asb study needs at least one --results path")
+            return 2
+        out = args.out or (repo_root() / "results" / STAGE5_REVISION)
+        path = write_study_package(
+            [Path(item) for item in args.results],
+            out,
+            jobs_dir=args.jobs_dir,
+        )
+        print(path)
         return 0
     parser.error("unknown command")
     return 2

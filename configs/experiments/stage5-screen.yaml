@@ -1,0 +1,83 @@
+schema_version: 1
+name: stage5-screen
+track: A
+seed: 26
+repeat: 1
+max_trials: 120
+n_concurrent: 4
+max_retries: 1
+timeout_multiplier: 1.0
+usd_per_trial: 0
+# Fractional screen: 3 agent×model diagonals × 4 treatments = 12 cells × 8 tasks = 96.
+# Covers every agent and model at least once; confirm expands agent×model for shortlist.
+policy:
+  cache_scope: image
+  durable_artifacts: true
+  retention_days: 30
+  secret_allowlist: []
+environment:
+  type: docker
+  force_build: false
+  delete: true
+models:
+  - deterministic/alpha@2026-08-26
+  - deterministic/beta@2026-08-26
+  - deterministic/gamma@2026-08-26
+agents:
+  - name: naive-solver
+    import_path: agent_skill_bench.agents.naive_solver:NaiveSolver
+  - name: skill-solver
+    import_path: agent_skill_bench.agents.skill_solver:SkillSolver
+  - name: plan-solver
+    import_path: agent_skill_bench.agents.plan_solver:PlanSolver
+prompts:
+  baseline: prompts/baseline.md
+  plan: prompts/plan.md
+treatments:
+  - name: baseline
+    prompt: baseline
+    skills: []
+  - name: plan
+    prompt: plan
+    skills: []
+  - name: skill
+    prompt: baseline
+    skills:
+      - ./skills/test-first
+  - name: bundle
+    prompt: plan
+    skills:
+      - ./skills/test-first
+      - ./skills/review-gate
+pairs:
+  - [baseline, plan]
+  - [baseline, skill]
+  - [baseline, bundle]
+  - [plan, bundle]
+cells:
+  - {agent: naive-solver, model: deterministic/alpha@2026-08-26, treatment: baseline}
+  - {agent: naive-solver, model: deterministic/alpha@2026-08-26, treatment: plan}
+  - {agent: naive-solver, model: deterministic/alpha@2026-08-26, treatment: skill}
+  - {agent: naive-solver, model: deterministic/alpha@2026-08-26, treatment: bundle}
+  - {agent: skill-solver, model: deterministic/beta@2026-08-26, treatment: baseline}
+  - {agent: skill-solver, model: deterministic/beta@2026-08-26, treatment: plan}
+  - {agent: skill-solver, model: deterministic/beta@2026-08-26, treatment: skill}
+  - {agent: skill-solver, model: deterministic/beta@2026-08-26, treatment: bundle}
+  - {agent: plan-solver, model: deterministic/gamma@2026-08-26, treatment: baseline}
+  - {agent: plan-solver, model: deterministic/gamma@2026-08-26, treatment: plan}
+  - {agent: plan-solver, model: deterministic/gamma@2026-08-26, treatment: skill}
+  - {agent: plan-solver, model: deterministic/gamma@2026-08-26, treatment: bundle}
+tasks:
+  - tasks/reverse-string
+  - tasks/fizzbuzz
+  - tasks/slugify
+  - tasks/csv-sum
+assemble_sealed: true
+assembled_path: cache/asb/assembled/holdout
+datasets:
+  - path: cache/asb/assembled/holdout
+    task_names:
+      - clamp-range
+      - unique-lines
+      - word-freq
+      - path-jail

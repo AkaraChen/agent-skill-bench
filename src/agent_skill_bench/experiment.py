@@ -743,6 +743,7 @@ def compile_harbor_job(plan: Plan, job_name: str) -> dict[str, Any]:
                 "asb_treatment": cell.treatment,
                 "asb_track": plan.track,
                 "asb_skill_bundle": cell.skill_bundle,
+                "asb_skill_order": [Path(skill).name for skill in cell.skills],
                 "asb_seed": plan.seed,
                 "asb_pair_id": pair_id,
                 "asb_pairing_key": pairing_key,

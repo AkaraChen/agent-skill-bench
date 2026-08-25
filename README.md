@@ -2,7 +2,7 @@
 
 Composable **Agent × Prompt × Skill** programming benchmark on [Harbor](https://github.com/harbor-framework/harbor).
 
-Stage 4: concurrent isolated workers, durable artifacts, resume-without-rebill, and task-level paired stats. **Do not treat scores as a ranking or a generalization about models, agents, prompts, or skills.** There is no composite total.
+Stage 5: run a screening → confirmation study on Track A deterministic profiles and deliver a model-programming playbook (CIs, slices, taxonomy, regression baseline). **Do not treat scores as a ranking or a generalization about hosted LLMs.** Track A conclusions are fixed-harness only. There is no composite total.
 
 ## Frozen versions
 
@@ -32,6 +32,9 @@ uv run asb run --resume jobs/<job-dir>            # Harbor job resume (completed
 uv run asb cancel jobs/<job-dir>                  # SIGINT if still running; writes asb_cancelled.json
 uv run asb pipeline --config configs/experiments/stage4-pipeline.yaml --dry-run
 uv run asb pipeline --config configs/experiments/stage4-pipeline.yaml   # runs screen, then confirm
+uv run asb pipeline --config configs/experiments/stage5-pipeline.yaml --dry-run
+uv run asb pipeline --config configs/experiments/stage5-pipeline.yaml   # Stage 5 screen → confirm
+uv run asb study --results results/<screen-job> --results results/<confirm-job>
 uv run asb report --job jobs/<job-dir>            # warehouse + McNemar/bootstrap + dashboard
 uv run asb warehouse
 uv run asb prune --days 30                        # list expired jobs; add --delete to remove

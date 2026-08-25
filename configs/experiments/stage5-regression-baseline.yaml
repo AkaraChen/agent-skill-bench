@@ -1,0 +1,51 @@
+# Incremental regression pin for Stage 5 methodology.
+# Re-run after adding a model/agent/prompt/skill; compare against
+# results/stage5-method-2026.08.26.r1/regression_baseline.json.
+schema_version: 1
+name: stage5-regression-baseline
+track: A
+seed: 26
+repeat: 3
+max_trials: 80
+n_concurrent: 4
+max_retries: 1
+usd_per_trial: 0
+policy:
+  cache_scope: image
+  durable_artifacts: true
+  retention_days: 90
+environment:
+  type: docker
+  force_build: false
+  delete: true
+models:
+  - deterministic/beta@2026-08-26
+agents:
+  - name: skill-solver
+    import_path: agent_skill_bench.agents.skill_solver:SkillSolver
+  - name: plan-solver
+    import_path: agent_skill_bench.agents.plan_solver:PlanSolver
+prompts:
+  baseline: prompts/baseline.md
+  plan: prompts/plan.md
+treatments:
+  - name: baseline
+    prompt: baseline
+    skills: []
+  - name: bundle
+    prompt: plan
+    skills:
+      - ./skills/test-first
+      - ./skills/review-gate
+pairs:
+  - [baseline, bundle]
+tasks:
+  - tasks/reverse-string
+  - tasks/slugify
+assemble_sealed: true
+assembled_path: cache/asb/assembled/holdout
+datasets:
+  - path: cache/asb/assembled/holdout
+    task_names:
+      - clamp-range
+      - path-jail

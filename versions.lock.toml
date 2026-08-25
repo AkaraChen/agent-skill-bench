@@ -14,6 +14,15 @@ requires = ">=3.12"
 snapshot = "deterministic/smoke-solver@2026-08-24"
 reasoning_effort = "none"
 
+[stage5]
+revision = "stage5-method-2026.08.26.r1"
+profiles = [
+  "deterministic/alpha@2026-08-26",
+  "deterministic/beta@2026-08-26",
+  "deterministic/gamma@2026-08-26",
+]
+applicability = "track-A-fixed-harness-only"
+
 [docker]
 base_image = "python:3.12.11-slim-bookworm"
 digest = "sha256:519591d6871b7bc437060736b9f7456b8731f1499a57e22e6c285135ae657bf7"

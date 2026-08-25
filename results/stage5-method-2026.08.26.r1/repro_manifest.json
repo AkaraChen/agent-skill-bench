@@ -1,0 +1,38 @@
+{
+  "revision": "stage5-method-2026.08.26.r1",
+  "track": "A",
+  "applicability": "fixed-harness-only",
+  "holdout_revision": "2026.08.25.r3",
+  "jobs": {
+    "screen": "A-stage5-screen-20260825T174758Z",
+    "confirm": "A-stage5-screen-confirm-20260825T175531Z",
+    "regression": "A-stage5-regression-baseline-20260825T180656Z"
+  },
+  "configs": {
+    "screen": "configs/experiments/stage5-screen.yaml",
+    "pipeline": "configs/experiments/stage5-pipeline.yaml",
+    "regression": "configs/experiments/stage5-regression-baseline.yaml"
+  },
+  "n_screen_trials": 96,
+  "n_confirm_trials": 144,
+  "confirm_shortlist": [
+    "bundle",
+    "plan"
+  ],
+  "models": [
+    "deterministic/alpha@2026-08-26",
+    "deterministic/beta@2026-08-26",
+    "deterministic/gamma@2026-08-26"
+  ],
+  "agents": [
+    "naive-solver",
+    "skill-solver",
+    "plan-solver"
+  ],
+  "treatments": [
+    "baseline",
+    "plan",
+    "skill",
+    "bundle"
+  ]
+}

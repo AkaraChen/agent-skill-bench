@@ -409,6 +409,29 @@ def interaction_bootstrap(
     }
 
 
+def paired_comparison(
+    rows: list[dict[str, Any]],
+    left: str,
+    right: str,
+    *,
+    seed: int = 42,
+    n_boot: int = DEFAULT_BOOTSTRAP,
+) -> dict[str, Any]:
+    """Convenience wrapper: task-clustered paired bootstrap for two treatments."""
+    pairs = paired_outcomes(rows, left, right)
+    if not pairs:
+        return {
+            "left": left,
+            "right": right,
+            "n_pairs": 0,
+            "error": "no paired task×agent×model cells",
+        }
+    payload = paired_bootstrap(pairs, n=n_boot, seed=seed)
+    payload["left"] = left
+    payload["right"] = right
+    return payload
+
+
 def report(
     rows: list[dict[str, Any]],
     *,

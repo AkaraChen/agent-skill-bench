@@ -1,0 +1,649 @@
+{
+  "prompt_gain_across_agents": {
+    "question": "Is prompt (plan) gain stable across agents?",
+    "by_agent": [
+      {
+        "agent": "naive-solver",
+        "paired": {
+          "n_pairs": 8,
+          "n_cells": 8,
+          "n_tasks": 8,
+          "left_success": 0.75,
+          "right_success": 0.875,
+          "mean_diff": 0.125,
+          "ci": {
+            "mean": 0.125,
+            "low": 0.0,
+            "high": 0.375,
+            "n": 8,
+            "n_boot": 2000,
+            "alpha": 0.05
+          },
+          "table": {
+            "n11": 6,
+            "n00": 1,
+            "n01": 1,
+            "n10": 0
+          },
+          "mcnemar": {
+            "n01": 1,
+            "n10": 0,
+            "n_discordant": 1,
+            "p_value": 1.0,
+            "test": "mcnemar-exact",
+            "n11": 6,
+            "n00": 1,
+            "unit": "task"
+          },
+          "unit": "task",
+          "method": "task-clustered-bootstrap",
+          "left": "baseline",
+          "right": "plan"
+        }
+      },
+      {
+        "agent": "plan-solver",
+        "paired": {
+          "n_pairs": 8,
+          "n_cells": 8,
+          "n_tasks": 8,
+          "left_success": 0.75,
+          "right_success": 0.875,
+          "mean_diff": 0.125,
+          "ci": {
+            "mean": 0.125,
+            "low": 0.0,
+            "high": 0.375,
+            "n": 8,
+            "n_boot": 2000,
+            "alpha": 0.05
+          },
+          "table": {
+            "n11": 6,
+            "n00": 1,
+            "n01": 1,
+            "n10": 0
+          },
+          "mcnemar": {
+            "n01": 1,
+            "n10": 0,
+            "n_discordant": 1,
+            "p_value": 1.0,
+            "test": "mcnemar-exact",
+            "n11": 6,
+            "n00": 1,
+            "unit": "task"
+          },
+          "unit": "task",
+          "method": "task-clustered-bootstrap",
+          "left": "baseline",
+          "right": "plan"
+        }
+      },
+      {
+        "agent": "skill-solver",
+        "paired": {
+          "n_pairs": 8,
+          "n_cells": 8,
+          "n_tasks": 8,
+          "left_success": 0.0,
+          "right_success": 0.75,
+          "mean_diff": 0.75,
+          "ci": {
+            "mean": 0.75,
+            "low": 0.375,
+            "high": 1.0,
+            "n": 8,
+            "n_boot": 2000,
+            "alpha": 0.05
+          },
+          "table": {
+            "n11": 0,
+            "n00": 2,
+            "n01": 6,
+            "n10": 0
+          },
+          "mcnemar": {
+            "n01": 6,
+            "n10": 0,
+            "n_discordant": 6,
+            "p_value": 0.03125,
+            "test": "mcnemar-exact",
+            "n11": 0,
+            "n00": 2,
+            "unit": "task"
+          },
+          "unit": "task",
+          "method": "task-clustered-bootstrap",
+          "left": "baseline",
+          "right": "plan"
+        }
+      }
+    ],
+    "bound_to": {
+      "treatments": [
+        "baseline",
+        "plan"
+      ],
+      "revision": "stage5-method-2026.08.26.r1"
+    }
+  },
+  "skill_gain_dependence": {
+    "question": "Does skill/bundle gain depend on model, agent, and task slice?",
+    "slices": [
+      {
+        "model_profile": "alpha",
+        "agent": "naive-solver",
+        "treatment": "baseline",
+        "n": 8,
+        "n_scored": 8,
+        "n_infra": 0,
+        "success_rate": 0.75,
+        "cost_usd_mean": 0.002,
+        "duration_sec_mean": 18.30516475,
+        "failures": {
+          "ok": 6,
+          "test": 2
+        }
+      },
+      {
+        "model_profile": "alpha",
+        "agent": "naive-solver",
+        "treatment": "bundle",
+        "n": 8,
+        "n_scored": 8,
+        "n_infra": 0,
+        "success_rate": 0.875,
+        "cost_usd_mean": 0.0025,
+        "duration_sec_mean": 18.955323625,
+        "failures": {
+          "ok": 7,
+          "test": 1
+        }
+      },
+      {
+        "model_profile": "alpha",
+        "agent": "naive-solver",
+        "treatment": "skill",
+        "n": 8,
+        "n_scored": 8,
+        "n_infra": 0,
+        "success_rate": 0.75,
+        "cost_usd_mean": 0.002,
+        "duration_sec_mean": 18.652268375,
+        "failures": {
+          "ok": 6,
+          "test": 2
+        }
+      },
+      {
+        "model_profile": "beta",
+        "agent": "naive-solver",
+        "treatment": "bundle",
+        "n": 12,
+        "n_scored": 12,
+        "n_infra": 0,
+        "success_rate": 0.75,
+        "cost_usd_mean": 0.01,
+        "duration_sec_mean": 18.476020166666668,
+        "failures": {
+          "ok": 9,
+          "test": 3
+        }
+      },
+      {
+        "model_profile": "beta",
+        "agent": "plan-solver",
+        "treatment": "bundle",
+        "n": 12,
+        "n_scored": 12,
+        "n_infra": 0,
+        "success_rate": 1.0,
+        "cost_usd_mean": 0.013750000000000004,
+        "duration_sec_mean": 18.29236,
+        "failures": {
+          "ok": 12
+        }
+      },
+      {
+        "model_profile": "beta",
+        "agent": "skill-solver",
+        "treatment": "baseline",
+        "n": 8,
+        "n_scored": 8,
+        "n_infra": 0,
+        "success_rate": 0.0,
+        "cost_usd_mean": 0.008,
+        "duration_sec_mean": 17.99865075,
+        "failures": {
+          "test": 4,
+          "model": 4
+        }
+      },
+      {
+        "model_profile": "beta",
+        "agent": "skill-solver",
+        "treatment": "bundle",
+        "n": 20,
+        "n_scored": 20,
+        "n_infra": 0,
+        "success_rate": 1.0,
+        "cost_usd_mean": 0.0125,
+        "duration_sec_mean": 18.4313024,
+        "failures": {
+          "ok": 20
+        }
+      },
+      {
+        "model_profile": "beta",
+        "agent": "skill-solver",
+        "treatment": "skill",
+        "n": 8,
+        "n_scored": 8,
+        "n_infra": 0,
+        "success_rate": 0.75,
+        "cost_usd_mean": 0.0096,
+        "duration_sec_mean": 18.369939125,
+        "failures": {
+          "ok": 6,
+          "test": 2
+        }
+      },
+      {
+        "model_profile": "gamma",
+        "agent": "naive-solver",
+        "treatment": "bundle",
+        "n": 12,
+        "n_scored": 12,
+        "n_infra": 0,
+        "success_rate": 0.75,
+        "cost_usd_mean": 0.025000000000000005,
+        "duration_sec_mean": 18.705082666666666,
+        "failures": {
+          "ok": 9,
+          "test": 3
+        }
+      },
+      {
+        "model_profile": "gamma",
+        "agent": "plan-solver",
+        "treatment": "baseline",
+        "n": 8,
+        "n_scored": 8,
+        "n_infra": 0,
+        "success_rate": 0.75,
+        "cost_usd_mean": 0.022000000000000002,
+        "duration_sec_mean": 18.04251525,
+        "failures": {
+          "ok": 6,
+          "test": 2
+        }
+      },
+      {
+        "model_profile": "gamma",
+        "agent": "plan-solver",
+        "treatment": "bundle",
+        "n": 20,
+        "n_scored": 20,
+        "n_infra": 0,
+        "success_rate": 0.8,
+        "cost_usd_mean": 0.034375,
+        "duration_sec_mean": 18.5202012,
+        "failures": {
+          "ok": 16,
+          "test": 4
+        }
+      },
+      {
+        "model_profile": "gamma",
+        "agent": "plan-solver",
+        "treatment": "skill",
+        "n": 8,
+        "n_scored": 8,
+        "n_infra": 0,
+        "success_rate": 0.75,
+        "cost_usd_mean": 0.026400000000000003,
+        "duration_sec_mean": 18.302079374999998,
+        "failures": {
+          "ok": 6,
+          "test": 2
+        }
+      },
+      {
+        "model_profile": "gamma",
+        "agent": "skill-solver",
+        "treatment": "bundle",
+        "n": 12,
+        "n_scored": 12,
+        "n_infra": 0,
+        "success_rate": 0.75,
+        "cost_usd_mean": 0.03125,
+        "duration_sec_mean": 18.49618175,
+        "failures": {
+          "ok": 9,
+          "test": 3
+        }
+      }
+    ],
+    "task_slices": [
+      {
+        "task_slice": "private",
+        "treatment": "baseline",
+        "n": 12,
+        "n_scored": 12,
+        "n_infra": 0,
+        "success_rate": 0.3333333333333333,
+        "cost_usd_mean": 0.010666666666666666,
+        "duration_sec_mean": 18.592653833333333,
+        "failures": {
+          "ok": 4,
+          "test": 8
+        }
+      },
+      {
+        "task_slice": "private",
+        "treatment": "bundle",
+        "n": 48,
+        "n_scored": 48,
+        "n_infra": 0,
+        "success_rate": 0.7083333333333334,
+        "cost_usd_mean": 0.019973958333333337,
+        "duration_sec_mean": 18.312835833333335,
+        "failures": {
+          "ok": 34,
+          "test": 14
+        }
+      },
+      {
+        "task_slice": "private",
+        "treatment": "plan",
+        "n": 48,
+        "n_scored": 48,
+        "n_infra": 0,
+        "success_rate": 0.5416666666666666,
+        "cost_usd_mean": 0.016895833333333336,
+        "duration_sec_mean": 18.264994770833333,
+        "failures": {
+          "ok": 26,
+          "test": 22
+        }
+      },
+      {
+        "task_slice": "private",
+        "treatment": "skill",
+        "n": 12,
+        "n_scored": 12,
+        "n_infra": 0,
+        "success_rate": 0.5,
+        "cost_usd_mean": 0.012666666666666668,
+        "duration_sec_mean": 18.057081166666666,
+        "failures": {
+          "ok": 6,
+          "test": 6
+        }
+      },
+      {
+        "task_slice": "public",
+        "treatment": "baseline",
+        "n": 12,
+        "n_scored": 12,
+        "n_infra": 0,
+        "success_rate": 0.6666666666666666,
+        "cost_usd_mean": 0.010666666666666666,
+        "duration_sec_mean": 17.638233333333332,
+        "failures": {
+          "ok": 8,
+          "model": 4
+        }
+      },
+      {
+        "task_slice": "public",
+        "treatment": "bundle",
+        "n": 48,
+        "n_scored": 48,
+        "n_infra": 0,
+        "success_rate": 1.0,
+        "cost_usd_mean": 0.019973958333333337,
+        "duration_sec_mean": 18.73525575,
+        "failures": {
+          "ok": 48
+        }
+      },
+      {
+        "task_slice": "public",
+        "treatment": "plan",
+        "n": 48,
+        "n_scored": 48,
+        "n_infra": 0,
+        "success_rate": 1.0,
+        "cost_usd_mean": 0.016895833333333336,
+        "duration_sec_mean": 18.1768521875,
+        "failures": {
+          "ok": 48
+        }
+      },
+      {
+        "task_slice": "public",
+        "treatment": "skill",
+        "n": 12,
+        "n_scored": 12,
+        "n_infra": 0,
+        "success_rate": 1.0,
+        "cost_usd_mean": 0.012666666666666668,
+        "duration_sec_mean": 18.82577675,
+        "failures": {
+          "ok": 12
+        }
+      }
+    ],
+    "bound_to": {
+      "revision": "stage5-method-2026.08.26.r1",
+      "track": "A"
+    }
+  },
+  "complement_conflict": {
+    "question": "Do prompt+skill bundles complement or conflict?",
+    "pairs": {
+      "plan_vs_bundle": {
+        "n_pairs": 8,
+        "n_cells": 40,
+        "n_tasks": 8,
+        "left_success": 0.875,
+        "right_success": 0.875,
+        "mean_diff": 0.07738095238095238,
+        "ci": {
+          "mean": 0.07738095238095238,
+          "low": 0.0,
+          "high": 0.1845238095238095,
+          "n": 8,
+          "n_boot": 2000,
+          "alpha": 0.05
+        },
+        "table": {
+          "n11": 7,
+          "n00": 1,
+          "n01": 0,
+          "n10": 0
+        },
+        "mcnemar": {
+          "n01": 0,
+          "n10": 0,
+          "n_discordant": 0,
+          "p_value": 1.0,
+          "test": "mcnemar-exact",
+          "n11": 7,
+          "n00": 1,
+          "unit": "task"
+        },
+        "unit": "task",
+        "method": "task-clustered-bootstrap",
+        "left": "plan",
+        "right": "bundle"
+      },
+      "skill_vs_bundle": {
+        "n_pairs": 8,
+        "n_cells": 24,
+        "n_tasks": 8,
+        "left_success": 0.75,
+        "right_success": 0.875,
+        "mean_diff": 0.16666666666666666,
+        "ci": {
+          "mean": 0.16666666666666666,
+          "low": 0.0,
+          "high": 0.4166666666666667,
+          "n": 8,
+          "n_boot": 2000,
+          "alpha": 0.05
+        },
+        "table": {
+          "n11": 6,
+          "n00": 1,
+          "n01": 1,
+          "n10": 0
+        },
+        "mcnemar": {
+          "n01": 1,
+          "n10": 0,
+          "n_discordant": 1,
+          "p_value": 1.0,
+          "test": "mcnemar-exact",
+          "n11": 6,
+          "n00": 1,
+          "unit": "task"
+        },
+        "unit": "task",
+        "method": "task-clustered-bootstrap",
+        "left": "skill",
+        "right": "bundle"
+      },
+      "baseline_vs_bundle": {
+        "n_pairs": 8,
+        "n_cells": 24,
+        "n_tasks": 8,
+        "left_success": 0.75,
+        "right_success": 0.875,
+        "mean_diff": 0.41666666666666663,
+        "ci": {
+          "mean": 0.41666666666666663,
+          "low": 0.3333333333333333,
+          "high": 0.5833333333333334,
+          "n": 8,
+          "n_boot": 2000,
+          "alpha": 0.05
+        },
+        "table": {
+          "n11": 6,
+          "n00": 1,
+          "n01": 1,
+          "n10": 0
+        },
+        "mcnemar": {
+          "n01": 1,
+          "n10": 0,
+          "n_discordant": 1,
+          "p_value": 1.0,
+          "test": "mcnemar-exact",
+          "n11": 6,
+          "n00": 1,
+          "unit": "task"
+        },
+        "unit": "task",
+        "method": "task-clustered-bootstrap",
+        "left": "baseline",
+        "right": "bundle"
+      }
+    },
+    "bound_to": {
+      "revision": "stage5-method-2026.08.26.r1"
+    }
+  },
+  "cost_latency_worth": {
+    "question": "Is the success gain worth cost/latency?",
+    "by_treatment": [
+      {
+        "treatment": "baseline",
+        "success_ci": {
+          "mean": 0.5,
+          "low": 0.2916666666666667,
+          "high": 0.7083333333333334,
+          "n": 24,
+          "n_boot": 2000,
+          "alpha": 0.05
+        },
+        "cost_ci": {
+          "mean": 0.010666666666666666,
+          "low": 0.007333333333333334,
+          "high": 0.014083333333333335,
+          "n": 24,
+          "n_boot": 2000,
+          "alpha": 0.05
+        },
+        "n": 24
+      },
+      {
+        "treatment": "bundle",
+        "success_ci": {
+          "mean": 0.8541666666666666,
+          "low": 0.78125,
+          "high": 0.9166666666666666,
+          "n": 96,
+          "n_boot": 2000,
+          "alpha": 0.05
+        },
+        "cost_ci": {
+          "mean": 0.019973958333333337,
+          "low": 0.01790983072916667,
+          "high": 0.02214208984375,
+          "n": 96,
+          "n_boot": 2000,
+          "alpha": 0.05
+        },
+        "n": 96
+      },
+      {
+        "treatment": "plan",
+        "success_ci": {
+          "mean": 0.7708333333333334,
+          "low": 0.6875,
+          "high": 0.8541666666666666,
+          "n": 96,
+          "n_boot": 2000,
+          "alpha": 0.05
+        },
+        "cost_ci": {
+          "mean": 0.016895833333333336,
+          "low": 0.015197786458333333,
+          "high": 0.01866171875,
+          "n": 96,
+          "n_boot": 2000,
+          "alpha": 0.05
+        },
+        "n": 96
+      },
+      {
+        "treatment": "skill",
+        "success_ci": {
+          "mean": 0.75,
+          "low": 0.5833333333333334,
+          "high": 0.9166666666666666,
+          "n": 24,
+          "n_boot": 2000,
+          "alpha": 0.05
+        },
+        "cost_ci": {
+          "mean": 0.012666666666666668,
+          "low": 0.0086,
+          "high": 0.016800000000000002,
+          "n": 24,
+          "n_boot": 2000,
+          "alpha": 0.05
+        },
+        "n": 24
+      }
+    ],
+    "bound_to": {
+      "revision": "stage5-method-2026.08.26.r1",
+      "cost_model": "profile-fixture"
+    }
+  }
+}

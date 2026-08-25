@@ -1,0 +1,391 @@
+{
+  "disclaimer": "These numbers are per-slice evidence, not a ranking and not a single score. Infra errors are excluded from success rate and paired tests.",
+  "n_rows": 144,
+  "slices": {
+    "model": [
+      {
+        "model": "deterministic/beta@2026-08-26",
+        "n": 72,
+        "n_scored": 72,
+        "n_infra": 0,
+        "success_rate": 0.8333333333333334,
+        "cost_usd_mean": 0.011208333333333334,
+        "duration_sec_mean": 18.235706097222224,
+        "failures": {
+          "ok": 60,
+          "test": 12
+        }
+      },
+      {
+        "model": "deterministic/gamma@2026-08-26",
+        "n": 72,
+        "n_scored": 72,
+        "n_infra": 0,
+        "success_rate": 0.75,
+        "cost_usd_mean": 0.028020833333333335,
+        "duration_sec_mean": 18.48697866666667,
+        "failures": {
+          "ok": 54,
+          "test": 18
+        }
+      }
+    ],
+    "agent": [
+      {
+        "agent": "naive-solver",
+        "n": 48,
+        "n_scored": 48,
+        "n_infra": 0,
+        "success_rate": 0.75,
+        "cost_usd_mean": 0.0175,
+        "duration_sec_mean": 18.426401395833334,
+        "failures": {
+          "ok": 36,
+          "test": 12
+        }
+      },
+      {
+        "agent": "plan-solver",
+        "n": 48,
+        "n_scored": 48,
+        "n_infra": 0,
+        "success_rate": 0.8125,
+        "cost_usd_mean": 0.021656250000000002,
+        "duration_sec_mean": 18.290951979166667,
+        "failures": {
+          "ok": 39,
+          "test": 9
+        }
+      },
+      {
+        "agent": "skill-solver",
+        "n": 48,
+        "n_scored": 48,
+        "n_infra": 0,
+        "success_rate": 0.8125,
+        "cost_usd_mean": 0.0196875,
+        "duration_sec_mean": 18.366673770833334,
+        "failures": {
+          "ok": 39,
+          "test": 9
+        }
+      }
+    ],
+    "prompt": [
+      {
+        "prompt": "plan",
+        "n": 144,
+        "n_scored": 144,
+        "n_infra": 0,
+        "success_rate": 0.7916666666666666,
+        "cost_usd_mean": 0.019614583333333335,
+        "duration_sec_mean": 18.361342381944446,
+        "failures": {
+          "ok": 114,
+          "test": 30
+        }
+      }
+    ],
+    "skill": [
+      {
+        "treatment": "bundle",
+        "n": 72,
+        "n_scored": 72,
+        "n_infra": 0,
+        "success_rate": 0.8333333333333334,
+        "cost_usd_mean": 0.021145833333333336,
+        "duration_sec_mean": 18.479565583333333,
+        "failures": {
+          "ok": 60,
+          "test": 12
+        }
+      },
+      {
+        "treatment": "plan",
+        "n": 72,
+        "n_scored": 72,
+        "n_infra": 0,
+        "success_rate": 0.75,
+        "cost_usd_mean": 0.018083333333333333,
+        "duration_sec_mean": 18.243119180555553,
+        "failures": {
+          "ok": 54,
+          "test": 18
+        }
+      }
+    ],
+    "task": [
+      {
+        "task": "asb-private-holdout/clamp-range",
+        "n": 36,
+        "n_scored": 36,
+        "n_infra": 0,
+        "success_rate": 1.0,
+        "cost_usd_mean": 0.019614583333333335,
+        "duration_sec_mean": 18.176875805555554,
+        "failures": {
+          "ok": 36
+        }
+      },
+      {
+        "task": "asb-private-holdout/path-jail",
+        "n": 36,
+        "n_scored": 36,
+        "n_infra": 0,
+        "success_rate": 0.16666666666666666,
+        "cost_usd_mean": 0.019614583333333335,
+        "duration_sec_mean": 18.301869361111113,
+        "failures": {
+          "test": 30,
+          "ok": 6
+        }
+      },
+      {
+        "task": "asb/reverse-string",
+        "n": 36,
+        "n_scored": 36,
+        "n_infra": 0,
+        "success_rate": 1.0,
+        "cost_usd_mean": 0.019614583333333335,
+        "duration_sec_mean": 18.570995611111112,
+        "failures": {
+          "ok": 36
+        }
+      },
+      {
+        "task": "asb/slugify",
+        "n": 36,
+        "n_scored": 36,
+        "n_infra": 0,
+        "success_rate": 1.0,
+        "cost_usd_mean": 0.019614583333333335,
+        "duration_sec_mean": 18.39562875,
+        "failures": {
+          "ok": 36
+        }
+      }
+    ],
+    "agent_x_treatment": [
+      {
+        "agent": "naive-solver",
+        "treatment": "bundle",
+        "n": 24,
+        "n_scored": 24,
+        "n_infra": 0,
+        "success_rate": 0.75,
+        "cost_usd_mean": 0.0175,
+        "duration_sec_mean": 18.590551416666667,
+        "failures": {
+          "ok": 18,
+          "test": 6
+        }
+      },
+      {
+        "agent": "naive-solver",
+        "treatment": "plan",
+        "n": 24,
+        "n_scored": 24,
+        "n_infra": 0,
+        "success_rate": 0.75,
+        "cost_usd_mean": 0.0175,
+        "duration_sec_mean": 18.262251375,
+        "failures": {
+          "ok": 18,
+          "test": 6
+        }
+      },
+      {
+        "agent": "plan-solver",
+        "treatment": "bundle",
+        "n": 24,
+        "n_scored": 24,
+        "n_infra": 0,
+        "success_rate": 0.875,
+        "cost_usd_mean": 0.0240625,
+        "duration_sec_mean": 18.40178475,
+        "failures": {
+          "ok": 21,
+          "test": 3
+        }
+      },
+      {
+        "agent": "plan-solver",
+        "treatment": "plan",
+        "n": 24,
+        "n_scored": 24,
+        "n_infra": 0,
+        "success_rate": 0.75,
+        "cost_usd_mean": 0.019250000000000003,
+        "duration_sec_mean": 18.180119208333334,
+        "failures": {
+          "ok": 18,
+          "test": 6
+        }
+      },
+      {
+        "agent": "skill-solver",
+        "treatment": "bundle",
+        "n": 24,
+        "n_scored": 24,
+        "n_infra": 0,
+        "success_rate": 0.875,
+        "cost_usd_mean": 0.021875000000000002,
+        "duration_sec_mean": 18.446360583333334,
+        "failures": {
+          "ok": 21,
+          "test": 3
+        }
+      },
+      {
+        "agent": "skill-solver",
+        "treatment": "plan",
+        "n": 24,
+        "n_scored": 24,
+        "n_infra": 0,
+        "success_rate": 0.75,
+        "cost_usd_mean": 0.0175,
+        "duration_sec_mean": 18.286986958333333,
+        "failures": {
+          "ok": 18,
+          "test": 6
+        }
+      }
+    ]
+  },
+  "reliability": {
+    "pass_hat_1": {
+      "k": 1,
+      "n": 48,
+      "pass_hat_k": 0.7916666666666666
+    },
+    "pass_hat_3": {
+      "k": 3,
+      "n": 48,
+      "pass_hat_k": 0.7916666666666666
+    }
+  },
+  "overall_cost": {
+    "mean": 0.019614583333333335,
+    "low": 0.018203971354166664,
+    "high": 0.021002669270833333,
+    "n": 144,
+    "n_boot": 2000,
+    "alpha": 0.05
+  },
+  "overall_duration": {
+    "mean": 18.361342381944446,
+    "low": 18.263446822916666,
+    "high": 18.47446883125,
+    "n": 144,
+    "n_boot": 2000,
+    "alpha": 0.05
+  },
+  "paired": {
+    "n_pairs": 4,
+    "n_cells": 24,
+    "n_tasks": 4,
+    "left_success": 0.75,
+    "right_success": 0.75,
+    "mean_diff": -0.08333333333333333,
+    "ci": {
+      "mean": -0.08333333333333333,
+      "low": -0.25,
+      "high": 0.0,
+      "n": 4,
+      "n_boot": 2000,
+      "alpha": 0.05
+    },
+    "table": {
+      "n11": 3,
+      "n00": 1,
+      "n01": 0,
+      "n10": 0
+    },
+    "mcnemar": {
+      "n01": 0,
+      "n10": 0,
+      "n_discordant": 0,
+      "p_value": 1.0,
+      "test": "mcnemar-exact",
+      "n11": 3,
+      "n00": 1,
+      "unit": "task"
+    },
+    "unit": "task",
+    "method": "task-clustered-bootstrap",
+    "left": "bundle",
+    "right": "plan"
+  },
+  "interaction": {
+    "agent": {
+      "factor": "agent",
+      "left": "bundle",
+      "right": "plan",
+      "n_tasks": 4,
+      "gaps": {
+        "naive-solver": {
+          "mean": 0.0,
+          "low": 0.0,
+          "high": 0.0,
+          "n_boot": 2000
+        },
+        "plan-solver": {
+          "mean": -0.125,
+          "low": -0.375,
+          "high": 0.0,
+          "n_boot": 2000
+        },
+        "skill-solver": {
+          "mean": -0.125,
+          "low": -0.375,
+          "high": 0.0,
+          "n_boot": 2000
+        }
+      },
+      "contrast": {
+        "levels": [
+          "naive-solver",
+          "plan-solver"
+        ],
+        "mean": -0.124125,
+        "low": -0.375,
+        "high": 0.0,
+        "n_boot": 2000,
+        "interpretation": "(plan-bundle) at plan-solver minus the same gap at naive-solver"
+      },
+      "method": "task-clustered-bootstrap"
+    },
+    "model": {
+      "factor": "model",
+      "left": "bundle",
+      "right": "plan",
+      "n_tasks": 4,
+      "gaps": {
+        "deterministic/beta@2026-08-26": {
+          "mean": -0.16666666666666663,
+          "low": -0.5,
+          "high": 0.0,
+          "n_boot": 2000
+        },
+        "deterministic/gamma@2026-08-26": {
+          "mean": 0.0,
+          "low": 0.0,
+          "high": 0.0,
+          "n_boot": 2000
+        }
+      },
+      "contrast": {
+        "levels": [
+          "deterministic/beta@2026-08-26",
+          "deterministic/gamma@2026-08-26"
+        ],
+        "mean": 0.1655,
+        "low": 0.0,
+        "high": 0.5,
+        "n_boot": 2000,
+        "interpretation": "(plan-bundle) at deterministic/gamma@2026-08-26 minus the same gap at deterministic/beta@2026-08-26"
+      },
+      "method": "task-clustered-bootstrap"
+    }
+  }
+}
