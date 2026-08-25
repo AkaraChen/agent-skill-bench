@@ -132,6 +132,8 @@ def test_compile_smoke_is_valid_harbor_job() -> None:
     dumped = yaml.safe_dump(job)
     roundtrip = yaml.safe_load(dumped)
     assert roundtrip["agents"][0]["import_path"].endswith("NaiveSolver")
+    assert job["timeout_multiplier"] == 1.0
+    assert job["n_concurrent_trials"] == 2
 
 
 def test_track_b_example_stays_under_cap() -> None:

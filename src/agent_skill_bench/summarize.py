@@ -10,7 +10,10 @@ from typing import Any
 from agent_skill_bench.classify import FailureClass, classify_trial
 from agent_skill_bench.constants import MODEL_SNAPSHOT, SCORER_VERSION, SEED, repo_root
 from agent_skill_bench.fingerprint import build_fingerprint, sha256_file
+from agent_skill_bench.ledger import LedgerEntry, load_ledger, record_trial, save_ledger
+from agent_skill_bench.policy import network_audit, secret_leaks
 from agent_skill_bench.scorer import rubric_packet, score_trial
+from agent_skill_bench.warehouse import _tool_calls, trial_artifacts
 
 DISCLAIMER = (
     "This table is a loop / matrix smoke of the experiment machinery. "
@@ -110,6 +113,9 @@ def summarize_job(job_dir: Path, out_dir: Path) -> Path:
     rows: list[dict[str, Any]] = []
     fingerprints: list[str] = []
     trial_ids: list[str] = []
+    ledger = load_ledger(job_dir)
+    n_new = 0
+    n_replay = 0
 
     experiment = None
     experiment_path = job_dir / "asb_experiment.json"
@@ -202,6 +208,26 @@ def summarize_job(job_dir: Path, out_dir: Path) -> Path:
             and skills_log.get("uses_skills")
             and skills_log.get("loaded")
         )
+        artifacts = trial_artifacts(trial_dir, root)
+        billed = 0.0 if cost is None else float(cost)
+        inserted = record_trial(
+            ledger,
+            LedgerEntry(
+                trial_id=trial_id,
+                trial_name=str(result.get("trial_name") or trial_dir.name),
+                config_fingerprint=str(fingerprint["fingerprint"]),
+                billed_usd=billed,
+                scored=True,
+                job_name=job_dir.name,
+                trial_dir=artifacts["trial_dir"],
+                patch_digest=artifacts["patch_digest"],
+                result_digest=sha256_file(results_path),
+            ),
+        )
+        if inserted:
+            n_new += 1
+        else:
+            n_replay += 1
         row = {
             "trial_id": trial_id,
             "trial_name": result.get("trial_name") or trial_dir.name,
@@ -226,13 +252,24 @@ def summarize_job(job_dir: Path, out_dir: Path) -> Path:
             "cost_usd": cost,
             "n_input_tokens": tokens_in,
             "n_output_tokens": tokens_out,
+            "n_tool_calls": _tool_calls(result, trial_dir),
             "fingerprint": fingerprint["fingerprint"],
             "task_checksum": fingerprint["task_checksum"],
-            "trial_dir": str(trial_dir.relative_to(root)) if trial_dir.is_relative_to(root) else str(trial_dir),
+            "trial_dir": artifacts["trial_dir"],
+            "manifest": artifacts["manifest"] or str(trial_dir / "asb_manifest.json"),
+            "result_uri": artifacts["result"],
+            "patch_digest": artifacts["patch_digest"],
+            "tests": artifacts["tests"],
+            "trajectory": artifacts["trajectory"],
+            "network": network_audit(lock, config),
+            "billed_once": inserted,
         }
         rows.append(row)
         trial_ids.append(trial_id)
         fingerprints.append(fingerprint["fingerprint"])
+        leaks = secret_leaks({"manifest": fingerprint, "row": row})
+        if leaks:
+            raise ValueError(f"secret-looking keys in trial {trial_id}: {leaks}")
         (trial_dir / "asb_manifest.json").write_text(
             json.dumps(
                 {
@@ -251,6 +288,7 @@ def summarize_job(job_dir: Path, out_dir: Path) -> Path:
     rows.sort(key=lambda item: (item["task"] or "", item["agent"], item["treatment"]))
     unique_ids = len(set(trial_ids)) == len(trial_ids) and len(trial_ids) > 0
     unique_fps = len(set(fingerprints)) == len(fingerprints) and len(fingerprints) > 0
+    save_ledger(job_dir, ledger)
 
     csv_path = out_dir / "results.csv"
     with csv_path.open("w", newline="") as handle:
@@ -267,6 +305,9 @@ def summarize_job(job_dir: Path, out_dir: Path) -> Path:
         f"- Trials: {len(rows)}",
         f"- Unique trial IDs: {unique_ids}",
         f"- Unique fingerprints: {unique_fps}",
+        f"- Newly billed/scored: {n_new}",
+        f"- Resume replays (not re-billed): {n_replay}",
+        f"- Ledger billed_usd: {ledger.get('billed_usd')}",
         f"- Summarized at: {datetime.now(timezone.utc).isoformat()}",
         "",
         "| track | task | agent | treatment | pair | reward | class | skill loaded | duration_s | fingerprint |",
@@ -299,6 +340,12 @@ def summarize_job(job_dir: Path, out_dir: Path) -> Path:
         "unique_fingerprints": unique_fps,
         "counts": counts,
         "experiment": experiment,
+        "ledger": {
+            "billed_usd": ledger.get("billed_usd") or 0,
+            "n_scored": ledger.get("n_scored") or 0,
+            "n_new": n_new,
+            "n_replay": n_replay,
+        },
         "rows": rows,
     }
     (out_dir / "results.json").write_text(json.dumps(payload, indent=2) + "\n")

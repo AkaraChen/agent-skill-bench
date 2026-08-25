@@ -1,0 +1,36 @@
+# Isolated cloud worker. Requires the matching Harbor provider credentials.
+# Local default remains docker. Do not run this without a Daytona account.
+schema_version: 1
+name: stage4-cloud
+track: A
+seed: 42
+repeat: 1
+max_trials: 10
+n_concurrent: 4
+max_retries: 2
+timeout_multiplier: 1.0
+usd_per_trial: 0.05
+budget_usd: 2
+sample: 1
+policy:
+  cache_scope: image
+  durable_artifacts: true
+  retention_days: 14
+  secret_allowlist:
+    - DAYTONA_API_KEY
+environment:
+  type: daytona
+  delete: true
+models:
+  - deterministic/smoke-solver@2026-08-24
+agents:
+  - name: naive-solver
+    import_path: agent_skill_bench.agents.naive_solver:NaiveSolver
+prompts:
+  baseline: prompts/baseline.md
+treatments:
+  - name: baseline
+    prompt: baseline
+    skills: []
+tasks:
+  - tasks/reverse-string

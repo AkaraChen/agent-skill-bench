@@ -1,0 +1,46 @@
+schema_version: 1
+name: stage4-screen
+track: A
+seed: 42
+repeat: 1
+max_trials: 20
+n_concurrent: 2
+max_retries: 2
+timeout_multiplier: 1.0
+usd_per_trial: 0
+sample: 1
+policy:
+  cache_scope: image
+  durable_artifacts: true
+  retention_days: 30
+  secret_allowlist: []
+environment:
+  type: docker
+  force_build: false
+  delete: true
+models:
+  - deterministic/smoke-solver@2026-08-24
+agents:
+  - name: naive-solver
+    import_path: agent_skill_bench.agents.naive_solver:NaiveSolver
+  - name: skill-solver
+    import_path: agent_skill_bench.agents.skill_solver:SkillSolver
+prompts:
+  baseline: prompts/baseline.md
+  candidate: prompts/candidate.md
+treatments:
+  - name: baseline
+    prompt: baseline
+    skills: []
+  - name: candidate
+    prompt: candidate
+    skills:
+      - ./skills/test-first
+pairs:
+  - [baseline, candidate]
+tasks:
+  - tasks/reverse-string
+  - tasks/fizzbuzz
+  - tasks/csv-sum
+  - tasks/json-merge
+  - tasks/slugify

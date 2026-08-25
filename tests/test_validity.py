@@ -2,6 +2,8 @@ import json
 import subprocess
 from pathlib import Path
 
+import pytest
+
 from agent_skill_bench.constants import DOCKER_DIGEST, HIDDEN_CANARY, N_PRIVATE_TASKS, repo_root
 from agent_skill_bench.holdout import (
     assemble_dataset,
@@ -309,6 +311,8 @@ def test_crashing_compromised_gold_does_not_pass_gate(tmp_path: Path) -> None:
 
 def test_full_holdout_report_has_24_compromised_gold_gates() -> None:
     root = repo_root()
+    if not sealed_root(root).exists():
+        pytest.skip("sealed holdout not fetched")
     tasks = load_manifest(root)["tasks"]
     assert len(tasks) == N_PRIVATE_TASKS
     assert all(item.get("compromised_gold_digest", "").startswith("sha256:") for item in tasks)
