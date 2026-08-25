@@ -1,5 +1,5 @@
 repo = "AkaraChen/agent-skill-bench-holdout"
-ref = "v2026.08.25.r2"
-commit = "bb7aec6d537a49d2f30636b577ad6ae814085b32"
-dataset_revision = "2026.08.25.r2"
+ref = "v2026.08.25.r3"
+commit = "9bfb71afa2a57ce020248b16dfbc8e5d723be46e"
+dataset_revision = "2026.08.25.r3"
 fetch = "asb fetch-sealed"

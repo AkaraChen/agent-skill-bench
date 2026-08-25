@@ -19,6 +19,16 @@ from harbor.models.agent.name import AgentName
 from agent_skill_bench.fingerprint import canonical_dumps, sha256_text, sha256_tree
 from agent_skill_bench.retry_policy import harbor_retry
 
+
+def _assembled_path(spec: dict[str, Any], root: Path) -> str:
+    raw = str(spec.get("assembled_path") or "cache/asb/assembled/holdout")
+    if not spec.get("assemble_sealed"):
+        return raw
+    from agent_skill_bench.holdout import resolve_cache_target
+
+    resolved = resolve_cache_target(root, raw, label="assembled_path")
+    return str(resolved.relative_to(root.resolve()))
+
 SCHEMA_VERSION = 1
 ASB_RESERVED_KWARGS = {
     "prompt_name",
@@ -587,7 +597,7 @@ def expand(spec: dict[str, Any], root: Path) -> Plan:
         datasets=datasets,
         retry=harbor_retry(int(spec.get("max_retries") or 0)),
         assemble_sealed=bool(spec.get("assemble_sealed")),
-        assembled_path=str(spec.get("assembled_path") or "jobs/.assembled/holdout"),
+        assembled_path=_assembled_path(spec, root),
     )
 
 

@@ -83,6 +83,12 @@
           "gate": "mutation",
           "ok": true,
           "detail": ""
+        },
+        {
+          "task": "clamp-range",
+          "gate": "compromised-gold",
+          "ok": true,
+          "detail": ""
         }
       ]
     },
@@ -140,6 +146,12 @@
         {
           "task": "unique-lines",
           "gate": "mutation",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "unique-lines",
+          "gate": "compromised-gold",
           "ok": true,
           "detail": ""
         }
@@ -201,6 +213,12 @@
           "gate": "mutation",
           "ok": true,
           "detail": ""
+        },
+        {
+          "task": "csv-threshold",
+          "gate": "compromised-gold",
+          "ok": true,
+          "detail": ""
         }
       ]
     },
@@ -258,6 +276,12 @@
         {
           "task": "word-freq",
           "gate": "mutation",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "word-freq",
+          "gate": "compromised-gold",
           "ok": true,
           "detail": ""
         }
@@ -319,6 +343,12 @@
           "gate": "mutation",
           "ok": true,
           "detail": ""
+        },
+        {
+          "task": "interval-merge",
+          "gate": "compromised-gold",
+          "ok": true,
+          "detail": ""
         }
       ]
     },
@@ -376,6 +406,12 @@
         {
           "task": "json-pointer",
           "gate": "mutation",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "json-pointer",
+          "gate": "compromised-gold",
           "ok": true,
           "detail": ""
         }
@@ -437,6 +473,12 @@
           "gate": "mutation",
           "ok": true,
           "detail": ""
+        },
+        {
+          "task": "topo-names",
+          "gate": "compromised-gold",
+          "ok": true,
+          "detail": ""
         }
       ]
     },
@@ -494,6 +536,12 @@
         {
           "task": "lru-cache",
           "gate": "mutation",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "lru-cache",
+          "gate": "compromised-gold",
           "ok": true,
           "detail": ""
         }
@@ -555,6 +603,12 @@
           "gate": "mutation",
           "ok": true,
           "detail": ""
+        },
+        {
+          "task": "window-mean",
+          "gate": "compromised-gold",
+          "ok": true,
+          "detail": ""
         }
       ]
     },
@@ -612,6 +666,12 @@
         {
           "task": "quoted-csv",
           "gate": "mutation",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "quoted-csv",
+          "gate": "compromised-gold",
           "ok": true,
           "detail": ""
         }
@@ -673,6 +733,12 @@
           "gate": "mutation",
           "ok": true,
           "detail": ""
+        },
+        {
+          "task": "month-add",
+          "gate": "compromised-gold",
+          "ok": true,
+          "detail": ""
         }
       ]
     },
@@ -730,6 +796,12 @@
         {
           "task": "count-balance",
           "gate": "mutation",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "count-balance",
+          "gate": "compromised-gold",
           "ok": true,
           "detail": ""
         }
@@ -791,6 +863,12 @@
           "gate": "mutation",
           "ok": true,
           "detail": ""
+        },
+        {
+          "task": "fence-headings",
+          "gate": "compromised-gold",
+          "ok": true,
+          "detail": ""
         }
       ]
     },
@@ -848,6 +926,12 @@
         {
           "task": "tax-brackets",
           "gate": "mutation",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "tax-brackets",
+          "gate": "compromised-gold",
           "ok": true,
           "detail": ""
         }
@@ -909,6 +993,12 @@
           "gate": "mutation",
           "ok": true,
           "detail": ""
+        },
+        {
+          "task": "id-lookup",
+          "gate": "compromised-gold",
+          "ok": true,
+          "detail": ""
         }
       ]
     },
@@ -966,6 +1056,12 @@
         {
           "task": "flatten-config",
           "gate": "mutation",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "flatten-config",
+          "gate": "compromised-gold",
           "ok": true,
           "detail": ""
         }
@@ -1027,6 +1123,12 @@
           "gate": "mutation",
           "ok": true,
           "detail": ""
+        },
+        {
+          "task": "invert-tests",
+          "gate": "compromised-gold",
+          "ok": true,
+          "detail": ""
         }
       ]
     },
@@ -1084,6 +1186,12 @@
         {
           "task": "fixture-fill",
           "gate": "mutation",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "fixture-fill",
+          "gate": "compromised-gold",
           "ok": true,
           "detail": ""
         }
@@ -1145,6 +1253,12 @@
           "gate": "mutation",
           "ok": true,
           "detail": ""
+        },
+        {
+          "task": "cases-cover",
+          "gate": "compromised-gold",
+          "ok": true,
+          "detail": ""
         }
       ]
     },
@@ -1202,6 +1316,12 @@
         {
           "task": "cmd-safe",
           "gate": "mutation",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "cmd-safe",
+          "gate": "compromised-gold",
           "ok": true,
           "detail": ""
         }
@@ -1263,6 +1383,12 @@
           "gate": "mutation",
           "ok": true,
           "detail": ""
+        },
+        {
+          "task": "path-jail",
+          "gate": "compromised-gold",
+          "ok": true,
+          "detail": ""
         }
       ]
     },
@@ -1320,6 +1446,12 @@
         {
           "task": "redact-tokens",
           "gate": "mutation",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "redact-tokens",
+          "gate": "compromised-gold",
           "ok": true,
           "detail": ""
         }
@@ -1381,6 +1513,12 @@
           "gate": "mutation",
           "ok": true,
           "detail": ""
+        },
+        {
+          "task": "envfile-parse",
+          "gate": "compromised-gold",
+          "ok": true,
+          "detail": ""
         }
       ]
     },
@@ -1438,6 +1576,12 @@
         {
           "task": "keep-newest",
           "gate": "mutation",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "task": "keep-newest",
+          "gate": "compromised-gold",
           "ok": true,
           "detail": ""
         }

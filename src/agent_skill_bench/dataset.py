@@ -58,8 +58,8 @@ def revision_payload(root: Path | None = None) -> dict[str, Any]:
         "sealed_remote": "datasets/sealed-remote.toml",
         "compromised": "datasets/compromised.toml",
         "leakage_evidence": (
-            "revision 2026.08.25.r2 rotated after 2026.08.25 leaked in "
-            "b124dff4f14e91dfd7d2e743a917ebfbf635f800; fetch via asb fetch-sealed"
+            "revision 2026.08.25.r3; 2026.08.25 and r2 are compromised; "
+            "fetch via asb fetch-sealed"
         ),
         "revision_file": str((root / "datasets" / "revision.toml").relative_to(root)),
     }

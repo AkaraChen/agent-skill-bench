@@ -208,6 +208,79 @@ def gate_alternative(assembled: Path) -> GateResult:
     return GateResult(assembled.name, "alternative", ok, detail)
 
 
+def strip_revision_asserts(text: str) -> str:
+    return "\n".join(line for line in text.splitlines() if "ASB_REVISION" not in line) + "\n"
+
+
+def _container_bash(app: Path, tests: Path, command: str, extra_mount: tuple[str, str] | None = None) -> subprocess.CompletedProcess[str]:
+    require_docker()
+    ensure_pinned_image()
+    mounts = [
+        "-v",
+        f"{app.resolve()}:/app",
+        "-v",
+        f"{tests.resolve()}:/tests:ro",
+    ]
+    if extra_mount:
+        mounts.extend(["-v", f"{extra_mount[0]}:{extra_mount[1]}:ro"])
+    cmd = [
+        "docker",
+        "run",
+        "--rm",
+        "--network=none",
+        f"--cpus={RESOURCE_CPUS}",
+        f"--memory={RESOURCE_MEMORY_MB}m",
+        f"--memory-swap={RESOURCE_MEMORY_MB}m",
+        "-u",
+        f"{os.getuid()}:{os.getgid()}",
+        *mounts,
+        "-e",
+        "APP=/app",
+        "-e",
+        "TESTS=/tests",
+        "-e",
+        "PYTHONDONTWRITEBYTECODE=1",
+        "-w",
+        "/app",
+        PINNED_IMAGE,
+        "bash",
+        "-lc",
+        command,
+    ]
+    return subprocess.run(cmd, capture_output=True, text=True)
+
+
+def gate_compromised(assembled: Path, sealed_dir: Path) -> GateResult:
+    """Leaked gold plus the correct revision stamp must still fail hidden tests."""
+    from agent_skill_bench.constants import DATASET_REVISION
+
+    old = sealed_dir.parent / "compromised" / "2026.08.25" / assembled.name / "solve.sh"
+    if not old.exists():
+        return GateResult(assembled.name, "compromised-gold", False, f"missing {old}")
+    with tempfile.TemporaryDirectory(prefix="asb-comp-", ignore_cleanup_errors=True) as tmp:
+        tests = Path(tmp) / "tests"
+        shutil.copytree(assembled / "tests", tests)
+        (tests / "test_outputs.py").write_text(
+            strip_revision_asserts((tests / "test_outputs.py").read_text())
+        )
+        app = Path(tmp) / "app"
+        _copy_env(assembled, app)
+        apply = _container_bash(
+            app,
+            tests,
+            "bash /oldgold.sh",
+            extra_mount=(str(old.resolve()), "/oldgold.sh"),
+        )
+        if apply.returncode != 0:
+            # old gold itself crashed; still stamp and test
+            pass
+        (app / "ASB_REVISION").write_text(DATASET_REVISION + "\n")
+        tested = _container_bash(app, tests, "python3 /tests/test_outputs.py")
+        ok = tested.returncode != 0
+        detail = "" if ok else "leaked gold + stamp still satisfies hidden tests"
+        return GateResult(assembled.name, "compromised-gold", ok, detail)
+
+
 def gate_negative(assembled: Path) -> GateResult:
     result = run_assembled_variant(assembled, assembled / "variants" / "negative" / "solve.sh")
     ok = result.returncode != 0
@@ -327,6 +400,8 @@ def evaluate_task(
                 gate_negative(assembled),
             ]
         )
+        if (sealed_dir.parent / "compromised" / "2026.08.25" / assembled.name / "solve.sh").exists():
+            report.gates.append(gate_compromised(assembled, sealed_dir))
     return report
 
 

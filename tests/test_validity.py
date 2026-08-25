@@ -73,7 +73,7 @@ PY
 
 def write_mini(root: Path) -> None:
     public = root / "tasks" / "private" / "echo-n"
-    sealed = root / "sealed" / "holdout" / "echo-n"
+    sealed = root / "cache" / "asb" / "sealed" / "echo-n"
     env = public / "environment"
     tests = sealed / "tests"
     gold = sealed / "solution"
@@ -151,7 +151,7 @@ def test_corpus_drift_fails(tmp_path: Path) -> None:
 
 def test_missing_sealed_is_fail_closed(tmp_path: Path) -> None:
     write_mini(tmp_path)
-    sealed = tmp_path / "sealed" / "holdout"
+    sealed = tmp_path / "cache" / "asb" / "sealed"
     import shutil
 
     shutil.rmtree(sealed)
@@ -185,7 +185,7 @@ def test_generate_is_separate_from_validate() -> None:
 
 def test_assemble_merges_sealed_tests_and_solution(tmp_path: Path) -> None:
     write_mini(tmp_path)
-    dest = assemble_dataset(tmp_path, tmp_path / "assembled")
+    dest = assemble_dataset(tmp_path, "cache/asb/assembled/holdout")
     task = dest / "echo-n"
     assert (task / "instruction.md").exists()
     assert (task / "environment" / "n.txt").exists()
@@ -197,7 +197,7 @@ def test_assemble_merges_sealed_tests_and_solution(tmp_path: Path) -> None:
 def test_harbor_oracle_verifier_e2e(tmp_path: Path) -> None:
     write_mini(tmp_path)
     public = tmp_path / "tasks" / "private" / "echo-n"
-    sealed = tmp_path / "sealed" / "holdout" / "echo-n"
+    sealed = tmp_path / "cache" / "asb" / "sealed" / "echo-n"
     assembled = assemble(public, sealed, tmp_path / "assembled" / "echo-n")
     jobs = tmp_path / "jobs"
     result = subprocess.run(

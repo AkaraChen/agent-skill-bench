@@ -22,6 +22,6 @@ treatments:
     prompt: baseline
     skills: []
 assemble_sealed: true
-assembled_path: jobs/.assembled/holdout
+assembled_path: cache/asb/assembled/holdout
 datasets:
   - path: tasks/private

@@ -30,6 +30,6 @@ memory_mb = 512
 
 [dataset]
 id = "asb-private-holdout"
-revision = "2026.08.25.r2"
+revision = "2026.08.25.r3"
 scorer_version = "1.0.0"
 authored_at = "2026-08-25"

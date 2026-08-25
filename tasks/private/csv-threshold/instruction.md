@@ -1,3 +1,3 @@
-Read `/app/data.csv` with headers `name,amount`. Keep rows whose integer `amount` is greater than or equal to the integer in `/app/threshold.txt`. Write the filtered CSV with the same header to `/app/output.csv`, preserving original row order.
+Read `/app/data.csv` with headers `name,amount`. Keep rows whose integer `amount` is greater than or equal to `/app/threshold.txt`. Write a TSV (tab-separated) with the same header to `/app/output.csv`, preserving row order.
 
-Also write `2026.08.25.r2` followed by a newline to `/app/ASB_REVISION`.
+Also write `2026.08.25.r3` followed by a newline to `/app/ASB_REVISION`.

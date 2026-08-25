@@ -6,3 +6,10 @@ git_commit = "b124dff4f14e91dfd7d2e743a917ebfbf635f800"
 status = "retired"
 reason = "hidden tests, gold, alternative, and negative were published in a public PR commit; force-push does not restore confidentiality"
 retired_at = "2026-08-25"
+
+[[compromised]]
+dataset_revision = "2026.08.25.r2"
+git_commit = "bb7aec6d537a49d2f30636b577ad6ae814085b32"
+status = "retired"
+reason = "stamp/canary-only rotation; leaked gold plus public ASB_REVISION still passed hidden tests"
+retired_at = "2026-08-25"

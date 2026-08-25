@@ -18,6 +18,7 @@ from typing import Any
 from agent_skill_bench.constants import (
     ASSEMBLED_PATH,
     AUTHORED_AT,
+    CACHE_DIR,
     CUTOFF_POLICY,
     DATASET_ID,
     DATASET_REVISION,
@@ -38,12 +39,55 @@ class HoldoutError(RuntimeError):
     pass
 
 
+def cache_root(root: Path | None = None) -> Path:
+    return ((root or repo_root()) / CACHE_DIR).resolve()
+
+
+def resolve_cache_target(root: Path, path: Path | str, *, label: str) -> Path:
+    """Force dest into cache/asb. Absolute paths and .. escapes are rejected."""
+    base = cache_root(root)
+    raw = Path(path)
+    if raw.is_absolute():
+        raise HoldoutError(f"{label} must be relative to the repo, not absolute: {path}")
+    if ".." in raw.parts:
+        raise HoldoutError(f"{label} must not contain '..': {path}")
+    resolved = (root / raw).resolve()
+    try:
+        resolved.relative_to(base)
+    except ValueError as exc:
+        raise HoldoutError(f"{label} must stay inside {CACHE_DIR}: {path}") from exc
+    return resolved
+
+
 def sealed_root(root: Path | None = None) -> Path:
     root = root or repo_root()
     override = os.environ.get(SEALED_ENV)
     if override:
-        return Path(override)
-    return root / "sealed" / "holdout"
+        return resolve_cache_target(root, override, label="ASB_SEALED_DIR")
+    return cache_root(root) / "sealed"
+
+
+def atomic_replace_dir(src: Path, dest: Path) -> None:
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    staging = dest.parent / f".{dest.name}.staging-{os.getpid()}"
+    backup = dest.parent / f".{dest.name}.prev-{os.getpid()}"
+    if staging.exists():
+        shutil.rmtree(staging)
+    shutil.move(str(src), str(staging))
+    replaced = False
+    try:
+        if dest.exists():
+            os.rename(dest, backup)
+            replaced = True
+        os.rename(staging, dest)
+    except Exception:
+        if replaced and backup.exists() and not dest.exists():
+            os.rename(backup, dest)
+        if staging.exists():
+            shutil.rmtree(staging, ignore_errors=True)
+        raise
+    if backup.exists():
+        shutil.rmtree(backup, ignore_errors=True)
 
 
 def private_root(root: Path | None = None) -> Path:
@@ -61,8 +105,21 @@ def load_manifest(root: Path | None = None) -> dict[str, Any]:
     return tomllib.loads(path.read_text())
 
 
+def catalog_path(root: Path | None = None) -> Path:
+    root = root or repo_root()
+    legacy = root / "sealed" / "holdout" / "catalog.py"
+    if legacy.exists():
+        return legacy
+    cached = sealed_root(root) / "catalog.py"
+    if cached.exists():
+        return cached
+    raise HoldoutError(
+        f"sealed catalog missing; run `asb fetch-sealed` or place catalog.py under {CACHE_DIR}/sealed"
+    )
+
+
 def load_catalog(root: Path | None = None) -> Any:
-    path = sealed_root(root) / "catalog.py"
+    path = catalog_path(root)
     if not path.exists():
         raise HoldoutError(
             f"sealed catalog missing at {path}; set {SEALED_ENV} to generate"
@@ -164,6 +221,18 @@ def generate(root: Path | None = None) -> Path:
     catalog = load_catalog(root)
     public_base = private_root(root)
     sealed_base = sealed_root(root)
+    sealed_base.mkdir(parents=True, exist_ok=True)
+    src_catalog = catalog_path(root)
+    dest_catalog = sealed_base / "catalog.py"
+    if src_catalog.resolve() != dest_catalog.resolve():
+        shutil.copy2(src_catalog, dest_catalog)
+    compromised = getattr(catalog, "COMPROMISED_GOLD", {})
+    for slug, body in compromised.items():
+        d = sealed_base / "compromised" / "2026.08.25" / slug
+        d.mkdir(parents=True, exist_ok=True)
+        script = d / "solve.sh"
+        script.write_text(catalog._py_script(body))
+        script.chmod(0o755)
     entries: list[dict[str, str]] = []
     for spec in catalog.TASKS:
         public_dir = public_base / spec.slug
@@ -209,56 +278,81 @@ def verify_sealed(root: Path | None = None, sealed: Path | None = None) -> None:
         raise HoldoutError("sealed corpus failed integrity check:\n" + "\n".join(problems))
 
 
-def fetch_sealed(root: Path | None = None) -> Path:
-    """Authorized fetch of the pinned private corpus, then integrity-check."""
+def fetch_sealed(root: Path | None = None, *, clone_cmd: list[str] | None = None) -> Path:
+    """Clone into a temp dir, verify, then atomically replace the cache."""
+    import tempfile
+
     root = root or repo_root()
     pin = load_remote_pin(root)
     dest = sealed_root(root)
     dest.parent.mkdir(parents=True, exist_ok=True)
-    if dest.exists():
-        shutil.rmtree(dest)
     repo = str(pin.get("repo") or SEALED_REPO)
     ref = str(pin.get("ref") or SEALED_REF)
-    cmd = ["gh", "repo", "clone", repo, str(dest), "--", "--depth", "1", "--branch", ref]
-    result = subprocess.run(cmd, capture_output=True, text=True)
-    if result.returncode != 0:
-        raise HoldoutError(
-            f"authorized fetch failed for {repo}@{ref}: {result.stderr.strip()}\n"
-            "Grant the caller read access to the private holdout repo, then retry "
-            "`asb fetch-sealed`."
-        )
-    sha = subprocess.run(
-        ["git", "rev-parse", "HEAD"],
-        cwd=dest,
-        capture_output=True,
-        text=True,
-        check=True,
-    ).stdout.strip()
-    expected = str(pin.get("commit") or "")
-    if expected and sha != expected:
-        raise HoldoutError(f"sealed commit mismatch: got {sha}, pin wants {expected}")
-    verify_sealed(root, dest)
+    with tempfile.TemporaryDirectory(prefix="asb-fetch-") as tmp:
+        tmp_repo = Path(tmp) / "repo"
+        cmd = clone_cmd or [
+            "gh",
+            "repo",
+            "clone",
+            repo,
+            str(tmp_repo),
+            "--",
+            "--depth",
+            "1",
+            "--branch",
+            ref,
+        ]
+        result = subprocess.run(cmd, capture_output=True, text=True)
+        if result.returncode != 0:
+            raise HoldoutError(
+                f"authorized fetch failed for {repo}@{ref}: {result.stderr.strip()}\n"
+                "Existing cache was left unchanged. Grant read access and retry "
+                "`asb fetch-sealed`."
+            )
+        sha = subprocess.run(
+            ["git", "rev-parse", "HEAD"],
+            cwd=tmp_repo,
+            capture_output=True,
+            text=True,
+            check=True,
+        ).stdout.strip()
+        expected = str(pin.get("commit") or "")
+        if expected and sha != expected:
+            raise HoldoutError(f"sealed commit mismatch: got {sha}, pin wants {expected}")
+        verify_sealed(root, tmp_repo)
+        keep = Path(tmp) / "keep"
+        shutil.copytree(tmp_repo, keep, ignore=shutil.ignore_patterns(".git"))
+        atomic_replace_dir(keep, dest)
     return dest
 
 
-def assemble_dataset(root: Path | None = None, dest: Path | None = None) -> Path:
-    """Merge public agent-visible files with sealed tests/solution for Harbor."""
+def assemble_dataset(root: Path | None = None, dest: Path | str | None = None) -> Path:
+    """Merge public + sealed into a temp tree, then atomically replace cache."""
+    import tempfile
+
     from agent_skill_bench.validity import assemble
 
     root = root or repo_root()
-    dest = dest or (root / ASSEMBLED_PATH)
+    dest = resolve_cache_target(root, dest or ASSEMBLED_PATH, label="assembled_path")
     sealed = sealed_root(root)
     if not sealed.exists():
         raise HoldoutError(
             f"sealed corpus missing at {sealed}; run `asb fetch-sealed` first"
         )
     verify_sealed(root, sealed)
-    if dest.exists():
-        shutil.rmtree(dest)
-    dest.mkdir(parents=True, exist_ok=True)
-    for entry in load_manifest(root).get("tasks") or []:
-        slug = entry["slug"]
-        assemble(private_root(root) / slug, sealed / slug, dest / slug)
+    with tempfile.TemporaryDirectory(prefix="asb-assemble-") as tmp:
+        built = Path(tmp) / "assembled"
+        built.mkdir()
+        for entry in load_manifest(root).get("tasks") or []:
+            slug = entry["slug"]
+            assemble(private_root(root) / slug, sealed / slug, built / slug)
+            if not (built / slug / "tests" / "test.sh").exists():
+                raise HoldoutError(f"assembled {slug} missing tests/test.sh")
+            if not (built / slug / "solution" / "solve.sh").exists():
+                raise HoldoutError(f"assembled {slug} missing solution/solve.sh")
+        keep = Path(tmp) / "keep"
+        shutil.copytree(built, keep)
+        atomic_replace_dir(keep, dest)
     return dest
 
 

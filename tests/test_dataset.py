@@ -28,7 +28,7 @@ def test_private_manifest_is_stratified() -> None:
 
 def test_revision_is_traceable() -> None:
     payload = revision_payload()
-    assert payload["dataset_revision"] == "2026.08.25.r2"
+    assert payload["dataset_revision"] == "2026.08.25.r3"
     assert payload["n_private_tasks"] == 24
     assert payload["scorer_version"]
     assert payload["image"].startswith("python:3.12.11-slim-bookworm@sha256:")
@@ -54,7 +54,7 @@ def test_holdout_experiment_expands() -> None:
     job = compile_harbor_job(plan, "A-holdout")
     assert job["agents"][0]["name"] == "oracle"
     assert plan.assemble_sealed is True
-    assert job["datasets"][0]["path"] == "jobs/.assembled/holdout"
+    assert job["datasets"][0]["path"] == "cache/asb/assembled/holdout"
     assert "SandboxBuildFailedError" in job["retry"]["include_exceptions"]
 
 

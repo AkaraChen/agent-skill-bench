@@ -86,7 +86,7 @@ def run_job(
         if plan.assemble_sealed:
             from agent_skill_bench.holdout import assemble_dataset
 
-            assemble_dataset(root, root / plan.assembled_path)
+            assemble_dataset(root, plan.assembled_path)
         job_name = f"{plan.track}-{plan.name}-{stamp}"
         generated_dir = root / "jobs" / ".generated"
         generated_dir.mkdir(parents=True, exist_ok=True)

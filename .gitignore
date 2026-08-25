@@ -223,6 +223,7 @@ jobs/
 
 # Sealed holdout corpus (hidden tests, gold, alt, negative). Never commit.
 sealed/
+cache/
 !tests/fixtures/sealed-mini/
 
 # Holdout fixtures may include *.log files the task is asked to manage.

@@ -13,7 +13,7 @@ size = "small"
 authored_at = "2026-08-25"
 cutoff_policy = "authored-after-2026-08-01"
 dataset_id = "asb-private-holdout"
-dataset_revision = "2026.08.25.r2"
+dataset_revision = "2026.08.25.r3"
 tags = ["private", "holdout", "stage3", "refactor", "python"]
 
 [verifier]

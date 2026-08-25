@@ -24,6 +24,7 @@
 - `oracle`: ok
 - `alternative`: ok
 - `mutation`: ok
+- `compromised-gold`: ok
 
 ### asb-private-holdout/unique-lines PASS
 - `digest`: ok
@@ -34,6 +35,7 @@
 - `oracle`: ok
 - `alternative`: ok
 - `mutation`: ok
+- `compromised-gold`: ok
 
 ### asb-private-holdout/csv-threshold PASS
 - `digest`: ok
@@ -44,6 +46,7 @@
 - `oracle`: ok
 - `alternative`: ok
 - `mutation`: ok
+- `compromised-gold`: ok
 
 ### asb-private-holdout/word-freq PASS
 - `digest`: ok
@@ -54,6 +57,7 @@
 - `oracle`: ok
 - `alternative`: ok
 - `mutation`: ok
+- `compromised-gold`: ok
 
 ### asb-private-holdout/interval-merge PASS
 - `digest`: ok
@@ -64,6 +68,7 @@
 - `oracle`: ok
 - `alternative`: ok
 - `mutation`: ok
+- `compromised-gold`: ok
 
 ### asb-private-holdout/json-pointer PASS
 - `digest`: ok
@@ -74,6 +79,7 @@
 - `oracle`: ok
 - `alternative`: ok
 - `mutation`: ok
+- `compromised-gold`: ok
 
 ### asb-private-holdout/topo-names PASS
 - `digest`: ok
@@ -84,6 +90,7 @@
 - `oracle`: ok
 - `alternative`: ok
 - `mutation`: ok
+- `compromised-gold`: ok
 
 ### asb-private-holdout/lru-cache PASS
 - `digest`: ok
@@ -94,6 +101,7 @@
 - `oracle`: ok
 - `alternative`: ok
 - `mutation`: ok
+- `compromised-gold`: ok
 
 ### asb-private-holdout/window-mean PASS
 - `digest`: ok
@@ -104,6 +112,7 @@
 - `oracle`: ok
 - `alternative`: ok
 - `mutation`: ok
+- `compromised-gold`: ok
 
 ### asb-private-holdout/quoted-csv PASS
 - `digest`: ok
@@ -114,6 +123,7 @@
 - `oracle`: ok
 - `alternative`: ok
 - `mutation`: ok
+- `compromised-gold`: ok
 
 ### asb-private-holdout/month-add PASS
 - `digest`: ok
@@ -124,6 +134,7 @@
 - `oracle`: ok
 - `alternative`: ok
 - `mutation`: ok
+- `compromised-gold`: ok
 
 ### asb-private-holdout/count-balance PASS
 - `digest`: ok
@@ -134,6 +145,7 @@
 - `oracle`: ok
 - `alternative`: ok
 - `mutation`: ok
+- `compromised-gold`: ok
 
 ### asb-private-holdout/fence-headings PASS
 - `digest`: ok
@@ -144,6 +156,7 @@
 - `oracle`: ok
 - `alternative`: ok
 - `mutation`: ok
+- `compromised-gold`: ok
 
 ### asb-private-holdout/tax-brackets PASS
 - `digest`: ok
@@ -154,6 +167,7 @@
 - `oracle`: ok
 - `alternative`: ok
 - `mutation`: ok
+- `compromised-gold`: ok
 
 ### asb-private-holdout/id-lookup PASS
 - `digest`: ok
@@ -164,6 +178,7 @@
 - `oracle`: ok
 - `alternative`: ok
 - `mutation`: ok
+- `compromised-gold`: ok
 
 ### asb-private-holdout/flatten-config PASS
 - `digest`: ok
@@ -174,6 +189,7 @@
 - `oracle`: ok
 - `alternative`: ok
 - `mutation`: ok
+- `compromised-gold`: ok
 
 ### asb-private-holdout/invert-tests PASS
 - `digest`: ok
@@ -184,6 +200,7 @@
 - `oracle`: ok
 - `alternative`: ok
 - `mutation`: ok
+- `compromised-gold`: ok
 
 ### asb-private-holdout/fixture-fill PASS
 - `digest`: ok
@@ -194,6 +211,7 @@
 - `oracle`: ok
 - `alternative`: ok
 - `mutation`: ok
+- `compromised-gold`: ok
 
 ### asb-private-holdout/cases-cover PASS
 - `digest`: ok
@@ -204,6 +222,7 @@
 - `oracle`: ok
 - `alternative`: ok
 - `mutation`: ok
+- `compromised-gold`: ok
 
 ### asb-private-holdout/cmd-safe PASS
 - `digest`: ok
@@ -214,6 +233,7 @@
 - `oracle`: ok
 - `alternative`: ok
 - `mutation`: ok
+- `compromised-gold`: ok
 
 ### asb-private-holdout/path-jail PASS
 - `digest`: ok
@@ -224,6 +244,7 @@
 - `oracle`: ok
 - `alternative`: ok
 - `mutation`: ok
+- `compromised-gold`: ok
 
 ### asb-private-holdout/redact-tokens PASS
 - `digest`: ok
@@ -234,6 +255,7 @@
 - `oracle`: ok
 - `alternative`: ok
 - `mutation`: ok
+- `compromised-gold`: ok
 
 ### asb-private-holdout/envfile-parse PASS
 - `digest`: ok
@@ -244,6 +266,7 @@
 - `oracle`: ok
 - `alternative`: ok
 - `mutation`: ok
+- `compromised-gold`: ok
 
 ### asb-private-holdout/keep-newest PASS
 - `digest`: ok
@@ -254,4 +277,5 @@
 - `oracle`: ok
 - `alternative`: ok
 - `mutation`: ok
+- `compromised-gold`: ok
 
