@@ -1,3 +1,5 @@
+import pytest
+
 from agent_skill_bench.stats import (
     interaction_bootstrap,
     mcnemar_exact,
@@ -52,12 +54,16 @@ def test_paired_bootstrap_and_mcnemar() -> None:
     pairs = paired_outcomes(_rows(), "baseline", "candidate")
     assert len(pairs) == 8
     stats = paired_bootstrap(pairs, n=200, seed=1)
+    assert stats["unit"] == "task"
+    assert stats["n_tasks"] == 4
+    assert stats["n_cells"] == 8
     assert stats["mean_diff"] == 0.5
     assert stats["ci"]["low"] is not None
-    assert stats["mcnemar"]["n01"] == 4
-    assert stats["mcnemar"]["n10"] == 0
-    # 4 discordant pairs (4-0) → exact two-sided p = 2/16 = 0.125
-    assert stats["mcnemar"]["p_value"] == 0.125
+    # Task-level binary: each task averages to left 0.5 / right 1.0 → both pass.
+    assert stats["mcnemar"]["unit"] == "task"
+    assert stats["mcnemar"]["n11"] == 4
+    assert stats["mcnemar"]["n01"] == 0
+    assert stats["mcnemar"]["p_value"] == 1.0
 
 
 def test_infra_is_dropped_from_success() -> None:
@@ -150,3 +156,47 @@ def test_paired_outcomes_repeat_order_invariant() -> None:
     assert a[0]["left_pass"] == b[0]["left_pass"]
     assert a[0]["n_left"] == 2
     assert paired_bootstrap(a, n=50, seed=0)["mean_diff"] == 0.0
+
+
+def _cell(task: str, agent: str, diff: float) -> dict:
+    left_rate = 0.0 if diff > 0 else 1.0
+    right_rate = left_rate + diff
+    return {
+        "task": task,
+        "agent": agent,
+        "model": "m",
+        "left_rate": left_rate,
+        "right_rate": right_rate,
+        "left_pass": left_rate >= 0.5,
+        "right_pass": right_rate >= 0.5,
+        "diff": diff,
+    }
+
+
+def test_paired_bootstrap_clusters_by_task_not_cells() -> None:
+    # One task with 1 cell (diff 0) and one with 10 cells (diff 1).
+    # Cell-level mean would be 10/11; task-level mean is 0.5.
+    pairs = [_cell("small", "only", 0.0)]
+    pairs.extend(_cell("big", f"agent-{index}", 1.0) for index in range(10))
+    stats = paired_bootstrap(pairs, n=400, seed=2)
+    assert stats["n_tasks"] == 2
+    assert stats["n_cells"] == 11
+    assert stats["mean_diff"] == 0.5
+    # Cluster resampling of two tasks cannot collapse onto the 10/11 cell mean.
+    assert stats["ci"]["high"] != pytest.approx(10 / 11)
+    assert stats["ci"]["low"] <= 0.5 <= stats["ci"]["high"]
+
+
+def test_mcnemar_is_task_level_not_cell_level() -> None:
+    # Two tasks, each with many concordant cells plus one discordant cell,
+    # would look discordant if McNemar counted cells.
+    pairs = []
+    for task in ("t1", "t2"):
+        pairs.append(_cell(task, "win", 1.0))
+        pairs.extend(_cell(task, f"tie-{index}", 0.0) for index in range(8))
+    stats = paired_bootstrap(pairs, n=50, seed=0)
+    assert stats["n_tasks"] == 2
+    assert stats["n_cells"] == 18
+    # Task mean diff is 1/9; both arms still "pass" at 0.5 → 2 concordant tasks.
+    assert stats["mcnemar"]["n11"] + stats["mcnemar"]["n00"] == 2
+    assert stats["mcnemar"]["n_discordant"] == 0

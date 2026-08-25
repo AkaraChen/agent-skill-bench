@@ -178,9 +178,30 @@ def list_expired_jobs(jobs_dir: Path, days: int, now: datetime | None = None) ->
 
 
 def inject_secrets(allowlist: tuple[str, ...]) -> dict[str, str]:
-    """Copy allowlisted env vars into the Harbor environment map. Values stay in the process env."""
+    """Read allowlisted values from the process environment only.
+
+    Never write the returned mapping into YAML, manifests, or other artifacts.
+    """
     injected: dict[str, str] = {}
     for name in allowlist:
         if name in os.environ and os.environ[name]:
             injected[name] = os.environ[name]
     return injected
+
+
+def strip_secret_env(env: dict[str, Any], allowlist: tuple[str, ...] = ()) -> dict[str, Any]:
+    """Drop allowlisted and secret-looking keys so they cannot be persisted."""
+    allowed = {name.upper() for name in allowlist}
+    return {
+        key: value
+        for key, value in env.items()
+        if str(key).upper() not in allowed and not SECRET_KEY_RE.search(str(key))
+    }
+
+
+def secret_allowlist_record(allowlist: tuple[str, ...]) -> dict[str, Any]:
+    """Names plus redacted presence. Recoverable on resume; no values."""
+    present: dict[str, str | None] = {}
+    for name in allowlist:
+        present[name] = "[redacted]" if os.environ.get(name) else None
+    return {"secret_allowlist": list(allowlist), "present": present}

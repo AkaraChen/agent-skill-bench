@@ -21,7 +21,12 @@ from agent_skill_bench.experiment import (
     resolved_manifest,
 )
 from agent_skill_bench.ledger import load_ledger, save_ledger
-from agent_skill_bench.policy import guard_policy, inject_secrets, redact_mapping
+from agent_skill_bench.policy import (
+    guard_policy,
+    inject_secrets,
+    redact_mapping,
+    secret_allowlist_record,
+)
 
 
 DEFAULT_EXPERIMENT = Path("configs/experiments/smoke-2x2.yaml")
@@ -55,16 +60,37 @@ def _harbor_popen(
         raise subprocess.CalledProcessError(code, cmd)
 
 
-def _secrets_for_job(path: Path) -> dict[str, str]:
-    experiment = path / "asb_experiment.json"
-    if not experiment.exists():
-        return {}
-    try:
-        payload = json.loads(experiment.read_text())
-    except (OSError, json.JSONDecodeError):
-        return {}
+def _allowlist_names(payload: dict) -> tuple[str, ...]:
     names = payload.get("secret_allowlist") or []
-    return inject_secrets(tuple(str(name) for name in names))
+    return tuple(str(name) for name in names)
+
+
+def _secrets_for_job(path: Path) -> dict[str, str]:
+    """Reload allowlisted *names* from durable artifacts, values from process env."""
+    root = repo_root()
+    candidates = [
+        path / "asb_secrets.json",
+        path / "asb_experiment.json",
+        root / "jobs" / ".generated" / f"{path.name}.manifest.json",
+    ]
+    for candidate in candidates:
+        if not candidate.exists():
+            continue
+        try:
+            payload = json.loads(candidate.read_text())
+        except (OSError, json.JSONDecodeError):
+            continue
+        names = _allowlist_names(payload)
+        if names:
+            return inject_secrets(names)
+    return {}
+
+
+def write_secret_allowlist(job_dir: Path, allowlist: tuple[str, ...]) -> Path:
+    job_dir.mkdir(parents=True, exist_ok=True)
+    path = job_dir / "asb_secrets.json"
+    path.write_text(json.dumps(secret_allowlist_record(allowlist), indent=2, sort_keys=True) + "\n")
+    return path
 
 
 def _harbor_run(config: Path, n_concurrent: int, job_name: str, extra_env: dict[str, str] | None = None) -> Path:
@@ -167,15 +193,18 @@ def run_job(
         generated_dir.mkdir(parents=True, exist_ok=True)
         generated = generated_dir / f"{job_name}.yaml"
         manifest = redact_mapping(resolved_manifest(plan), plan.secret_allowlist)
-        generated.write_text(dump_harbor_job(compile_harbor_job(plan, job_name)))
+        job_dir = root / "jobs" / job_name
+        job_dir.mkdir(parents=True, exist_ok=True)
+        write_secret_allowlist(job_dir, plan.secret_allowlist)
+        _write_json(job_dir / "asb_experiment.json", manifest)
         _write_json(generated_dir / f"{job_name}.manifest.json", manifest)
-        job_dir = _harbor_run(
+        generated.write_text(dump_harbor_job(compile_harbor_job(plan, job_name)))
+        _harbor_run(
             generated,
             concurrent,
             job_name,
             extra_env=inject_secrets(plan.secret_allowlist),
         )
-        _write_json(job_dir / "asb_experiment.json", manifest)
         save_ledger(job_dir, load_ledger(job_dir))
         return job_dir
 

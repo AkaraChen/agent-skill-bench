@@ -58,7 +58,7 @@ Harbor cartesian-products `agents[] × tasks[] × n_attempts`. Repeat is `repeat
 - Paired tests are task × agent × model. Infra errors are dropped, not counted as model failure.
 - Interaction uses a hierarchical (task-clustered) bootstrap, not a single score and not a mixed-model fitter.
 - `asb pipeline` runs the screen job, ranks treatments by success rate as a **filter**, then runs a confirm job with higher `repeat`. `--dry-run` only prints the plan. The rank is not published as a total.
-- Paired stats average repeats per (task, agent, model) arm, so input order cannot flip the diff. Allowlisted secrets are copied into the Harbor job `environment.env` at compile time; manifests stay redacted. `asb run --resume` records the Harbor PID so `asb cancel` can SIGINT a resumed job.
+- Paired stats average repeats per (task, agent, model) arm, then cluster-bootstrap **tasks** (every agent/model cell of a drawn task is kept). McNemar uses the same task unit. Allowlisted secret **values** stay in the process environment; generated Harbor YAML and `asb_secrets.json` keep names / `[redacted]` only, written before Harbor starts so an interrupted first run can still resume. `asb run --resume` records the Harbor PID so `asb cancel` can SIGINT a resumed job.
 
 Policy keys (`policy.cache_scope`, `retention_days`, `secret_allowlist`, `durable_artifacts`) stay out of Harbor's job YAML. Secret-looking keys are redacted in manifests; allowlisted names are recorded as present, never as values.
 

@@ -760,14 +760,16 @@ def compile_harbor_job(plan: Plan, job_name: str) -> dict[str, Any]:
         if cell.skills:
             entry["skills"] = list(cell.skills)
         agents.append(entry)
-    from agent_skill_bench.policy import inject_secrets
+    from agent_skill_bench.policy import strip_secret_env
 
     environment = dict(plan.environment)
-    secrets = inject_secrets(plan.secret_allowlist)
-    if secrets:
-        env = dict(environment.get("env") or {})
-        env.update(secrets)
-        environment["env"] = env
+    raw_env = environment.get("env")
+    if isinstance(raw_env, dict):
+        cleaned = strip_secret_env(raw_env, plan.secret_allowlist)
+        if cleaned:
+            environment["env"] = cleaned
+        else:
+            environment.pop("env", None)
     return {
         "job_name": job_name,
         "jobs_dir": "jobs",

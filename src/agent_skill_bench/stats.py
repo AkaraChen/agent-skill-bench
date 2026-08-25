@@ -163,29 +163,88 @@ def paired_outcomes(
     return pairs
 
 
+def _cluster_by_task(pairs: list[dict[str, Any]]) -> dict[str, list[dict[str, Any]]]:
+    clusters: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    for item in pairs:
+        clusters[str(item.get("task") or "")].append(item)
+    return dict(clusters)
+
+
+def _task_summary(cells: list[dict[str, Any]]) -> dict[str, Any]:
+    left_rate = _mean([float(cell["left_rate"]) for cell in cells])
+    right_rate = _mean([float(cell["right_rate"]) for cell in cells])
+    diff = _mean([float(cell["diff"]) for cell in cells])
+    return {
+        "n_cells": len(cells),
+        "left_rate": left_rate,
+        "right_rate": right_rate,
+        "left_pass": (left_rate or 0) >= 0.5 if left_rate is not None else False,
+        "right_pass": (right_rate or 0) >= 0.5 if right_rate is not None else False,
+        "diff": diff,
+        "cells": cells,
+    }
+
+
 def paired_bootstrap(
     pairs: list[dict[str, Any]],
     *,
     n: int = DEFAULT_BOOTSTRAP,
     seed: int = 42,
 ) -> dict[str, Any]:
-    diffs = [float(item["diff"]) for item in pairs]
-    ci = bootstrap_ci(diffs, n=n, seed=seed)
-    n01 = sum(1 for item in pairs if not item["left_pass"] and item["right_pass"])
-    n10 = sum(1 for item in pairs if item["left_pass"] and not item["right_pass"])
-    n11 = sum(1 for item in pairs if item["left_pass"] and item["right_pass"])
-    n00 = sum(1 for item in pairs if not item["left_pass"] and not item["right_pass"])
-    left_rate = _mean([1.0 if item["left_pass"] else 0.0 for item in pairs])
-    right_rate = _mean([1.0 if item["right_pass"] else 0.0 for item in pairs])
+    """Task-clustered paired bootstrap.
+
+    Resample task IDs with replacement and keep every agent/model cell inside
+    a drawn task. The replicate statistic is the unweighted mean of per-task
+    diffs so a task with more cells does not get more weight. McNemar uses
+    the same task-level binary calls.
+    """
+    clusters = _cluster_by_task(pairs)
+    tasks = sorted(clusters)
+    summaries = {task: _task_summary(clusters[task]) for task in tasks}
+    task_diffs = [float(summaries[task]["diff"] or 0) for task in tasks]
+    ci = bootstrap_ci(task_diffs, n=n, seed=seed)
+    rng = random.Random(seed)
+    samples: list[float] = []
+    n_tasks = len(tasks)
+    if n_tasks:
+        for _ in range(n):
+            drawn = [tasks[rng.randrange(n_tasks)] for _ in range(n_tasks)]
+            # Keep all agent/model observations of each drawn task (multiplicity
+            # from resampling), then reduce to one diff per drawn task.
+            retained = [cell for task in drawn for cell in clusters[task]]
+            if not retained:
+                continue
+            samples.append(
+                sum(float(summaries[task]["diff"] or 0) for task in drawn) / n_tasks
+            )
+        samples.sort()
+        if samples:
+            ci = {
+                "mean": sum(task_diffs) / n_tasks,
+                "low": percentile(samples, 0.025),
+                "high": percentile(samples, 0.975),
+                "n": n_tasks,
+                "n_boot": n,
+                "alpha": 0.05,
+            }
+    n01 = sum(1 for task in tasks if not summaries[task]["left_pass"] and summaries[task]["right_pass"])
+    n10 = sum(1 for task in tasks if summaries[task]["left_pass"] and not summaries[task]["right_pass"])
+    n11 = sum(1 for task in tasks if summaries[task]["left_pass"] and summaries[task]["right_pass"])
+    n00 = sum(1 for task in tasks if not summaries[task]["left_pass"] and not summaries[task]["right_pass"])
+    left_rate = _mean([1.0 if summaries[task]["left_pass"] else 0.0 for task in tasks])
+    right_rate = _mean([1.0 if summaries[task]["right_pass"] else 0.0 for task in tasks])
     return {
-        "n_pairs": len(pairs),
+        "n_pairs": n_tasks,
+        "n_cells": len(pairs),
+        "n_tasks": n_tasks,
         "left_success": left_rate,
         "right_success": right_rate,
         "mean_diff": ci["mean"],
         "ci": ci,
         "table": {"n11": n11, "n00": n00, "n01": n01, "n10": n10},
-        "mcnemar": mcnemar_exact(n01, n10),
-        "unit": "task × agent × model",
+        "mcnemar": {**mcnemar_exact(n01, n10), "n11": n11, "n00": n00, "unit": "task"},
+        "unit": "task",
+        "method": "task-clustered-bootstrap",
     }
 
 

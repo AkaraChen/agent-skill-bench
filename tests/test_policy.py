@@ -9,14 +9,17 @@ from agent_skill_bench.constants import repo_root
 from agent_skill_bench.experiment import (
     ExperimentError,
     compile_harbor_job,
+    dump_harbor_job,
     expand,
     load_yaml,
     resolved_manifest,
 )
 from agent_skill_bench.policy import (
     guard_policy,
+    inject_secrets,
     list_expired_jobs,
     redact_mapping,
+    secret_allowlist_record,
     secret_leaks,
 )
 from agent_skill_bench.run import cancel_job
@@ -47,13 +50,33 @@ def test_cloud_example_is_an_isolated_worker() -> None:
     assert plan.n_concurrent == 4
 
 
-def test_compile_injects_allowlisted_secrets(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setenv("DAYTONA_API_KEY", "daytona-secret")
+SENTINEL = "SENTINEL-SECRET-VALUE"
+
+
+def test_generated_yaml_does_not_contain_sentinel(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("DAYTONA_API_KEY", SENTINEL)
     spec = load_yaml(repo_root() / "configs/experiments/stage4-cloud.example.yaml")
     plan = expand(spec, repo_root())
-    job = compile_harbor_job(plan, "A-cloud")
-    assert job["environment"]["env"]["DAYTONA_API_KEY"] == "daytona-secret"
-    assert "daytona-secret" not in str(resolved_manifest(plan))
+    dumped = dump_harbor_job(compile_harbor_job(plan, "A-cloud"))
+    assert SENTINEL not in dumped
+    env = (compile_harbor_job(plan, "A-cloud").get("environment") or {}).get("env") or {}
+    assert "DAYTONA_API_KEY" not in env
+    assert inject_secrets(plan.secret_allowlist)["DAYTONA_API_KEY"] == SENTINEL
+    record = secret_allowlist_record(plan.secret_allowlist)
+    assert record["present"]["DAYTONA_API_KEY"] == "[redacted]"
+    assert SENTINEL not in str(record)
+    assert SENTINEL not in str(resolved_manifest(plan))
+
+
+def test_compile_strips_secret_keys_already_in_spec(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("DAYTONA_API_KEY", SENTINEL)
+    spec = load_yaml(repo_root() / "configs/experiments/stage4-cloud.example.yaml")
+    spec["environment"]["env"] = {"DAYTONA_API_KEY": SENTINEL, "SAFE_FLAG": "1"}
+    plan = expand(spec, repo_root())
+    dumped = dump_harbor_job(compile_harbor_job(plan, "A-cloud"))
+    assert SENTINEL not in dumped
+    env = compile_harbor_job(plan, "A-cloud")["environment"]["env"]
+    assert env == {"SAFE_FLAG": "1"}
 
 
 def test_compile_omits_missing_secrets(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -129,3 +152,80 @@ def test_resume_records_pid_so_cancel_can_signal(
     monkeypatch.setattr(os, "kill", lambda pid, sig: killed.append((pid, sig)))
     run_mod.cancel_job(job)
     assert killed == [(4242, signal.SIGINT)]
+
+
+def test_resume_restores_secret_names_without_experiment_json(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    import subprocess
+
+    from agent_skill_bench import run as run_mod
+
+    monkeypatch.setenv("DAYTONA_API_KEY", SENTINEL)
+    monkeypatch.setattr(run_mod, "repo_root", lambda: tmp_path)
+    job = tmp_path / "jobs" / "A-interrupted"
+    job.mkdir(parents=True)
+    generated = tmp_path / "jobs" / ".generated"
+    generated.mkdir(parents=True)
+    (generated / "A-interrupted.manifest.json").write_text(
+        '{"secret_allowlist": ["DAYTONA_API_KEY"]}\n'
+    )
+    captured: dict[str, dict[str, str]] = {}
+
+    class FakeProc:
+        pid = 7
+
+        def wait(self) -> int:
+            return 0
+
+    def fake_popen(cmd, cwd=None, env=None):
+        captured["env"] = env
+        return FakeProc()
+
+    monkeypatch.setattr(subprocess, "Popen", fake_popen)
+    run_mod.resume_job(job)
+    assert captured["env"]["DAYTONA_API_KEY"] == SENTINEL
+    assert (job / "asb_experiment.json").exists() is False
+
+
+def test_secret_sidecar_is_written_before_harbor(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    import subprocess
+
+    from agent_skill_bench import run as run_mod
+
+    monkeypatch.setenv("DAYTONA_API_KEY", SENTINEL)
+    monkeypatch.setattr(run_mod, "repo_root", lambda: tmp_path)
+    spec = load_yaml(repo_root() / "configs/experiments/stage4-cloud.example.yaml")
+    (tmp_path / "configs" / "experiments").mkdir(parents=True)
+    import yaml
+
+    config = tmp_path / "configs" / "experiments" / "cloud.yaml"
+    config.write_text(yaml.safe_dump(spec, sort_keys=False))
+    seen: dict[str, str] = {}
+
+    class FakeProc:
+        pid = 3
+
+        def wait(self) -> int:
+            jobs = tmp_path / "jobs"
+            generated = list((jobs / ".generated").glob("*.yaml"))
+            assert generated
+            seen["yaml"] = generated[0].read_text()
+            secrets = list(jobs.glob("*/asb_secrets.json"))
+            assert secrets
+            seen["secrets"] = secrets[0].read_text()
+            experiment = list(jobs.glob("*/asb_experiment.json"))
+            assert experiment
+            seen["experiment"] = experiment[0].read_text()
+            return 0
+
+    monkeypatch.setattr(subprocess, "Popen", lambda *a, **k: FakeProc())
+    monkeypatch.setattr(run_mod, "expand", lambda _spec, _root: expand(spec, repo_root()))
+    job_dir = run_mod.run_job(config)
+    assert job_dir is not None
+    assert SENTINEL not in seen["yaml"]
+    assert SENTINEL not in seen["secrets"]
+    assert SENTINEL not in seen["experiment"]
+    assert "DAYTONA_API_KEY" in seen["secrets"]
